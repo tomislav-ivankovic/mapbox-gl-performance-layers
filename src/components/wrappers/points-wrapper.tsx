@@ -1,17 +1,14 @@
 import React, {Component} from 'react';
-import ReactMapboxGl, {MapContext} from 'react-mapbox-gl';
-import {PointLayer} from '../mapbox/layer/PointLayer';
-
-const Map = ReactMapboxGl({
-    accessToken: 'pk.eyJ1IjoiZmFyYWRheTIiLCJhIjoiTUVHbDl5OCJ9.buFaqIdaIM3iXr1BOYKpsQ'
-});
+import {MapContext} from 'react-mapbox-gl';
+import {PointLayer} from '../../layers/point/point-layer';
+import {Map} from '../map';
 
 interface State {
     center: [number, number];
     zoom: [number];
 }
 
-export class Main extends Component<{}, State> {
+export class PointsWrapper extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
         this.state = {
