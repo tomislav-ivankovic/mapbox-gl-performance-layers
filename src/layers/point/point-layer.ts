@@ -1,4 +1,6 @@
 import {CustomLayerInterface, MercatorCoordinate} from 'mapbox-gl';
+import vertexSource from './points.vert';
+import fragmentSource from './points.frag';
 
 const numberOfPoints = 1000000;
 const centerX = 15.9819;
@@ -32,20 +34,7 @@ export class PointLayer implements CustomLayerInterface {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointsToRender), gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        const vertexSource = `
-        uniform mat4 u_matrix;
-		attribute vec2 coordinates;
-        void main() {
-            gl_Position = u_matrix * vec4(coordinates, 0.0, 1.0);
-            gl_PointSize = 2.0;
-        }
-		`;
-
-        const fragmentSource = `
-        void main() {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-		`;
+        console.log(vertexSource);
 
         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
         if (vertexShader == null) {
