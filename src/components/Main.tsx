@@ -3,7 +3,7 @@ import ReactMapboxGl, {MapContext} from 'react-mapbox-gl';
 import {PointLayer} from '../mapbox/layer/PointLayer';
 
 const Map = ReactMapboxGl({
-  accessToken: 'pk.eyJ1IjoiZmFyYWRheTIiLCJhIjoiTUVHbDl5OCJ9.buFaqIdaIM3iXr1BOYKpsQ'
+    accessToken: 'pk.eyJ1IjoiZmFyYWRheTIiLCJhIjoiTUVHbDl5OCJ9.buFaqIdaIM3iXr1BOYKpsQ'
 });
 
 interface State {
