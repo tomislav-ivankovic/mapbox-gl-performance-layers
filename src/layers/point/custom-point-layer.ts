@@ -12,7 +12,7 @@ export interface PointStyle {
 }
 
 const defaultStyle: PointStyle = {
-    size: 3,
+    size: 5,
     color: {r: 0, g: 0, b: 1, a: 1},
     outlineSize: 1,
     outlineColor:  {r: 0, g: 0, b: 0, a: 1}
@@ -31,7 +31,8 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
     constructor(
         private data: FeatureCollection<Point, P>,
         private style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
-        private onClick?: (feature: Feature<Point, P>) => void
+        private onClick?: (feature: Feature<Point, P>) => void,
+        private interpolation: number = 1.8
     ) {
         this.setData(data);
     }
@@ -54,8 +55,6 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
     }
 
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
-        console.log(vertexSource);
-        console.log(fragmentSource);
         const program = createShaderProgram(gl, vertexSource, fragmentSource);
         const vertexBuffer = gl.createBuffer();
 
@@ -135,6 +134,7 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
         if (this.program != null) {
             gl.useProgram(this.program);
             gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'matrix'), false, matrix);
+            gl.uniform1f(gl.getUniformLocation(this.program, 'interpolation'), this.interpolation);
             gl.drawArrays(gl.POINTS, 0, this.data.features.length);
         }
     }

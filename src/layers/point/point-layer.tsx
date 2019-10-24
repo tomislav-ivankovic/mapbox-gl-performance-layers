@@ -6,14 +6,16 @@ import {CustomPointLayer, PointStyle} from './custom-point-layer';
 export interface PointLayerProps<P> extends LayerComponentProps {
     data: FeatureCollection<Point, P>,
     style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
-    onClick?: (feature: Feature<Point, P>) => void
+    onClick?: (feature: Feature<Point, P>) => void,
+    interpolation?: number
 }
 
 class Layer<P> extends Component<PointLayerProps<P>, {}> {
     private readonly layer = new CustomPointLayer<P>(
         this.props.data,
         this.props.style,
-        this.props.onClick
+        this.props.onClick,
+        this.props.interpolation
     );
 
     componentDidMount(): void {
