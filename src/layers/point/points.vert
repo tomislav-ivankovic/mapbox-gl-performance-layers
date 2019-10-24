@@ -1,6 +1,24 @@
-uniform mat4 u_matrix;
-attribute vec2 coordinates;
+precision mediump float;
+
+uniform mat4 matrix;
+
+attribute vec2 position;
+attribute float vertSize;
+attribute vec4 vertColor;
+attribute float vertOutlineSize;
+attribute vec4 vertOutlineColor;
+
+varying float fragSize;
+varying vec4 fragColor;
+varying float fragOutlineSize;
+varying vec4 fragOutlineColor;
+
 void main() {
-    gl_Position = u_matrix * vec4(coordinates, 0.0, 1.0);
-    gl_PointSize = 2.0;
+    fragSize = vertSize;
+    fragColor = vertColor;
+    fragOutlineSize = vertOutlineSize;
+    fragOutlineColor = vertOutlineColor;
+
+    gl_Position = matrix * vec4(position, 0.0, 1.0);
+    gl_PointSize = vertSize + vertOutlineSize;
 }

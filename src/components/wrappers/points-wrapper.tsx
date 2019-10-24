@@ -49,7 +49,12 @@ export class PointsWrapper extends Component<{}, State> {
                 center={state.center}
                 zoom={state.zoom}
             >
-                <PointLayer data={state.data}/>
+                <PointLayer
+                    data={state.data}
+                    style={feature => ({
+                        color: {r: 0, g: 0.0, b: 0.1, a: 0.05}
+                    })}
+                />
             </Map>
         );
     }

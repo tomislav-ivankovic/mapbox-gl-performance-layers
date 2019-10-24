@@ -1,8 +1,8 @@
 import {CustomLayerInterface, MercatorCoordinate} from 'mapbox-gl';
+import {Feature, FeatureCollection, Point} from 'geojson';
+import {Color, createShaderProgram} from '../misc';
 import vertexSource from './points.vert';
 import fragmentSource from './points.frag';
-import {Color} from '../misc';
-import {Feature, FeatureCollection, Point} from 'geojson';
 
 export interface PointStyle {
     size: number;
@@ -11,12 +11,12 @@ export interface PointStyle {
     outlineColor: Color;
 }
 
-// const defaultStyle: PointStyle = {
-//     size: 5,
-//     color: {r: 0, g: 0, b: 1, a: 1},
-//     outlineSize: 1,
-//     outlineColor:  {r: 0, g: 0, b: 0, a: 1}
-// };
+const defaultStyle: PointStyle = {
+    size: 3,
+    color: {r: 0, g: 0, b: 1, a: 1},
+    outlineSize: 1,
+    outlineColor:  {r: 0, g: 0, b: 0, a: 1}
+};
 
 export class CustomPointLayer<P> implements CustomLayerInterface {
     public id: string = 'point-layer';
@@ -24,7 +24,9 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
     public type: 'custom' = 'custom';
 
     private program: WebGLProgram | null = null;
+    private vertexBuffer: WebGLBuffer | null = null;
     private bufferArray = new Float32Array([]);
+    private vertexBufferNeedsRefresh = false;
 
     constructor(
         private data: FeatureCollection<Point, P>,
@@ -36,51 +38,83 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
 
     setData(data: FeatureCollection<Point, P>) {
         this.data = data;
-        this.bufferArray = new Float32Array(data.features.flatMap(f => {
-            const coords = f.geometry.coordinates;
+        this.bufferArray = new Float32Array(data.features.flatMap(feature => {
+            const coords = feature.geometry.coordinates;
             const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
-            return [transformed.x, transformed.y];
+            const style = this.style != null ? {...defaultStyle, ...this.style(feature)} : defaultStyle;
+            return [
+                transformed.x, transformed.y,
+                style.size,
+                style.color.r, style.color.g, style.color.b, style.color.a,
+                style.outlineSize,
+                style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+            ];
         }));
+        this.vertexBufferNeedsRefresh = true;
     }
 
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
+        console.log(vertexSource);
+        console.log(fragmentSource);
+        const program = createShaderProgram(gl, vertexSource, fragmentSource);
         const vertexBuffer = gl.createBuffer();
+
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.bufferArray, gl.STATIC_DRAW);
+        const position = gl.getAttribLocation(program, 'position');
+        const size = gl.getAttribLocation(program, 'vertSize');
+        const color = gl.getAttribLocation(program, 'vertColor');
+        const outlineSize = gl.getAttribLocation(program, 'vertOutlineSize');
+        const outlineColor =  gl.getAttribLocation(program, 'vertOutlineColor');
+        const vertexSize = 12 * Float32Array.BYTES_PER_ELEMENT;
+        gl.vertexAttribPointer(
+            position,
+            2,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            0
+        );
+        gl.vertexAttribPointer(
+            size,
+            1,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            2 * Float32Array.BYTES_PER_ELEMENT
+        );
+        gl.vertexAttribPointer(
+            color,
+            4,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            3 * Float32Array.BYTES_PER_ELEMENT
+        );
+        gl.vertexAttribPointer(
+            outlineSize,
+            1,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            7 * Float32Array.BYTES_PER_ELEMENT
+        );
+        gl.vertexAttribPointer(
+            outlineColor,
+            4,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            8 * Float32Array.BYTES_PER_ELEMENT
+        );
+        gl.enableVertexAttribArray(position);
+        gl.enableVertexAttribArray(size);
+        gl.enableVertexAttribArray(color);
+        gl.enableVertexAttribArray(outlineSize);
+        gl.enableVertexAttribArray(outlineColor);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        console.log(vertexSource);
-
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        if (vertexShader == null) {
-            console.error('Vertex shader is NULL.');
-            return;
-        }
-        gl.shaderSource(vertexShader, vertexSource);
-        gl.compileShader(vertexShader);
-
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-        if (fragmentShader == null) {
-            console.error('Fragment shader is NULL.');
-            return;
-        }
-        gl.shaderSource(fragmentShader, fragmentSource);
-        gl.compileShader(fragmentShader);
-
-        const program = gl.createProgram();
-        if (program == null) {
-            console.error('Program is NULL.');
-            return;
-        }
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
         this.program = program;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        const coord = gl.getAttribLocation(this.program, 'coordinates');
-        gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(coord);
+        this.vertexBuffer = vertexBuffer;
     }
 
     onRemove(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
@@ -92,11 +126,16 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
     }
 
     render(gl: WebGLRenderingContext, matrix: number[]): void {
-        if (this.program == null) {
-            return;
+        if (this.vertexBuffer != null && this.vertexBufferNeedsRefresh) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this.bufferArray, gl.STATIC_DRAW);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            this.vertexBufferNeedsRefresh = false;
         }
-        gl.useProgram(this.program);
-        gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'u_matrix'), false, matrix);
-        gl.drawArrays(gl.POINTS, 0, this.data.features.length);
+        if (this.program != null) {
+            gl.useProgram(this.program);
+            gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'matrix'), false, matrix);
+            gl.drawArrays(gl.POINTS, 0, this.data.features.length);
+        }
     }
 }
