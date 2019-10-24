@@ -32,6 +32,7 @@
     "react-scripts": "3.2.0"
   },
   "devDependencies": {
+    "@types/geojson": "^7946.0.7",
     "@types/jest": "24.0.18",
     "@types/mapbox-gl": "^0.54.4",
     "@types/node": "12.7.11",

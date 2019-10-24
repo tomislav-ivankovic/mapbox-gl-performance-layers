@@ -1,37 +1,52 @@
 import {CustomLayerInterface, MercatorCoordinate} from 'mapbox-gl';
 import vertexSource from './points.vert';
 import fragmentSource from './points.frag';
+import {Color} from '../misc';
+import {Feature, FeatureCollection, Point} from 'geojson';
 
-const numberOfPoints = 1000000;
-const centerX = 15.9819;
-const centerY = 45.8150;
-const spread = 10;
-const pointsToRender: number[] = [];
-for (let i = 0; i < numberOfPoints; i++) {
-    const x = centerX + (Math.random() - 0.5) * spread;
-    const y = centerY + (Math.random() - 0.5) * spread;
-    const transformed = MercatorCoordinate.fromLngLat({lon: x, lat: y}, 0);
-    pointsToRender.push(transformed.x);
-    pointsToRender.push(transformed.y);
+export interface PointStyle {
+    size: number;
+    color: Color;
+    outlineSize: number;
+    outlineColor: Color;
 }
 
-export class PointLayer implements CustomLayerInterface {
-    public id: string;
-    public renderingMode: '2d' | '3d';
-    public type: 'custom';
+// const defaultStyle: PointStyle = {
+//     size: 5,
+//     color: {r: 0, g: 0, b: 1, a: 1},
+//     outlineSize: 1,
+//     outlineColor:  {r: 0, g: 0, b: 0, a: 1}
+// };
+
+export class CustomPointLayer<P> implements CustomLayerInterface {
+    public id: string = 'point-layer';
+    public renderingMode: '2d' | '3d' = '2d';
+    public type: 'custom' = 'custom';
 
     private program: WebGLProgram | null = null;
+    private bufferArray = new Float32Array([]);
 
-    constructor() {
-        this.id = 'point-layer';
-        this.renderingMode = '2d';
-        this.type = 'custom';
+    constructor(
+        private data: FeatureCollection<Point, P>,
+        private style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
+        private onClick?: (feature: Feature<Point, P>) => void
+    ) {
+        this.setData(data);
+    }
+
+    setData(data: FeatureCollection<Point, P>) {
+        this.data = data;
+        this.bufferArray = new Float32Array(data.features.flatMap(f => {
+            const coords = f.geometry.coordinates;
+            const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
+            return [transformed.x, transformed.y];
+        }));
     }
 
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         const vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointsToRender), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.bufferArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         console.log(vertexSource);
@@ -82,6 +97,6 @@ export class PointLayer implements CustomLayerInterface {
         }
         gl.useProgram(this.program);
         gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'u_matrix'), false, matrix);
-        gl.drawArrays(gl.POINTS, 0, numberOfPoints);
+        gl.drawArrays(gl.POINTS, 0, this.data.features.length);
     }
 }
