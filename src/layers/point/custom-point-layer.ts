@@ -15,7 +15,7 @@ const defaultStyle: PointStyle = {
     size: 5,
     color: {r: 0, g: 0, b: 1, a: 1},
     outlineSize: 1,
-    outlineColor:  {r: 0, g: 0, b: 0, a: 1}
+    outlineColor: {r: 0, g: 0, b: 0, a: 1}
 };
 
 export class CustomPointLayer<P> implements CustomLayerInterface {
@@ -63,7 +63,7 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
         const size = gl.getAttribLocation(program, 'vertSize');
         const color = gl.getAttribLocation(program, 'vertColor');
         const outlineSize = gl.getAttribLocation(program, 'vertOutlineSize');
-        const outlineColor =  gl.getAttribLocation(program, 'vertOutlineColor');
+        const outlineColor = gl.getAttribLocation(program, 'vertOutlineColor');
         const vertexSize = 12 * Float32Array.BYTES_PER_ELEMENT;
         gl.vertexAttribPointer(
             position,
