@@ -1,7 +1,9 @@
 import {Component} from 'react';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {layerComponent, LayerComponentProps} from '../layer-component';
-import {CustomPointLayer, PointStyle} from './custom-point-layer';
+import {PointStyle} from './custom-point-layer';
+import {TileRenderingLayer} from '../tile/tile-rendering-layer';
+import {PointTileGenerator} from './point-tile-generator';
 
 export interface PointLayerProps<P> extends LayerComponentProps {
     data: FeatureCollection<Point, P>,
@@ -11,11 +13,12 @@ export interface PointLayerProps<P> extends LayerComponentProps {
 }
 
 class Layer<P> extends Component<PointLayerProps<P>, {}> {
-    private readonly layer = new CustomPointLayer<P>(
-        this.props.data,
-        this.props.style,
-        this.props.onClick,
-        this.props.interpolation
+    private readonly layer = new TileRenderingLayer(
+        new PointTileGenerator(
+            this.props.data,
+            this.props.style,
+            this.props.interpolation
+        )
     );
 
     componentDidMount(): void {

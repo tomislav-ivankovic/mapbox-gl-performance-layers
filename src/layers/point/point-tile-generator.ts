@@ -1,6 +1,6 @@
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {PointStyle} from './custom-point-layer';
-import {TileRenderer} from '../tile/tile-renderer';
+import {TileGenerator} from '../tile/tile-generator';
 import {MercatorCoordinate} from 'mapbox-gl';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './points.vert';
@@ -13,16 +13,13 @@ const defaultStyle: PointStyle = {
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
 };
 
-export class PointTileRenderer<P> extends TileRenderer<FeatureCollection<Point, P>> {
+export class PointTileGenerator<P> extends TileGenerator<FeatureCollection<Point, P>> {
     constructor(
-        gl: WebGLRenderingContext,
         data: FeatureCollection<Point, P>,
         private style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
-        private interpolation: number = 1.8,
-        tileWidth: number = 256,
-        tileHeight: number = 256
+        private interpolation: number = 1.8
     ) {
-        super(gl, data, vertexSource, fragmentSource, tileWidth, tileHeight);
+        super(data, vertexSource, fragmentSource);
     }
 
     protected configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {

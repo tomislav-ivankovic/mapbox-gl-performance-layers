@@ -1,13 +1,14 @@
 precision mediump float;
 
 uniform mat4 u_matrix;
+uniform sampler2D u_sampler;
 
-attribute vec4 u_position;
-attribute vec2 u_texcoord;
+attribute vec2 a_position;
+attribute vec2 a_textureCoordinate;
 
-varying vec2 v_texcoord;
+varying vec2 v_textureCoordinate;
 
 void main() {
-    gl_Position = u_matrix * u_position;
-    v_texcoord = u_texcoord;
+    v_textureCoordinate = a_textureCoordinate;
+    gl_Position = u_matrix * vec4(a_position, 0.0, 1.0);
 }

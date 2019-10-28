@@ -51,10 +51,6 @@ export class PointsWrapper extends Component<{}, State> {
             >
                 <PointLayer
                     data={state.data}
-                    style={feature => ({
-                        site: 25,
-                        color: {r: 0, g: 0, b: 1, a: 0.3},
-                    })}
                 />
             </Map>
         );
