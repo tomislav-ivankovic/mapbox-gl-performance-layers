@@ -1,28 +1,28 @@
 precision mediump float;
 
-uniform mat4 matrix;
+uniform mat4 u_matrix;
 
-attribute vec2 position;
-attribute float vertSize;
-attribute vec4 vertColor;
-attribute float vertOutlineSize;
-attribute vec4 vertOutlineColor;
+attribute vec2 a_position;
+attribute float a_size;
+attribute vec4 a_color;
+attribute float a_outlineSize;
+attribute vec4 a_outlineColor;
 
-varying float fragSize;
-varying vec4 fragColor;
-varying float fragOutlineSize;
-varying vec4 fragOutlineColor;
-varying float fragPointSize;
-varying float fragHalfSize;
+varying float v_size;
+varying vec4 v_color;
+varying float v_outlineSize;
+varying vec4 v_outlineColor;
+varying float v_pointSize;
+varying float v_halfSize;
 
 void main() {
-    fragSize = vertSize;
-    fragColor = vertColor;
-    fragOutlineSize = vertOutlineSize;
-    fragOutlineColor = vertOutlineColor;
-    fragPointSize = vertSize + 2.0*vertOutlineSize;
-    fragHalfSize = 0.5*fragSize;
+    v_size = a_size;
+    v_color = a_color;
+    v_outlineSize = a_outlineSize;
+    v_outlineColor = a_outlineColor;
+    v_pointSize = a_size + 2.0*a_outlineSize;
+    v_halfSize = 0.5*v_size;
 
-    gl_Position = matrix * vec4(position, 0.0, 1.0);
-    gl_PointSize = fragPointSize;
+    gl_Position = u_matrix * vec4(a_position, 0.0, 1.0);
+    gl_PointSize = v_pointSize;
 }

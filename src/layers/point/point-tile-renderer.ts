@@ -26,11 +26,11 @@ export class PointTileRenderer<P> extends TileRenderer<FeatureCollection<Point, 
     }
 
     protected configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
-        const position = gl.getAttribLocation(program, 'position');
-        const size = gl.getAttribLocation(program, 'vertSize');
-        const color = gl.getAttribLocation(program, 'vertColor');
-        const outlineSize = gl.getAttribLocation(program, 'vertOutlineSize');
-        const outlineColor = gl.getAttribLocation(program, 'vertOutlineColor');
+        const position = gl.getAttribLocation(program, 'a_position');
+        const size = gl.getAttribLocation(program, 'a_size');
+        const color = gl.getAttribLocation(program, 'a_color');
+        const outlineSize = gl.getAttribLocation(program, 'a_outlineSize');
+        const outlineColor = gl.getAttribLocation(program, 'a_outlineColor');
         const vertexSize = 12 * Float32Array.BYTES_PER_ELEMENT;
         gl.vertexAttribPointer(
             position,
@@ -103,7 +103,7 @@ export class PointTileRenderer<P> extends TileRenderer<FeatureCollection<Point, 
     }
 
     protected setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4): void {
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, 'matrix'), false, matrix);
-        gl.uniform1f(gl.getUniformLocation(program, 'interpolation'), this.interpolation);
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
+        gl.uniform1f(gl.getUniformLocation(program, 'u_interpolation'), this.interpolation);
     }
 }

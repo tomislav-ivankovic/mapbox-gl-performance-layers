@@ -59,11 +59,11 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
         const vertexBuffer = gl.createBuffer();
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        const position = gl.getAttribLocation(program, 'position');
-        const size = gl.getAttribLocation(program, 'vertSize');
-        const color = gl.getAttribLocation(program, 'vertColor');
-        const outlineSize = gl.getAttribLocation(program, 'vertOutlineSize');
-        const outlineColor = gl.getAttribLocation(program, 'vertOutlineColor');
+        const position = gl.getAttribLocation(program, 'a_position');
+        const size = gl.getAttribLocation(program, 'a_size');
+        const color = gl.getAttribLocation(program, 'a_color');
+        const outlineSize = gl.getAttribLocation(program, 'a_outlineSize');
+        const outlineColor = gl.getAttribLocation(program, 'a_outlineColor');
         const vertexSize = 12 * Float32Array.BYTES_PER_ELEMENT;
         gl.vertexAttribPointer(
             position,
@@ -133,8 +133,8 @@ export class CustomPointLayer<P> implements CustomLayerInterface {
         }
         if (this.program != null) {
             gl.useProgram(this.program);
-            gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'matrix'), false, matrix);
-            gl.uniform1f(gl.getUniformLocation(this.program, 'interpolation'), this.interpolation);
+            gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'u_matrix'), false, matrix);
+            gl.uniform1f(gl.getUniformLocation(this.program, 'u_interpolation'), this.interpolation);
             gl.drawArrays(gl.POINTS, 0, this.data.features.length);
         }
     }
