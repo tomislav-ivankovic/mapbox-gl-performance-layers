@@ -5,7 +5,7 @@ import {Home} from './home';
 import {PointsWrapper} from './wrappers/points-wrapper';
 import {LinesWrapper} from './wrappers/lines-wrapper';
 import {PolygonsWrapper} from './wrappers/polygons-wrapper';
-import testImage from '../assets/test.png';
+import testImage from './test.png';
 
 export class Main extends Component<{}, {}> {
     render() {

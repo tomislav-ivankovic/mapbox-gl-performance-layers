@@ -1,10 +1,18 @@
+import {Shader} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
-import {PointStyle} from './custom-point-layer';
-import {TileGenerator} from '../tile/tile-generator';
 import {MercatorCoordinate} from 'mapbox-gl';
+import {Color} from '../../misc';
 import * as glMatrix from 'gl-matrix';
-import vertexSource from './points.vert';
-import fragmentSource from './points.frag';
+import vertexSource from './point.vert';
+import fragmentSource from './point.frag';
+
+
+export interface PointStyle {
+    size: number;
+    color: Color;
+    outlineSize: number;
+    outlineColor: Color;
+}
 
 const defaultStyle: PointStyle = {
     size: 5,
@@ -13,16 +21,17 @@ const defaultStyle: PointStyle = {
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
 };
 
-export class PointTileGenerator<P> extends TileGenerator<FeatureCollection<Point, P>> {
+export class PointShader<P> implements Shader<FeatureCollection<Point, P>> {
+    vertexSource = vertexSource;
+    fragmentSource = fragmentSource;
+
     constructor(
-        data: FeatureCollection<Point, P>,
         private style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
         private interpolation: number = 1.8
     ) {
-        super(data, vertexSource, fragmentSource);
     }
 
-    protected configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
         const position = gl.getAttribLocation(program, 'a_position');
         const size = gl.getAttribLocation(program, 'a_size');
         const color = gl.getAttribLocation(program, 'a_color');
@@ -76,7 +85,12 @@ export class PointTileGenerator<P> extends TileGenerator<FeatureCollection<Point
         gl.enableVertexAttribArray(outlineColor);
     }
 
-    protected dataToArray(data: FeatureCollection<Point, P>): number[] {
+    setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
+        gl.uniform1f(gl.getUniformLocation(program, 'u_interpolation'), this.interpolation);
+    }
+
+    dataToArray(data: FeatureCollection<Point, P>): number[] {
         return data.features.flatMap(feature => {
             const coords = feature.geometry.coordinates;
             const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
@@ -91,16 +105,11 @@ export class PointTileGenerator<P> extends TileGenerator<FeatureCollection<Point
         });
     }
 
-    get numbersPerVertex(): number {
+    getNumbersPerVertex(): number {
         return 12;
     }
 
     getRenderMode(gl: WebGLRenderingContext): number {
         return gl.POINTS;
-    }
-
-    protected setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4): void {
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
-        gl.uniform1f(gl.getUniformLocation(program, 'u_interpolation'), this.interpolation);
     }
 }

@@ -1,31 +1,30 @@
-import {CustomLayerInterface} from 'mapbox-gl';
-import {createShaderProgram} from '../misc';
+import {Renderer} from '../renderer';
+import * as glMatrix from 'gl-matrix';
 import {TileGenerator} from './tile-generator';
+import {createShaderProgram} from '../../shader/shader';
 import vertexSource from './tile.vert';
 import fragmentSource from './tile.frag';
 
-export class TileRenderingLayer<D> implements CustomLayerInterface {
-    public id: string = 'point-layer';
-    public renderingMode: '2d' | '3d' = '2d';
-    public type: 'custom' = 'custom';
-
+export class TiledRenderer<D> implements Renderer<D> {
     private program: WebGLProgram | null = null;
     private vertexBuffer: WebGLBuffer | null = null;
     private testTexture: WebGLTexture | null = null;
+    private generator: TileGenerator<D>;
 
     constructor(
-        private tileGenerator: TileGenerator<D>,
+        renderer: Renderer<D>,
         private tileWidth = 256,
         private tileHeight = 256
     ) {
+        this.generator = new TileGenerator(renderer);
     }
 
-    public setData(data: D) {
-        this.tileGenerator.setData(data);
+    setData(data: D): void {
+        this.generator.setData(data);
     }
 
-    onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
-        this.tileGenerator.initialise(gl);
+    initialise(gl: WebGLRenderingContext): void {
+        this.generator.initialise(gl);
         const texture = gl.createTexture()!;
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(
@@ -43,7 +42,8 @@ export class TileRenderingLayer<D> implements CustomLayerInterface {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        this.tileGenerator.generateTile(
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        this.generator.generateTile(
             gl,
             texture,
             this.tileWidth,
@@ -99,27 +99,43 @@ export class TileRenderingLayer<D> implements CustomLayerInterface {
         // gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
-    onRemove(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
-
+    dispose(gl: WebGLRenderingContext): void {
+        gl.deleteBuffer(this.vertexBuffer);
+        gl.deleteProgram(this.program);
+        gl.deleteTexture(this.testTexture);
     }
 
-    prerender(gl: WebGLRenderingContext, matrix: number[]): void {
-
+    prerender(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
     }
 
-    render(gl: WebGLRenderingContext, matrix: number[]): void {
+    render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
         if (this.testTexture == null) {
             return;
         }
         this.drawTile(gl, this.testTexture, matrix, 17, 11, 5);
     }
 
-    private drawTile(gl: WebGLRenderingContext, texture: WebGLTexture, matrix: number[], x: number, y: number, zoom: number) {
+    private drawTile(
+        gl: WebGLRenderingContext,
+        texture: WebGLTexture,
+        matrix: glMatrix.mat4 | number[],
+        x: number,
+        y: number,
+        zoom: number
+    ) {
         const size = Math.pow(2, -zoom);
         this.drawTexture(gl, texture, matrix, x * size, y * size, size, size);
     }
 
-    private drawTexture(gl: WebGLRenderingContext, texture: WebGLTexture, matrix: number[], x: number, y: number, w: number, h: number) {
+    private drawTexture(
+        gl: WebGLRenderingContext,
+        texture: WebGLTexture,
+        matrix: glMatrix.mat4 | number[],
+        x: number,
+        y: number,
+        w: number,
+        h: number
+    ) {
         if (this.program == null || this.vertexBuffer == null) {
             return;
         }
