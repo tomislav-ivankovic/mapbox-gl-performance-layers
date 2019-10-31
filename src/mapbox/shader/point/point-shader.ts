@@ -6,7 +6,6 @@ import * as glMatrix from 'gl-matrix';
 import vertexSource from './point.vert';
 import fragmentSource from './point.frag';
 
-
 export interface PointStyle {
     size: number;
     color: Color;

@@ -2,117 +2,56 @@ import {Renderer} from '../renderer';
 import * as glMatrix from 'gl-matrix';
 import {TileGenerator} from './tile-generator';
 import {createShaderProgram} from '../../shader/shader';
+import {TileManager} from './tile-manager';
 import vertexSource from './tile.vert';
 import fragmentSource from './tile.frag';
 
 export class TiledRenderer<D> implements Renderer<D> {
+    private manager: TileManager<D>;
     private program: WebGLProgram | null = null;
     private vertexBuffer: WebGLBuffer | null = null;
-    private testTexture: WebGLTexture | null = null;
-    private generator: TileGenerator<D>;
 
     constructor(
         renderer: Renderer<D>,
-        private tileWidth = 256,
-        private tileHeight = 256
+        numberOfTiles = 10,
+        private tileWidth = 1024,
+        private tileHeight = 1024
     ) {
-        this.generator = new TileGenerator(renderer);
+        this.manager = new TileManager(
+            new TileGenerator(renderer),
+            numberOfTiles,
+            tileWidth,
+            tileHeight
+        );
     }
 
     setData(data: D): void {
-        this.generator.setData(data);
+        this.manager.setData(data);
     }
 
     initialise(gl: WebGLRenderingContext): void {
-        this.generator.initialise(gl);
-        const texture = gl.createTexture()!;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA,
-            this.tileWidth,
-            this.tileHeight,
-            0,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            null
-        );
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        this.generator.generateTile(
-            gl,
-            texture,
-            this.tileWidth,
-            this.tileHeight,
-            17,
-            11,
-            5
-        );
-        this.testTexture = texture;
+        this.manager.initialise(gl);
 
         const program = createShaderProgram(gl, vertexSource, fragmentSource);
         const vertexBuffer = gl.createBuffer();
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        const position = gl.getAttribLocation(program, 'a_position');
-        const textureCoordinate = gl.getAttribLocation(program, 'a_textureCoordinate');
-        const vertexSize = 4 * Float32Array.BYTES_PER_ELEMENT;
-        gl.vertexAttribPointer(
-            position,
-            2,
-            gl.FLOAT,
-            false,
-            vertexSize,
-            0
-        );
-        gl.vertexAttribPointer(
-            textureCoordinate,
-            2,
-            gl.FLOAT,
-            false,
-            vertexSize,
-            2 * Float32Array.BYTES_PER_ELEMENT
-        );
-        gl.enableVertexAttribArray(position);
-        gl.enableVertexAttribArray(textureCoordinate);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
         this.program = program;
         this.vertexBuffer = vertexBuffer;
-
-        // this.testTexture = gl.createTexture();
-        // gl.bindTexture(gl.TEXTURE_2D, this.testTexture);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        // gl.texImage2D(
-        //     gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-        //     gl.UNSIGNED_BYTE,
-        //     // @ts-ignore
-        //     document.getElementById('test-image')
-        // );
-        // gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
     dispose(gl: WebGLRenderingContext): void {
         gl.deleteBuffer(this.vertexBuffer);
         gl.deleteProgram(this.program);
-        gl.deleteTexture(this.testTexture);
+        this.manager.dispose(gl);
     }
 
     prerender(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
+
     }
 
     render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
-        if (this.testTexture == null) {
-            return;
-        }
-        this.drawTile(gl, this.testTexture, matrix, 17, 11, 5);
+        const texture = this.manager.getTileTexture(gl, 17, 11, 5);
+        this.drawTile(gl, texture, matrix, 17, 11, 5);
     }
 
     private drawTile(
@@ -149,15 +88,47 @@ export class TiledRenderer<D> implements Renderer<D> {
             x1, y2, 0, 0,
             x2, y2, 1, 0
         ]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, bufferArray, gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.useProgram(this.program);
-        gl.uniformMatrix4fv(gl.getUniformLocation(this.program, 'u_matrix'), false, matrix);
-        gl.uniform1i(gl.getUniformLocation(this.program, 'u_sampler'), 0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        configureAttributes(gl, this.program);
+        gl.bufferData(gl.ARRAY_BUFFER, bufferArray, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        setUniforms(gl, this.program, matrix);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
+}
+
+function configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram) {
+    const position = gl.getAttribLocation(program, 'a_position');
+    const textureCoordinate = gl.getAttribLocation(program, 'a_textureCoordinate');
+    const vertexSize = 4 * Float32Array.BYTES_PER_ELEMENT;
+    gl.vertexAttribPointer(
+        position,
+        2,
+        gl.FLOAT,
+        false,
+        vertexSize,
+        0
+    );
+    gl.vertexAttribPointer(
+        textureCoordinate,
+        2,
+        gl.FLOAT,
+        false,
+        vertexSize,
+        2 * Float32Array.BYTES_PER_ELEMENT
+    );
+    gl.enableVertexAttribArray(position);
+    gl.enableVertexAttribArray(textureCoordinate);
+}
+
+function setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]) {
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_sampler'), 0);
 }
