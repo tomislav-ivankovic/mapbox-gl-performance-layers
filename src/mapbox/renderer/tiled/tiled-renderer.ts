@@ -1,21 +1,18 @@
 import {Renderer} from '../renderer';
-import * as glMatrix from 'gl-matrix';
 import {TileGenerator} from './tile-generator';
-import {createShaderProgram} from '../../shader/shader';
 import {TileManager} from './tile-manager';
-import vertexSource from './tile.vert';
-import fragmentSource from './tile.frag';
+import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
+import * as glMatrix from 'gl-matrix';
 
 export class TiledRenderer<D> implements Renderer<D> {
     private manager: TileManager<D>;
-    private program: WebGLProgram | null = null;
-    private vertexBuffer: WebGLBuffer | null = null;
+    private textureDrawer = new TextureDrawer();
 
     constructor(
         renderer: Renderer<D>,
-        numberOfTiles = 10,
-        private tileWidth = 1024,
-        private tileHeight = 1024
+        numberOfTiles = 16,
+        private tileWidth = 2048,
+        private tileHeight = 2048
     ) {
         this.manager = new TileManager(
             new TileGenerator(renderer),
@@ -31,27 +28,38 @@ export class TiledRenderer<D> implements Renderer<D> {
 
     initialise(gl: WebGLRenderingContext): void {
         this.manager.initialise(gl);
-
-        const program = createShaderProgram(gl, vertexSource, fragmentSource);
-        const vertexBuffer = gl.createBuffer();
-
-        this.program = program;
-        this.vertexBuffer = vertexBuffer;
+        this.textureDrawer.initialise(gl);
     }
 
     dispose(gl: WebGLRenderingContext): void {
-        gl.deleteBuffer(this.vertexBuffer);
-        gl.deleteProgram(this.program);
+        this.textureDrawer.dispose(gl);
         this.manager.dispose(gl);
     }
 
     prerender(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
-
     }
 
     render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
-        const texture = this.manager.getTileTexture(gl, 17, 11, 5);
-        this.drawTile(gl, texture, matrix, 17, 11, 5);
+        const viewportArray = gl.getParameter(gl.VIEWPORT) as [number, number, number, number];
+        const viewport = {
+            x: viewportArray[0],
+            y: viewportArray[1],
+            w: viewportArray[2],
+            h: viewportArray[3]
+        };
+        const bounds = findBoundsFromMatrix(matrix);
+        const equationFactor = Math.min(
+            this.tileWidth*(bounds.maxX - bounds.minX)/viewport.w,
+            this.tileHeight*(bounds.maxY - bounds.minY)/viewport.h
+        );
+        const zoom = Math.ceil(-Math.log2(equationFactor));
+        const size = Math.pow(2, -zoom);
+        for (let x = Math.floor(bounds.minX/size); x*size < bounds.maxX; x++) {
+            for (let y = Math.floor(bounds.minY/size); y*size < bounds.maxY; y++) {
+                const texture = this.manager.getTileTexture(gl, x, y, zoom);
+                this.drawTile(gl, texture, matrix, x, y, zoom);
+            }
+        }
     }
 
     private drawTile(
@@ -63,72 +71,54 @@ export class TiledRenderer<D> implements Renderer<D> {
         zoom: number
     ) {
         const size = Math.pow(2, -zoom);
-        this.drawTexture(gl, texture, matrix, x * size, y * size, size, size);
-    }
-
-    private drawTexture(
-        gl: WebGLRenderingContext,
-        texture: WebGLTexture,
-        matrix: glMatrix.mat4 | number[],
-        x: number,
-        y: number,
-        w: number,
-        h: number
-    ) {
-        if (this.program == null || this.vertexBuffer == null) {
-            return;
-        }
-
-        const x1 = x, x2 = x + w, y1 = y, y2 = y + h;
-        const bufferArray =  new Float32Array([
-            x1, y1, 0, 1,
-            x2, y1, 1, 1,
-            x2, y2, 1, 0,
-            x1, y1, 0, 1,
-            x1, y2, 0, 0,
-            x2, y2, 1, 0
-        ]);
-
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.useProgram(this.program);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        configureAttributes(gl, this.program);
-        gl.bufferData(gl.ARRAY_BUFFER, bufferArray, gl.STATIC_DRAW);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-        setUniforms(gl, this.program, matrix);
-
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-        gl.bindTexture(gl.TEXTURE_2D, null);
+        this.textureDrawer.draw(gl, texture, matrix, x * size, y * size, size, size);
     }
 }
 
-function configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram) {
-    const position = gl.getAttribLocation(program, 'a_position');
-    const textureCoordinate = gl.getAttribLocation(program, 'a_textureCoordinate');
-    const vertexSize = 4 * Float32Array.BYTES_PER_ELEMENT;
-    gl.vertexAttribPointer(
-        position,
-        2,
-        gl.FLOAT,
-        false,
-        vertexSize,
-        0
-    );
-    gl.vertexAttribPointer(
-        textureCoordinate,
-        2,
-        gl.FLOAT,
-        false,
-        vertexSize,
-        2 * Float32Array.BYTES_PER_ELEMENT
-    );
-    gl.enableVertexAttribArray(position);
-    gl.enableVertexAttribArray(textureCoordinate);
+interface Bounds{
+    minX: number,
+    minY: number,
+    maxX: number,
+    maxY: number
 }
+const tempMatrix = glMatrix.mat4.create();
+function findBoundsFromMatrix(matrix: glMatrix.mat4 | number[]): Bounds {
+    if (matrix.length !== 16) {
+        throw Error('Input matrix must pe a 4x4 size. The array must contain 16 elements.');
+    }
 
-function setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]) {
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_sampler'), 0);
+    let invertedMatrix: glMatrix.mat4;
+    if (matrix instanceof Array) {
+        invertedMatrix = tempMatrix;
+        invertedMatrix.set(matrix);
+    } else {
+        invertedMatrix = matrix;
+    }
+    glMatrix.mat4.invert(invertedMatrix, invertedMatrix);
+
+    const points = [
+        glMatrix.vec4.fromValues(-1, -1, 1, 1),
+        glMatrix.vec4.fromValues(-1, 1, 1, 1),
+        glMatrix.vec4.fromValues(1, -1, 1, 1),
+        glMatrix.vec4.fromValues(1, 1, 1, 1)
+    ];
+
+    let minX = +Infinity, minY = +Infinity, maxX = -Infinity, maxY = -Infinity;
+    points.forEach(point => {
+        glMatrix.vec4.transformMat4(point, point, invertedMatrix);
+        const values = Array.from(point.values());
+        const x = values[0]/values[3];
+        const y = values[1]/values[3];
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+    });
+
+    return {
+        minX: minX,
+        minY: minY,
+        maxX: maxX,
+        maxY: maxY
+    };
 }
