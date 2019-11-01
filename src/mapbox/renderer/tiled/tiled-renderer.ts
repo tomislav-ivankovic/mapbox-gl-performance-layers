@@ -60,6 +60,7 @@ export class TiledRenderer<D> implements Renderer<D> {
                 this.drawTile(gl, texture, matrix, x, y, zoom);
             }
         }
+        this.manager.incrementAge();
     }
 
     private drawTile(

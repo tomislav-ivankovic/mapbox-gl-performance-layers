@@ -13,7 +13,7 @@ export class PointsWrapper extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
 
-        const numberOfPoints = 10000000;
+        const numberOfPoints = 1000000;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;
@@ -51,6 +51,12 @@ export class PointsWrapper extends Component<{}, State> {
             >
                 <PointLayer
                     data={state.data}
+                    style={feature => ({
+                        size: 10,
+                        color: {r: 0, g: 0, b: 1, a: 0.2},
+                        outlineSize: 0,
+                        outlineColor: {r: 0, g: 0, b: 0, a: 0}
+                    })}
                 />
             </Map>
         );

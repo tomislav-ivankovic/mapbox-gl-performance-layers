@@ -4,6 +4,7 @@ interface Tile {
     x: number,
     y: number,
     zoom: number,
+    age: number,
     texture: WebGLTexture
 }
 
@@ -21,7 +22,10 @@ export class TileManager<D> {
     public setData(data: D): void {
         this.generator.setData(data);
         if (this.tiles != null) {
-            this.tiles.forEach(tile => tile.zoom = -1);
+            this.tiles.forEach(tile => {
+                tile.zoom = -1;
+                tile.age = Number.MAX_VALUE / 2;
+            });
         }
     }
 
@@ -51,6 +55,7 @@ export class TileManager<D> {
                 x: 0,
                 y: 0,
                 zoom: -1,
+                age: Number.MAX_VALUE / 2,
                 texture: texture
             });
         }
@@ -78,20 +83,22 @@ export class TileManager<D> {
             throw Error('TileManager can not get a tile texture before it is initialised.');
         }
 
-        const index = tiles.findIndex(t => t.x === x && t.y === y && t.zoom === zoom);
-        if (index > 0) {
-            const tile = tiles[index];
-            if (index !== 0) {
-                tiles.splice(index, 1);
-                tiles.unshift(tile);
-            }
-            return tile.texture;
+        const foundTile = tiles.find(t => t.x === x && t.y === y && t.zoom === zoom);
+        if (foundTile != null) {
+            foundTile.age = 0;
+            return foundTile.texture;
         }
 
-        const leastUsedTile = tiles.pop()!;
+        let leastUsedTile = tiles[0];
+        tiles.forEach(tile => {
+            if (tile.age > leastUsedTile.age) {
+                leastUsedTile = tile;
+            }
+        });
         leastUsedTile.x = x;
         leastUsedTile.y = y;
         leastUsedTile.zoom = zoom;
+        leastUsedTile.age = 0;
         this.generator.generateTile(
             gl,
             leastUsedTile.texture,
@@ -101,8 +108,13 @@ export class TileManager<D> {
             y,
             zoom
         );
-        tiles.unshift(leastUsedTile);
 
         return leastUsedTile.texture;
+    }
+
+    public incrementAge() {
+        if (this.tiles != null) {
+            this.tiles.forEach(tile => tile.age++);
+        }
     }
 }
