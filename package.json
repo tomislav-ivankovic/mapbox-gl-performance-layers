@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "earcut": "^2.2.1",
     "gl-matrix": "^3.1.0",
     "mapbox-gl": "^1.4.0",
     "react": "^16.10.2",
@@ -33,6 +34,7 @@
     "react-scripts": "3.2.0"
   },
   "devDependencies": {
+    "@types/earcut": "^2.1.0",
     "@types/geojson": "^7946.0.7",
     "@types/gl-matrix": "^2.4.5",
     "@types/jest": "24.0.18",

@@ -6,7 +6,7 @@ import {FeatureCollection, Point} from 'geojson';
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<Point, {}>
+    data: FeatureCollection<Point, {}>;
 }
 
 export class PointsWrapper extends Component<{}, State> {

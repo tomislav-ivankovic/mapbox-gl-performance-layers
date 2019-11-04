@@ -49,13 +49,13 @@ export class TiledRenderer<D> implements Renderer<D> {
         };
         const bounds = findBoundsFromMatrix(matrix);
         const equationFactor = Math.min(
-            this.tileWidth*(bounds.maxX - bounds.minX)/viewport.w,
-            this.tileHeight*(bounds.maxY - bounds.minY)/viewport.h
+            this.tileWidth * (bounds.maxX - bounds.minX) / viewport.w,
+            this.tileHeight * (bounds.maxY - bounds.minY) / viewport.h
         );
         const zoom = Math.ceil(-Math.log2(equationFactor));
         const size = Math.pow(2, -zoom);
-        for (let x = Math.floor(bounds.minX/size); x*size < bounds.maxX; x++) {
-            for (let y = Math.floor(bounds.minY/size); y*size < bounds.maxY; y++) {
+        for (let x = Math.floor(bounds.minX / size); x * size < bounds.maxX; x++) {
+            for (let y = Math.floor(bounds.minY / size); y * size < bounds.maxY; y++) {
                 const texture = this.manager.getTileTexture(gl, x, y, zoom);
                 this.drawTile(gl, texture, matrix, x, y, zoom);
             }
@@ -76,13 +76,15 @@ export class TiledRenderer<D> implements Renderer<D> {
     }
 }
 
-interface Bounds{
+interface Bounds {
     minX: number,
     minY: number,
     maxX: number,
     maxY: number
 }
+
 const tempMatrix = glMatrix.mat4.create();
+
 function findBoundsFromMatrix(matrix: glMatrix.mat4 | number[]): Bounds {
     if (matrix.length !== 16) {
         throw Error('Input matrix must pe a 4x4 size. The array must contain 16 elements.');
@@ -108,8 +110,8 @@ function findBoundsFromMatrix(matrix: glMatrix.mat4 | number[]): Bounds {
     points.forEach(point => {
         glMatrix.vec4.transformMat4(point, point, invertedMatrix);
         const values = Array.from(point.values());
-        const x = values[0]/values[3];
-        const y = values[1]/values[3];
+        const x = values[0] / values[3];
+        const y = values[1] / values[3];
         if (x < minX) minX = x;
         if (y < minY) minY = y;
         if (x > maxX) maxX = x;
