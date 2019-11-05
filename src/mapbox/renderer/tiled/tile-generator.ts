@@ -33,6 +33,9 @@ export class TileGenerator<D> {
         y: number,
         zoom: number
     ) {
+        if (this.frameBuffer == null) {
+            throw Error('TileGenerator can not generate tiles before it is initialised.');
+        }
         const oldFrameBuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING) as WebGLFramebuffer;
         const oldViewport = gl.getParameter(gl.VIEWPORT) as [number, number, number, number];
 

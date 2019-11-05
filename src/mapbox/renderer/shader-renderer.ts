@@ -1,9 +1,8 @@
-import {Renderer} from '../renderer';
-import {createShaderProgram, Shader} from '../../shader/shader';
+import {Renderer} from './renderer';
+import {createShaderProgram, Shader} from '../shader/shader';
 import * as glMatrix from 'gl-matrix';
 
-export class RawRenderer<D> implements Renderer<D> {
-    private data: D | null = null;
+export class ShaderRenderer<D> implements Renderer<D> {
     private program: WebGLProgram | null = null;
     private vertexBuffer: WebGLBuffer | null = null;
     private bufferArray = new Float32Array([]);
@@ -14,7 +13,6 @@ export class RawRenderer<D> implements Renderer<D> {
     }
 
     setData(data: D): void {
-        this.data = data;
         this.bufferArray = new Float32Array(this.shader.dataToArray(data));
     }
 
@@ -34,7 +32,7 @@ export class RawRenderer<D> implements Renderer<D> {
 
     render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
         if (this.program == null) {
-            return;
+            throw Error('ShaderRenderer can not render before it is initialised.');
         }
         gl.useProgram(this.program);
 

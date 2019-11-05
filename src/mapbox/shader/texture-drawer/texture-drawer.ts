@@ -27,7 +27,7 @@ export class TextureDrawer {
         h: number
     ) {
         if (this.program == null || this.vertexBuffer == null) {
-            return;
+            throw Error('TextureDrawer can not draw before it is initialised.');
         }
 
         const x1 = x, x2 = x + w, y1 = y, y2 = y + h;

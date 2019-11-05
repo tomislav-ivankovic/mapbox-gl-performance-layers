@@ -1,10 +1,11 @@
 import {Component} from 'react';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
-import {DataRenderingLayer} from '../mapbox/data-rendering-layer';
-import {RawRenderer} from '../mapbox/renderer/raw/raw-renderer';
+import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
+import {ShaderRenderer} from '../mapbox/renderer/shader-renderer';
 import {TiledRenderer} from '../mapbox/renderer/tiled/tiled-renderer';
 import {PolygonShader, PolygonStyle} from '../mapbox/shader/polygon/polygon-shader';
+import {SwitchRenderer} from '../mapbox/renderer/switch-renderer';
 
 export interface PolygonLayerProps<P> extends MapComponentProps {
     data: FeatureCollection<Polygon, P>,
@@ -14,11 +15,11 @@ export interface PolygonLayerProps<P> extends MapComponentProps {
 }
 
 class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
-    private readonly layer = new DataRenderingLayer(
+    private readonly layer = new CustomRenderingLayer<FeatureCollection<Polygon, P>>(
         'custom-polygon',
-        [
+        new SwitchRenderer([
             {
-                renderer: new RawRenderer(
+                renderer: new ShaderRenderer(
                     new PolygonShader(
                         this.props.style,
                         this.props.interpolation
@@ -28,7 +29,7 @@ class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
             },
             {
                 renderer: new TiledRenderer(
-                    new RawRenderer(
+                    new ShaderRenderer(
                         new PolygonShader(
                             this.props.style,
                             this.props.interpolation
@@ -37,7 +38,7 @@ class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
                 ),
                 condition: data => data.features.length > 100000
             }
-        ]
+        ])
     );
 
     constructor(props: PolygonLayerProps<P>) {

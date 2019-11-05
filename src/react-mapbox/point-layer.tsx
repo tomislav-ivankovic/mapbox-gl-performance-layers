@@ -1,10 +1,11 @@
 import {Component} from 'react';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
-import {DataRenderingLayer} from '../mapbox/data-rendering-layer';
+import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
 import {PointShader, PointStyle} from '../mapbox/shader/point/point-shader';
-import {RawRenderer} from '../mapbox/renderer/raw/raw-renderer';
+import {ShaderRenderer} from '../mapbox/renderer/shader-renderer';
 import {TiledRenderer} from '../mapbox/renderer/tiled/tiled-renderer';
+import {SwitchRenderer} from '../mapbox/renderer/switch-renderer';
 
 export interface PointLayerProps<P> extends MapComponentProps {
     data: FeatureCollection<Point, P>,
@@ -14,11 +15,11 @@ export interface PointLayerProps<P> extends MapComponentProps {
 }
 
 class Layer<P> extends Component<PointLayerProps<P>, {}> {
-    private readonly layer = new DataRenderingLayer(
+    private readonly layer = new CustomRenderingLayer<FeatureCollection<Point, P>>(
         'custom-point',
-        [
+        new SwitchRenderer([
             {
-                renderer: new RawRenderer(
+                renderer: new ShaderRenderer(
                     new PointShader(
                         this.props.style,
                         this.props.interpolation
@@ -28,7 +29,7 @@ class Layer<P> extends Component<PointLayerProps<P>, {}> {
             },
             {
                 renderer: new TiledRenderer(
-                    new RawRenderer(
+                    new ShaderRenderer(
                         new PointShader(
                             this.props.style,
                             this.props.interpolation
@@ -37,7 +38,7 @@ class Layer<P> extends Component<PointLayerProps<P>, {}> {
                 ),
                 condition: data => data.features.length > 100000
             }
-        ]
+        ])
     );
 
     constructor(props: PointLayerProps<P>) {

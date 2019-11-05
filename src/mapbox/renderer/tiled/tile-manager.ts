@@ -90,11 +90,11 @@ export class TileManager<D> {
         }
 
         let leastUsedTile = tiles[0];
-        tiles.forEach(tile => {
+        for (const tile of tiles) {
             if (tile.age > leastUsedTile.age) {
                 leastUsedTile = tile;
             }
-        });
+        }
         leastUsedTile.x = x;
         leastUsedTile.y = y;
         leastUsedTile.zoom = zoom;
@@ -113,8 +113,11 @@ export class TileManager<D> {
     }
 
     public incrementAge() {
-        if (this.tiles != null) {
-            this.tiles.forEach(tile => tile.age++);
+        if (this.tiles == null) {
+            throw Error('TileManager can not increment age before it is initialised.');
+        }
+        for (const tile of this.tiles) {
+            tile.age++;
         }
     }
 }
