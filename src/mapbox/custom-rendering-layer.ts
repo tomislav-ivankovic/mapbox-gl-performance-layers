@@ -16,6 +16,7 @@ export class CustomRenderingLayer<D> implements CustomLayerInterface {
     }
 
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
+        gl.getExtension('OES_element_index_uint');
         this.renderer.initialise(gl);
     }
 

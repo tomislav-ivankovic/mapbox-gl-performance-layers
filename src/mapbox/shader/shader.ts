@@ -1,13 +1,18 @@
 import * as glMatrix from 'gl-matrix';
 
+export interface ShaderBuffers {
+    array: Float32Array;
+    elementArray: Int32Array | null;
+}
+
 export interface Shader<D> {
     vertexSource: string,
     fragmentSource: string,
     configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void;
-    dataToArray(data: D): number[],
-    getNumbersPerVertex(): number;
-    getRenderMode(gl: WebGLRenderingContext): GLenum;
+    dataToArrays(data: D): ShaderBuffers;
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void;
+    getArrayBufferElementsPerVertex(): number;
+    getPrimitiveType(gl: WebGLRenderingContext): GLenum;
 }
 
 export function createShaderProgram(gl: WebGLRenderingContext, vertexSource: string, fragmentSource: string): WebGLProgram {

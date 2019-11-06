@@ -4,8 +4,10 @@ import * as glMatrix from 'gl-matrix';
 
 export class ShaderRenderer<D> implements Renderer<D> {
     private program: WebGLProgram | null = null;
-    private vertexBuffer: WebGLBuffer | null = null;
-    private bufferArray = new Float32Array([]);
+    private arrayBuffer: WebGLBuffer | null = null;
+    private elementArrayBuffer: WebGLBuffer | null = null;
+    private array = new Float32Array([]);
+    private elementArray: Int32Array | null = null;
 
     constructor(
         private shader: Shader<D>
@@ -13,17 +15,20 @@ export class ShaderRenderer<D> implements Renderer<D> {
     }
 
     setData(data: D): void {
-        this.bufferArray = new Float32Array(this.shader.dataToArray(data));
+        const arrays = this.shader.dataToArrays(data);
+        this.array = arrays.array;
+        this.elementArray = arrays.elementArray;
     }
 
     initialise(gl: WebGLRenderingContext): void {
-        const shader = this.shader;
-        this.program = createShaderProgram(gl, shader.vertexSource, shader.fragmentSource);
-        this.vertexBuffer = gl.createBuffer();
+        this.program = createShaderProgram(gl, this.shader.vertexSource, this.shader.fragmentSource);
+        this.arrayBuffer = gl.createBuffer();
+        this.elementArrayBuffer = gl.createBuffer();
     }
 
     dispose(gl: WebGLRenderingContext): void {
-        gl.deleteBuffer(this.vertexBuffer);
+        gl.deleteBuffer(this.elementArrayBuffer);
+        gl.deleteBuffer(this.arrayBuffer);
         gl.deleteProgram(this.program);
     }
 
@@ -36,17 +41,29 @@ export class ShaderRenderer<D> implements Renderer<D> {
         }
         gl.useProgram(this.program);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
         this.shader.configureAttributes(gl, this.program);
-        gl.bufferData(gl.ARRAY_BUFFER, this.bufferArray, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         this.shader.setUniforms(gl, this.program, matrix);
 
-        gl.drawArrays(
-            this.shader.getRenderMode(gl),
-            0,
-            this.bufferArray.length / this.shader.getNumbersPerVertex()
-        );
+        if (this.elementArray == null) {
+            gl.drawArrays(
+                this.shader.getPrimitiveType(gl),
+                0,
+                this.array.length / this.shader.getArrayBufferElementsPerVertex()
+            );
+        } else {
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementArrayBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.elementArray, gl.STATIC_DRAW);
+            gl.drawElements(
+                this.shader.getPrimitiveType(gl),
+                this.elementArray.length,
+                gl.UNSIGNED_INT,
+                0
+            );
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        }
     }
 }

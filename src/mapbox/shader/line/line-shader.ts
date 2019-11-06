@@ -1,5 +1,5 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {Shader} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {MercatorCoordinate} from 'mapbox-gl';
 import {Color} from '../../misc';
 import * as glMatrix from 'gl-matrix';
@@ -54,37 +54,42 @@ export class LineShader<P> implements Shader<FeatureCollection<LineString, P>> {
         gl.enableVertexAttribArray(color);
     }
 
-    dataToArray(data: FeatureCollection<LineString, P>): number[] {
-        return data.features.flatMap(feature => {
+    dataToArrays(data: FeatureCollection<LineString, P>): ShaderBuffers {
+        const array: number[] = [];
+        const elementsArray: number[] = [];
+        let currentIndex = 0;
+        for (const feature of data.features) {
             const style = this.style != null ? {...defaultStyle, ...this.style(feature)} : defaultStyle;
-            return feature.geometry.coordinates.flatMap((coords, index) => {
+            for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+                const coords = feature.geometry.coordinates[i];
                 const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
-                if (index === 0 || index === feature.geometry.coordinates.length - 1) {
-                    return [
-                        transformed.x, transformed.y,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                    ];
+                array.push(
+                    transformed.x, transformed.y,
+                    style.color.r, style.color.g, style.color.b, style.color.a,
+                );
+                if (i === 0 || i === feature.geometry.coordinates.length - 1) {
+                    elementsArray.push(currentIndex);
                 } else {
-                    return [
-                        transformed.x, transformed.y,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        transformed.x, transformed.y,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                    ];
+                    elementsArray.push(currentIndex, currentIndex);
                 }
-            });
-        });
+                currentIndex++;
+            }
+        }
+        return {
+            array: new Float32Array(array),
+            elementArray: new Int32Array(elementsArray)
+        };
     }
 
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
     }
 
-    getNumbersPerVertex(): number {
+    getArrayBufferElementsPerVertex(): number {
         return 6;
     }
 
-    getRenderMode(gl: WebGLRenderingContext): number {
+    getPrimitiveType(gl: WebGLRenderingContext): number {
         return gl.LINES;
     }
 }

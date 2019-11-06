@@ -1,4 +1,4 @@
-import {Shader} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {MercatorCoordinate} from 'mapbox-gl';
 import {Color} from '../../misc';
@@ -89,26 +89,31 @@ export class PointShader<P> implements Shader<FeatureCollection<Point, P>> {
         gl.uniform1f(gl.getUniformLocation(program, 'u_interpolation'), this.interpolation);
     }
 
-    dataToArray(data: FeatureCollection<Point, P>): number[] {
-        return data.features.flatMap(feature => {
+    dataToArrays(data: FeatureCollection<Point, P>): ShaderBuffers {
+        const array: number[] = [];
+        for (const feature of data.features) {
             const coords = feature.geometry.coordinates;
             const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
             const style = this.style != null ? {...defaultStyle, ...this.style(feature)} : defaultStyle;
-            return [
+            array.push(
                 transformed.x, transformed.y,
                 style.size,
                 style.color.r, style.color.g, style.color.b, style.color.a,
                 style.outlineSize,
                 style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
-            ];
-        });
+            );
+        }
+        return {
+            array: new Float32Array(array),
+            elementArray: null
+        };
     }
 
-    getNumbersPerVertex(): number {
+    getArrayBufferElementsPerVertex(): number {
         return 12;
     }
 
-    getRenderMode(gl: WebGLRenderingContext): number {
+    getPrimitiveType(gl: WebGLRenderingContext): number {
         return gl.POINTS;
     }
 }
