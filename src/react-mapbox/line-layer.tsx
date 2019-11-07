@@ -10,8 +10,7 @@ import {SwitchRenderer} from '../mapbox/renderer/switch-renderer';
 export interface LineLayerProps<P> extends MapComponentProps {
     data: FeatureCollection<LineString, P>,
     style?: (feature: Feature<LineString, P>) => Partial<LineStyle>,
-    onClick?: (feature: Feature<LineString, P>) => void,
-    interpolation?: number
+    onClick?: (feature: Feature<LineString, P>) => void
 }
 
 class Layer<P> extends Component<LineLayerProps<P>, {}> {
@@ -21,8 +20,7 @@ class Layer<P> extends Component<LineLayerProps<P>, {}> {
             {
                 renderer: new ShaderRenderer(
                     new LineShader(
-                        this.props.style,
-                        this.props.interpolation
+                        this.props.style
                     )
                 ),
                 condition: data => data.features.length <= 100000
@@ -31,8 +29,7 @@ class Layer<P> extends Component<LineLayerProps<P>, {}> {
                 renderer: new TiledRenderer(
                     new ShaderRenderer(
                         new LineShader(
-                            this.props.style,
-                            this.props.interpolation
+                            this.props.style
                         )
                     )
                 ),

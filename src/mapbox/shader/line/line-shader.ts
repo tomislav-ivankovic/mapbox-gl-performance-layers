@@ -1,10 +1,8 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {Shader, ShaderBuffers} from '../shader';
+import {ShaderBuffers} from '../shader';
 import {MercatorCoordinate} from 'mapbox-gl';
 import {Color} from '../../misc';
-import * as glMatrix from 'gl-matrix';
-import vertexSource from './line.vert';
-import fragmentSource from './line.frag';
+import {DefaultShader} from '../default/default-shader';
 
 export interface LineStyle {
     size: number;
@@ -20,38 +18,11 @@ const defaultStyle: LineStyle = {
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
 };
 
-export class LineShader<P> implements Shader<FeatureCollection<LineString, P>> {
-    vertexSource = vertexSource;
-    fragmentSource = fragmentSource;
-
+export class LineShader<P> extends DefaultShader<FeatureCollection<LineString, P>> {
     constructor(
-        private style?: (feature: Feature<LineString, P>) => Partial<LineStyle>,
-        private interpolation: number = 1.8
+        private style?: (feature: Feature<LineString, P>) => Partial<LineStyle>
     ) {
-    }
-
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
-        const position = gl.getAttribLocation(program, 'a_position');
-        const color = gl.getAttribLocation(program, 'a_color');
-        const vertexSize = 6 * Float32Array.BYTES_PER_ELEMENT;
-        gl.vertexAttribPointer(
-            position,
-            2,
-            gl.FLOAT,
-            false,
-            vertexSize,
-            0
-        );
-        gl.vertexAttribPointer(
-            color,
-            4,
-            gl.FLOAT,
-            false,
-            vertexSize,
-            2 * Float32Array.BYTES_PER_ELEMENT
-        );
-        gl.enableVertexAttribArray(position);
-        gl.enableVertexAttribArray(color);
+        super();
     }
 
     dataToArrays(data: FeatureCollection<LineString, P>): ShaderBuffers {
@@ -79,14 +50,6 @@ export class LineShader<P> implements Shader<FeatureCollection<LineString, P>> {
             array: new Float32Array(array),
             elementArray: new Int32Array(elementsArray)
         };
-    }
-
-    setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {
-        gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
-    }
-
-    getArrayBufferElementsPerVertex(): number {
-        return 6;
     }
 
     getPrimitiveType(gl: WebGLRenderingContext): number {

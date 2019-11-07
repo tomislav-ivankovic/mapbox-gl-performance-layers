@@ -21,8 +21,7 @@ class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
             {
                 renderer: new ShaderRenderer(
                     new PolygonShader(
-                        this.props.style,
-                        this.props.interpolation
+                        this.props.style
                     )
                 ),
                 condition: data => data.features.length <= 100000
@@ -31,8 +30,7 @@ class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
                 renderer: new TiledRenderer(
                     new ShaderRenderer(
                         new PolygonShader(
-                            this.props.style,
-                            this.props.interpolation
+                            this.props.style
                         )
                     )
                 ),
