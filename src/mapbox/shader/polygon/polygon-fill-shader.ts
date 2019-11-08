@@ -1,26 +1,13 @@
-import {Color} from '../../misc';
 import {ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {LineStyle} from '../line/line-shader';
 import {MercatorCoordinate} from 'mapbox-gl';
 import {DefaultShader} from '../default/default-shader';
+import {defaultPolygonStyle, PolygonStyle} from '../../renderer-presets/polygon-renderer';
 import earcut from 'earcut';
 
-export interface PolygonStyle {
-    color: Color;
-    outlineSize: number;
-    outlineColor: Color;
-}
-
-const defaultStyle: PolygonStyle = {
-    color: {r: 0, g: 0, b: 1, a: 1},
-    outlineSize: 1,
-    outlineColor: {r: 0, g: 0, b: 0, a: 1}
-};
-
-export class PolygonShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
+export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
     constructor(
-        private style?: (feature: Feature<Polygon, P>) => Partial<LineStyle>,
+        private style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>,
     ) {
         super();
     }
@@ -30,7 +17,7 @@ export class PolygonShader<P> extends DefaultShader<FeatureCollection<Polygon, P
         const elementArray: number[] = [];
         let indexOffset = 0;
         for (const feature of data.features) {
-            const style = this.style != null ? {...defaultStyle, ...this.style(feature)} : defaultStyle;
+            const style = this.style != null ? {...defaultPolygonStyle, ...this.style(feature)} : defaultPolygonStyle;
             const transformedCoordinates = feature.geometry.coordinates.map(c => c.map(coords => {
                 const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
                 return [transformed.x, transformed.y];

@@ -2,43 +2,17 @@ import {Component} from 'react';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
 import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
-import {PointShader, PointStyle} from '../mapbox/shader/point/point-shader';
-import {ShaderRenderer} from '../mapbox/renderer/shader-renderer';
-import {TiledRenderer} from '../mapbox/renderer/tiled/tiled-renderer';
-import {SwitchRenderer} from '../mapbox/renderer/switch-renderer';
+import {pointRenderer, PointRendererOptions} from '../mapbox/renderer-presets/point-renderer';
 
-export interface PointLayerProps<P> extends MapComponentProps {
+export interface PointLayerProps<P> extends MapComponentProps, PointRendererOptions<P> {
     data: FeatureCollection<Point, P>,
-    style?: (feature: Feature<Point, P>) => Partial<PointStyle>,
-    onClick?: (feature: Feature<Point, P>) => void,
-    interpolation?: number
+    onClick?: (feature: Feature<Point, P>) => void
 }
 
 class Layer<P> extends Component<PointLayerProps<P>, {}> {
     private readonly layer = new CustomRenderingLayer<FeatureCollection<Point, P>>(
         'custom-point',
-        new SwitchRenderer([
-            {
-                renderer: new ShaderRenderer(
-                    new PointShader(
-                        this.props.style,
-                        this.props.interpolation
-                    )
-                ),
-                condition: data => data.features.length <= 100000
-            },
-            {
-                renderer: new TiledRenderer(
-                    new ShaderRenderer(
-                        new PointShader(
-                            this.props.style,
-                            this.props.interpolation
-                        )
-                    )
-                ),
-                condition: data => data.features.length > 100000
-            }
-        ])
+        pointRenderer(this.props)
     );
 
     constructor(props: PointLayerProps<P>) {

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FeatureCollection, LineString} from 'geojson';
-import {Map} from '../../react-mapbox/map';
+import {Map} from '../map';
 import {LineLayer} from '../../react-mapbox/line-layer';
 
 interface State {

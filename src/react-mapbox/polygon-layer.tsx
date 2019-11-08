@@ -2,41 +2,17 @@ import {Component} from 'react';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
 import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
-import {ShaderRenderer} from '../mapbox/renderer/shader-renderer';
-import {TiledRenderer} from '../mapbox/renderer/tiled/tiled-renderer';
-import {PolygonShader, PolygonStyle} from '../mapbox/shader/polygon/polygon-shader';
-import {SwitchRenderer} from '../mapbox/renderer/switch-renderer';
+import {polygonRenderer, PolygonRendererOptions} from '../mapbox/renderer-presets/polygon-renderer';
 
-export interface PolygonLayerProps<P> extends MapComponentProps {
+export interface PolygonLayerProps<P> extends MapComponentProps, PolygonRendererOptions<P> {
     data: FeatureCollection<Polygon, P>,
-    style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>,
-    onClick?: (feature: Feature<Polygon, P>) => void,
-    interpolation?: number
+    onClick?: (feature: Feature<Polygon, P>) => void
 }
 
 class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
     private readonly layer = new CustomRenderingLayer<FeatureCollection<Polygon, P>>(
         'custom-polygon',
-        new SwitchRenderer([
-            {
-                renderer: new ShaderRenderer(
-                    new PolygonShader(
-                        this.props.style
-                    )
-                ),
-                condition: data => data.features.length <= 100000
-            },
-            {
-                renderer: new TiledRenderer(
-                    new ShaderRenderer(
-                        new PolygonShader(
-                            this.props.style
-                        )
-                    )
-                ),
-                condition: data => data.features.length > 100000
-            }
-        ])
+        polygonRenderer(this.props)
     );
 
     constructor(props: PolygonLayerProps<P>) {

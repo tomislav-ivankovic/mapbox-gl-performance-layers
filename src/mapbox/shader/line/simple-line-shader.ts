@@ -1,24 +1,10 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {ShaderBuffers} from '../shader';
 import {MercatorCoordinate} from 'mapbox-gl';
-import {Color} from '../../misc';
 import {DefaultShader} from '../default/default-shader';
+import {defaultLineStyle, LineStyle} from '../../renderer-presets/line-renderer';
 
-export interface LineStyle {
-    size: number;
-    color: Color;
-    outlineSize: number;
-    outlineColor: Color;
-}
-
-const defaultStyle: LineStyle = {
-    size: 5,
-    color: {r: 0, g: 0, b: 1, a: 1},
-    outlineSize: 1,
-    outlineColor: {r: 0, g: 0, b: 0, a: 1}
-};
-
-export class LineShader<P> extends DefaultShader<FeatureCollection<LineString, P>> {
+export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineString, P>> {
     constructor(
         private style?: (feature: Feature<LineString, P>) => Partial<LineStyle>
     ) {
@@ -30,7 +16,7 @@ export class LineShader<P> extends DefaultShader<FeatureCollection<LineString, P
         const elementsArray: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
-            const style = this.style != null ? {...defaultStyle, ...this.style(feature)} : defaultStyle;
+            const style = this.style != null ? {...defaultLineStyle, ...this.style(feature)} : defaultLineStyle;
             for (let i = 0; i < feature.geometry.coordinates.length; i++) {
                 const coords = feature.geometry.coordinates[i];
                 const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FeatureCollection, Polygon} from 'geojson';
-import {Map} from '../../react-mapbox/map';
+import {Map} from '../map';
 import {PolygonLayer} from '../../react-mapbox/polygon-layer';
 
 interface State {
