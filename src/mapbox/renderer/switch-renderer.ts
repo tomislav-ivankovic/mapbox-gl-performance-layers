@@ -8,47 +8,57 @@ export interface SwitchOption<D> {
 
 export class SwitchRenderer<D> implements Renderer<D> {
     private gl: WebGLRenderingContext | null = null;
-    private currentOption = this.options[0];
+    private currentOption: SwitchOption<D> | null = null;
 
     constructor(
         private options: SwitchOption<D>[]
     ){
-        if (options.length === 0) {
-            throw Error('SwitchRenderer must have at least 1 rendering option.');
-        }
     }
 
     setData(data: D): void {
         const currentOption = this.currentOption;
-        if (!currentOption.condition(data)) {
-            const find = this.options.find(option => option.condition(data));
-            const newOption = find != null ? find : this.options[this.options.length - 1];
+        if (currentOption == null || !currentOption.condition(data)) {
+            const newOption = this.options.find(option => option.condition(data));
             if (newOption !== currentOption) {
                 if (this.gl != null) {
-                    currentOption.renderer.dispose(this.gl);
-                    newOption.renderer.initialise(this.gl);
+                    if (currentOption != null) {
+                        currentOption.renderer.dispose(this.gl);
+                    }
+                    if (newOption != null) {
+                        newOption.renderer.initialise(this.gl);
+                    }
                 }
-                this.currentOption = newOption;
+                this.currentOption = newOption != null ? newOption : null;
             }
         }
-        this.currentOption.renderer.setData(data);
+        if (this.currentOption != null) {
+            this.currentOption.renderer.setData(data);
+        }
     }
 
     initialise(gl: WebGLRenderingContext): void {
-        this.currentOption.renderer.initialise(gl);
+        if (this.currentOption != null) {
+            this.currentOption.renderer.initialise(gl);
+        }
         this.gl = gl;
     }
 
     dispose(gl: WebGLRenderingContext): void {
         this.gl = null;
-        this.currentOption.renderer.dispose(gl);
+        if (this.currentOption != null) {
+            this.currentOption.renderer.dispose(gl);
+        }
     }
 
     prerender(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
-        this.currentOption.renderer.prerender(gl, matrix);
+        if (this.currentOption != null) {
+            this.currentOption.renderer.prerender(gl, matrix);
+        }
     }
 
     render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
-        this.currentOption.renderer.render(gl, matrix);
+        if (this.currentOption != null) {
+            this.currentOption.renderer.render(gl, matrix);
+        }
     }
 }

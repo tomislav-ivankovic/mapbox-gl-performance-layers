@@ -53,9 +53,7 @@ export class PointsWrapper extends Component<{}, State> {
                     data={state.data}
                     style={feature => ({
                         size: 10,
-                        color: {r: 0, g: 0, b: 1, a: 0.2},
-                        outlineSize: 0,
-                        outlineColor: {r: 0, g: 0, b: 0, a: 0}
+                        color: {r: 0, g: 0, b: 1, a: 0.2}
                     })}
                 />
             </Map>
