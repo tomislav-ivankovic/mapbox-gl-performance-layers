@@ -52,3 +52,11 @@ export function createShaderProgram(gl: WebGLRenderingContext, vertexSource: str
     }
     return program;
 }
+
+export function transformX(lng: number) {
+    return (180 + lng) / 360;
+}
+
+export function transformY(lat: number) {
+    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
+}

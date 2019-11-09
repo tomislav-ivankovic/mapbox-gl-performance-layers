@@ -13,8 +13,8 @@ export class LinesWrapper extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
 
-        const numberOfLines = 10000;
-        const numberOfPointsInLine = 4;
+        const numberOfLines = 20000;
+        const numberOfPointsInLine = 20;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;
@@ -59,6 +59,11 @@ export class LinesWrapper extends Component<{}, State> {
             >
                 <LineLayer
                     data={state.data}
+                    style={() => ({
+                        size: 4,
+                        color: {r: 0, g: 0, b: 1, a: 0.8}
+                    })}
+                    fancy
                 />
             </Map>
         );

@@ -1,6 +1,5 @@
-import {Shader, ShaderBuffers} from '../shader';
+import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
-import {MercatorCoordinate} from 'mapbox-gl';
 import {defaultPointStyle, PointStyle} from '../../renderer-presets/point-renderer';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './simple-point.vert';
@@ -58,11 +57,10 @@ export class SimplePointShader<P> implements Shader<FeatureCollection<Point, P>>
     dataToArrays(data: FeatureCollection<Point, P>): ShaderBuffers {
         const array: number[] = [];
         for (const feature of data.features) {
-            const coords = feature.geometry.coordinates;
-            const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
             const style = this.style != null ? {...defaultPointStyle, ...this.style(feature)} : defaultPointStyle;
+            const coords = feature.geometry.coordinates;
             array.push(
-                transformed.x, transformed.y,
+                transformX(coords[0]), transformY(coords[1]),
                 style.size,
                 style.color.r, style.color.g, style.color.b, style.color.a,
             );

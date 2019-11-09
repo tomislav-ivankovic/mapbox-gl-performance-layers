@@ -18,7 +18,6 @@ export const defaultPolygonStyle: PolygonStyle = {
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
 };
 
-
 export interface PolygonRendererOptions<P>{
     style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>,
 }

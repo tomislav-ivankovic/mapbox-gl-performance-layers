@@ -1,6 +1,5 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {ShaderBuffers} from '../shader';
-import {MercatorCoordinate} from 'mapbox-gl';
+import {ShaderBuffers, transformX, transformY} from '../shader';
 import {DefaultShader} from '../default/default-shader';
 import {defaultLineStyle, LineStyle} from '../../renderer-presets/line-renderer';
 
@@ -19,9 +18,8 @@ export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineStr
             const style = this.style != null ? {...defaultLineStyle, ...this.style(feature)} : defaultLineStyle;
             for (let i = 0; i < feature.geometry.coordinates.length; i++) {
                 const coords = feature.geometry.coordinates[i];
-                const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
                 array.push(
-                    transformed.x, transformed.y,
+                    transformX(coords[0]), transformY(coords[1]),
                     style.color.r, style.color.g, style.color.b, style.color.a,
                 );
                 if (i === 0 || i === feature.geometry.coordinates.length - 1) {

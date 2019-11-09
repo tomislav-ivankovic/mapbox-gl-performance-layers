@@ -1,6 +1,5 @@
-import {ShaderBuffers} from '../shader';
+import {ShaderBuffers, transformX, transformY} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {MercatorCoordinate} from 'mapbox-gl';
 import {DefaultShader} from '../default/default-shader';
 import {defaultPolygonStyle, PolygonStyle} from '../../renderer-presets/polygon-renderer';
 import earcut from 'earcut';
@@ -18,10 +17,9 @@ export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygo
         let indexOffset = 0;
         for (const feature of data.features) {
             const style = this.style != null ? {...defaultPolygonStyle, ...this.style(feature)} : defaultPolygonStyle;
-            const transformedCoordinates = feature.geometry.coordinates.map(c => c.map(coords => {
-                const transformed = MercatorCoordinate.fromLngLat({lon: coords[0], lat: coords[1]}, 0);
-                return [transformed.x, transformed.y];
-            }));
+            const transformedCoordinates = feature.geometry.coordinates.map(c =>
+                c.map(coords => [transformX(coords[0]), transformY(coords[1])])
+            );
             const data = earcut.flatten(transformedCoordinates);
             for (let i = 0; i < data.vertices.length; i += 2) {
                 array.push(
