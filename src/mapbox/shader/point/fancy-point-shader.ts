@@ -82,9 +82,9 @@ export class FancyPointShader<P> implements Shader<FeatureCollection<Point, P>> 
             array.push(
                 transformX(coords[0]), transformY(coords[1]),
                 style.size,
-                style.color.r, style.color.g, style.color.b, style.color.a,
+                style.color.r, style.color.g, style.color.b, style.opacity,
                 style.outlineSize,
-                style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
             );
         }
         return {

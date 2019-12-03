@@ -9,7 +9,7 @@ interface State {
     data: FeatureCollection<Point, {}>;
 }
 
-export class PointsWrapper extends Component<{}, State> {
+export class PointsScreen extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
 
@@ -53,7 +53,8 @@ export class PointsWrapper extends Component<{}, State> {
                     data={state.data}
                     style={() => ({
                         size: 10,
-                        color: {r: 0, g: 0, b: 1, a: 0.2}
+                        color: {r: 0, g: 0, b: 1},
+                        opacity: 0.2
                     })}
                 />
             </Map>

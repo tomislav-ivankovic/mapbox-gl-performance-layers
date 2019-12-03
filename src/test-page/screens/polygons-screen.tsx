@@ -1,35 +1,35 @@
 import React, {Component} from 'react';
-import {FeatureCollection, LineString} from 'geojson';
+import {FeatureCollection, Polygon} from 'geojson';
 import {Map} from '../map';
-import {LineLayer} from '../../react-mapbox/line-layer';
+import {PolygonLayer} from '../../react-mapbox/polygon-layer';
 
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<LineString, {}>;
+    data: FeatureCollection<Polygon, {}>;
 }
 
-export class LinesWrapper extends Component<{}, State> {
+export class PolygonsScreen extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
 
-        const numberOfLines = 20000;
-        const numberOfPointsInLine = 20;
+        const numberOfPolygons = 10000;
+        const numberOfPointsInPolygons = 4;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;
-        const lineSpread = 0.1;
-        const lines: [number, number][][] = [];
-        for (let i = 0; i < numberOfLines; i++) {
+        const polygonSpread = 0.1;
+        const polygons: [number, number][][][] = [];
+        for (let i = 0; i < numberOfPolygons; i++) {
             let x = centerX + (Math.random() - 0.5) * spread;
             let y = centerY + (Math.random() - 0.5) * spread;
             const points: [number, number][] = [];
-            for (let j = 0; j < numberOfPointsInLine; j++) {
+            for (let j = 0; j < numberOfPointsInPolygons; j++) {
                 points.push([x, y]);
-                x += (Math.random() - 0.5) * lineSpread;
-                y += (Math.random() - 0.5) * lineSpread;
+                x += Math.random() * polygonSpread;
+                y += Math.random() * polygonSpread;
             }
-            lines.push(points);
+            polygons.push([points]);
         }
 
         this.state = {
@@ -37,11 +37,11 @@ export class LinesWrapper extends Component<{}, State> {
             zoom: [6.5],
             data: {
                 type: 'FeatureCollection',
-                features: lines.map(l => ({
+                features: polygons.map(p => ({
                     type: 'Feature',
                     geometry: {
-                        type: 'LineString',
-                        coordinates: l
+                        type: 'Polygon',
+                        coordinates: p
                     },
                     properties: {}
                 }))
@@ -57,13 +57,8 @@ export class LinesWrapper extends Component<{}, State> {
                 center={state.center}
                 zoom={state.zoom}
             >
-                <LineLayer
+                <PolygonLayer
                     data={state.data}
-                    style={() => ({
-                        size: 4,
-                        color: {r: 0, g: 0, b: 1, a: 0.8}
-                    })}
-                    fancy
                 />
             </Map>
         );

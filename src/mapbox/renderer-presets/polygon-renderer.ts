@@ -8,14 +8,18 @@ import {Color} from '../misc';
 
 export interface PolygonStyle {
     color: Color;
+    opacity: number;
     outlineSize: number;
     outlineColor: Color;
+    outlineOpacity: number;
 }
 
 export const defaultPolygonStyle: PolygonStyle = {
-    color: {r: 0, g: 0, b: 1, a: 1},
+    color: {r: 0, g: 0, b: 1},
+    opacity: 1,
     outlineSize: 1,
-    outlineColor: {r: 0, g: 0, b: 0, a: 1}
+    outlineColor: {r: 0, g: 0, b: 0},
+    outlineOpacity: 1
 };
 
 export interface PolygonRendererOptions<P>{
@@ -23,23 +27,14 @@ export interface PolygonRendererOptions<P>{
 }
 
 export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer<FeatureCollection<Polygon, P>> {
+    const shader = new PolygonFillShader(options.style);
     return new SwitchRenderer([
         {
-            renderer: new ShaderRenderer(
-                new PolygonFillShader(
-                    options.style
-                )
-            ),
+            renderer: new ShaderRenderer(shader),
             condition: data => data.features.length <= 100000
         },
         {
-            renderer: new TiledRenderer(
-                new ShaderRenderer(
-                    new PolygonFillShader(
-                        options.style
-                    )
-                )
-            ),
+            renderer: new TiledRenderer(new ShaderRenderer(shader)),
             condition: data => data.features.length > 100000
         }
     ]);

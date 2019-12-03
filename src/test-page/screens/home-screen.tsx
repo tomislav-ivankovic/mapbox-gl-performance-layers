@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 
-export function Home() {
+export function HomeScreen() {
     return (
         <div>
             <h1>Mapbox Custom Layers</h1>

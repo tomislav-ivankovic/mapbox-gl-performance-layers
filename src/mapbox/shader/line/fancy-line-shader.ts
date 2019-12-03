@@ -132,16 +132,16 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
                         nextX, nextY,
                         style.size,
                         style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         ,
                         previousX, previousY,
                         currentX, currentY,
                         nextX, nextY,
                         -style.size,
                         -style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                     );
                     if (i !== 0) {
                         elementsArray.push(
@@ -161,32 +161,32 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
                         fakeNextX, fakeNextY,
                         style.size,
                         style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         ,
                         previousX, previousY,
                         currentX, currentY,
                         fakeNextX, fakeNextY,
                         -style.size,
                         -style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         ,
                         fakePreviousX, fakePreviousY,
                         currentX, currentY,
                         nextX, nextY,
                         style.size,
                         style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         ,
                         fakePreviousX, fakePreviousY,
                         currentX, currentY,
                         nextX, nextY,
                         -style.size,
                         -style.outlineSize,
-                        style.color.r, style.color.g, style.color.b, style.color.a,
-                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineColor.a
+                        style.color.r, style.color.g, style.color.b, style.opacity,
+                        style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                     );
                     if (i !== 0) {
                         elementsArray.push(

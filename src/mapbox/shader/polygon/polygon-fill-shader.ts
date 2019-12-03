@@ -24,7 +24,7 @@ export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygo
             for (let i = 0; i < data.vertices.length; i += 2) {
                 array.push(
                     data.vertices[i], data.vertices[i + 1],
-                    style.color.r, style.color.g, style.color.b, style.color.a
+                    style.color.r, style.color.g, style.color.b, style.opacity
                 );
             }
             const triangles = earcut(data.vertices, data.holes, data.dimensions);

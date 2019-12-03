@@ -10,15 +10,19 @@ import {Color} from '../misc';
 export interface LineStyle {
     size: number;
     color: Color;
+    opacity: number;
     outlineSize: number;
     outlineColor: Color;
+    outlineOpacity: number;
 }
 
 export const defaultLineStyle: LineStyle = {
     size: 3,
-    color: {r: 0, g: 0, b: 1, a: 1},
+    color: {r: 0, g: 0, b: 1},
+    opacity: 1,
     outlineSize: 0,
-    outlineColor: {r: 0, g: 0, b: 0, a: 0}
+    outlineColor: {r: 0, g: 0, b: 0},
+    outlineOpacity: 1
 };
 
 export interface LineRendererOptions<P> {
@@ -28,28 +32,16 @@ export interface LineRendererOptions<P> {
 }
 
 export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<FeatureCollection<LineString, P>> {
-    const fancySwitch = new SwitchRenderer([
-        {
-            renderer: new ShaderRenderer(new SimpleLineShader(
-                options.style
-            )),
-            condition: () => options.fancy == null || !options.fancy
-        },
-        {
-            renderer: new ShaderRenderer(new FancyLineShader(
-                options.style,
-                options.interpolation
-            )),
-            condition: () => options.fancy != null && options.fancy
-        }
-    ]);
+    const shader = (options.fancy != null && options.fancy) ?
+        new FancyLineShader(options.style, options.interpolation) :
+        new SimpleLineShader(options.style);
     return new SwitchRenderer([
         {
-            renderer: fancySwitch,
+            renderer: new ShaderRenderer(shader),
             condition: data => data.features.length <= 10000
         },
         {
-            renderer: new TiledRenderer(fancySwitch),
+            renderer: new TiledRenderer(new ShaderRenderer(shader)),
             condition: data => data.features.length > 10000
         }
     ]);

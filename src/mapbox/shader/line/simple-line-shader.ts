@@ -20,7 +20,7 @@ export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineStr
                 const coords = feature.geometry.coordinates[i];
                 array.push(
                     transformX(coords[0]), transformY(coords[1]),
-                    style.color.r, style.color.g, style.color.b, style.color.a,
+                    style.color.r, style.color.g, style.color.b, style.opacity
                 );
                 if (i === 0 || i === feature.geometry.coordinates.length - 1) {
                     elementsArray.push(currentIndex);

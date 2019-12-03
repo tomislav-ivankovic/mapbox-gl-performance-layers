@@ -62,7 +62,7 @@ export class SimplePointShader<P> implements Shader<FeatureCollection<Point, P>>
             array.push(
                 transformX(coords[0]), transformY(coords[1]),
                 style.size,
-                style.color.r, style.color.g, style.color.b, style.color.a,
+                style.color.r, style.color.g, style.color.b, style.opacity
             );
         }
         return {
