@@ -3,15 +3,17 @@ import {Feature, FeatureCollection, LineString} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
 import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
 import {lineRenderer, LineRendererOptions} from '../mapbox/renderer-presets/line-renderer';
+import {generateID} from 'react-mapbox-gl/lib/util/uid';
 
 export interface LineLayerProps<P> extends MapComponentProps, LineRendererOptions<P> {
-    data: FeatureCollection<LineString, P>,
-    onClick?: (feature: Feature<LineString, P>) => void
+    id?: string;
+    data: FeatureCollection<LineString, P>;
+    onClick?: (feature: Feature<LineString, P>) => void;
 }
 
 class Layer<P> extends Component<LineLayerProps<P>, {}> {
     private readonly layer = new CustomRenderingLayer<FeatureCollection<LineString, P>>(
-        'custom-line',
+        this.props.id || `custom-line-${generateID()}`,
         lineRenderer(this.props)
     );
 
@@ -25,6 +27,9 @@ class Layer<P> extends Component<LineLayerProps<P>, {}> {
     }
 
     componentWillUnmount(): void {
+        if (this.props.map.getStyle() == null) {
+            return;
+        }
         this.props.map.removeLayer(this.layer.id);
     }
 

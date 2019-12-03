@@ -3,15 +3,17 @@ import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
 import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
 import {polygonRenderer, PolygonRendererOptions} from '../mapbox/renderer-presets/polygon-renderer';
+import {generateID} from 'react-mapbox-gl/lib/util/uid';
 
 export interface PolygonLayerProps<P> extends MapComponentProps, PolygonRendererOptions<P> {
-    data: FeatureCollection<Polygon, P>,
-    onClick?: (feature: Feature<Polygon, P>) => void
+    id?: string;
+    data: FeatureCollection<Polygon, P>;
+    onClick?: (feature: Feature<Polygon, P>) => void;
 }
 
 class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
     private readonly layer = new CustomRenderingLayer<FeatureCollection<Polygon, P>>(
-        'custom-polygon',
+        this.props.id || `custom-polygon-${generateID()}`,
         polygonRenderer(this.props)
     );
 
@@ -25,6 +27,9 @@ class Layer<P> extends Component<PolygonLayerProps<P>, {}> {
     }
 
     componentWillUnmount(): void {
+        if (this.props.map.getStyle() == null) {
+            return;
+        }
         this.props.map.removeLayer(this.layer.id);
     }
 

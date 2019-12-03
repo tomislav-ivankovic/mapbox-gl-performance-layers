@@ -3,15 +3,17 @@ import {Feature, FeatureCollection, Point} from 'geojson';
 import {mapComponent, MapComponentProps} from './map-component';
 import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
 import {pointRenderer, PointRendererOptions} from '../mapbox/renderer-presets/point-renderer';
+import {generateID} from 'react-mapbox-gl/lib/util/uid';
 
 export interface PointLayerProps<P> extends MapComponentProps, PointRendererOptions<P> {
-    data: FeatureCollection<Point, P>,
-    onClick?: (feature: Feature<Point, P>) => void
+    id?: string;
+    data: FeatureCollection<Point, P>;
+    onClick?: (feature: Feature<Point, P>) => void;
 }
 
 class Layer<P> extends Component<PointLayerProps<P>, {}> {
     private readonly layer = new CustomRenderingLayer<FeatureCollection<Point, P>>(
-        'custom-point',
+        this.props.id || `custom-point-${generateID()}`,
         pointRenderer(this.props)
     );
 
@@ -25,6 +27,9 @@ class Layer<P> extends Component<PointLayerProps<P>, {}> {
     }
 
     componentWillUnmount(): void {
+        if (this.props.map.getStyle() == null) {
+            return;
+        }
         this.props.map.removeLayer(this.layer.id);
     }
 
