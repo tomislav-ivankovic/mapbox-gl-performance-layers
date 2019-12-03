@@ -3,10 +3,12 @@ import {TileGenerator} from './tile-generator';
 import {TileManager} from './tile-manager';
 import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
 import * as glMatrix from 'gl-matrix';
+import {transformX, transformY} from '../../shader/shader';
 
 export class TiledRenderer<D> implements Renderer<D> {
     private manager: TileManager<D>;
     private textureDrawer = new TextureDrawer();
+    private map: mapboxgl.Map | null = null;
 
     constructor(
         renderer: Renderer<D>,
@@ -26,20 +28,26 @@ export class TiledRenderer<D> implements Renderer<D> {
         this.manager.setData(data);
     }
 
-    initialise(gl: WebGLRenderingContext): void {
-        this.manager.initialise(gl);
+    initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
+        this.manager.initialise(map, gl);
         this.textureDrawer.initialise(gl);
+        this.map = map;
     }
 
-    dispose(gl: WebGLRenderingContext): void {
+    dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
+        this.map = null;
         this.textureDrawer.dispose(gl);
-        this.manager.dispose(gl);
+        this.manager.dispose(map, gl);
     }
 
     prerender(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
     }
 
     render(gl: WebGLRenderingContext, matrix: glMatrix.mat4 | number[]): void {
+        if (this.map == null) {
+            throw Error('TiledRenderer can not render without being initialised.');
+        }
+
         const viewportArray = gl.getParameter(gl.VIEWPORT) as [number, number, number, number];
         const viewport = {
             x: viewportArray[0],
@@ -47,7 +55,7 @@ export class TiledRenderer<D> implements Renderer<D> {
             w: viewportArray[2],
             h: viewportArray[3]
         };
-        const bounds = findBoundsFromMatrix(matrix);
+        const bounds = findBoundsFromMap(this.map);
         const equationFactor = Math.min(
             this.tileWidth * (bounds.maxX - bounds.minX) / viewport.w,
             this.tileHeight * (bounds.maxY - bounds.minY) / viewport.h
@@ -83,45 +91,12 @@ interface Bounds {
     maxY: number
 }
 
-const tempMatrix = glMatrix.mat4.create();
-
-function findBoundsFromMatrix(matrix: glMatrix.mat4 | number[]): Bounds {
-    if (matrix.length !== 16) {
-        throw Error('Input matrix must pe a 4x4 size. The array must contain 16 elements.');
-    }
-
-    let invertedMatrix: glMatrix.mat4;
-    if (matrix instanceof Array) {
-        invertedMatrix = tempMatrix;
-        invertedMatrix.set(matrix);
-    } else {
-        invertedMatrix = matrix;
-    }
-    glMatrix.mat4.invert(invertedMatrix, invertedMatrix);
-
-    const points = [
-        glMatrix.vec4.fromValues(-1, -1, 1, 1),
-        glMatrix.vec4.fromValues(-1, 1, 1, 1),
-        glMatrix.vec4.fromValues(1, -1, 1, 1),
-        glMatrix.vec4.fromValues(1, 1, 1, 1)
-    ];
-
-    let minX = +Infinity, minY = +Infinity, maxX = -Infinity, maxY = -Infinity;
-    points.forEach(point => {
-        glMatrix.vec4.transformMat4(point, point, invertedMatrix);
-        const values = Array.from(point.values());
-        const x = values[0] / values[3];
-        const y = values[1] / values[3];
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-    });
-
+function findBoundsFromMap(map: mapboxgl.Map): Bounds {
+    const bounds = map.getBounds();
     return {
-        minX: minX,
-        minY: minY,
-        maxX: maxX,
-        maxY: maxY
+        minX: transformX(bounds.getWest()),
+        minY: transformY(bounds.getNorth()),
+        maxX: transformX(bounds.getEast()),
+        maxY: transformY(bounds.getSouth())
     };
 }

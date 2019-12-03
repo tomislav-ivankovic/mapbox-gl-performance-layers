@@ -29,8 +29,8 @@ export class TileManager<D> {
         }
     }
 
-    public initialise(gl: WebGLRenderingContext): void {
-        this.generator.initialise(gl);
+    public initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
+        this.generator.initialise(map, gl);
 
         const tiles: Tile[] = [];
         for (let i = 0; i < this.numberOfTiles; i++) {
@@ -64,12 +64,12 @@ export class TileManager<D> {
         this.tiles = tiles;
     }
 
-    public dispose(gl: WebGLRenderingContext): void {
+    public dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         if(this.tiles != null) {
             this.tiles.forEach(tile => gl.deleteTexture(tile.texture));
         }
         this.tiles = null;
-        this.generator.dispose(gl);
+        this.generator.dispose(map, gl);
     }
 
     public getTileTexture(

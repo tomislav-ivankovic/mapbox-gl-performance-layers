@@ -20,13 +20,13 @@ export class ShaderRenderer<D> implements Renderer<D> {
         this.elementArray = arrays.elementArray;
     }
 
-    initialise(gl: WebGLRenderingContext): void {
+    initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         this.program = createShaderProgram(gl, this.shader.vertexSource, this.shader.fragmentSource);
         this.arrayBuffer = gl.createBuffer();
         this.elementArrayBuffer = gl.createBuffer();
     }
 
-    dispose(gl: WebGLRenderingContext): void {
+    dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         gl.deleteBuffer(this.elementArrayBuffer);
         gl.deleteBuffer(this.arrayBuffer);
         gl.deleteProgram(this.program);

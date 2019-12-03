@@ -14,13 +14,13 @@ export class TileGenerator<D> {
         this.renderer.setData(data);
     }
 
-    public initialise(gl: WebGLRenderingContext) {
+    public initialise(map: mapboxgl.Map, gl: WebGLRenderingContext) {
         this.frameBuffer = gl.createFramebuffer();
-        this.renderer.initialise(gl);
+        this.renderer.initialise(map, gl);
     }
 
-    public dispose(gl: WebGLRenderingContext) {
-        this.renderer.dispose(gl);
+    public dispose(map: mapboxgl.Map, gl: WebGLRenderingContext) {
+        this.renderer.dispose(map, gl);
         gl.deleteFramebuffer(this.frameBuffer);
     }
 

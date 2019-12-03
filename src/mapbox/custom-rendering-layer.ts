@@ -17,11 +17,11 @@ export class CustomRenderingLayer<D> implements CustomLayerInterface {
 
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         gl.getExtension('OES_element_index_uint');
-        this.renderer.initialise(gl);
+        this.renderer.initialise(map, gl);
     }
 
     onRemove(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
-        this.renderer.dispose(gl);
+        this.renderer.dispose(map, gl);
     }
 
     prerender(gl: WebGLRenderingContext, matrix: number[]): void {

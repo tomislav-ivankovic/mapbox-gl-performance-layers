@@ -13,15 +13,15 @@ export class CompositeRenderer<D> implements Renderer<D> {
         }
     }
 
-    initialise(gl: WebGLRenderingContext): void {
+    initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         for (const renderer of this.renderers) {
-            renderer.initialise(gl);
+            renderer.initialise(map, gl);
         }
     }
 
-    dispose(gl: WebGLRenderingContext): void {
+    dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         for (const renderer of this.renderers) {
-            renderer.dispose(gl);
+            renderer.dispose(map, gl);
         }
     }
 

@@ -7,6 +7,7 @@ export interface SwitchOption<D> {
 }
 
 export class SwitchRenderer<D> implements Renderer<D> {
+    private map: mapboxgl.Map | null = null;
     private gl: WebGLRenderingContext | null = null;
     private currentOption: SwitchOption<D> | null = null;
 
@@ -21,11 +22,11 @@ export class SwitchRenderer<D> implements Renderer<D> {
             const newOption = this.options.find(option => option.condition(data));
             if (newOption !== currentOption) {
                 if (this.gl != null) {
-                    if (currentOption != null) {
-                        currentOption.renderer.dispose(this.gl);
+                    if (this.map != null && currentOption != null) {
+                        currentOption.renderer.dispose(this.map, this.gl);
                     }
-                    if (newOption != null) {
-                        newOption.renderer.initialise(this.gl);
+                    if (this.map != null && newOption != null) {
+                        newOption.renderer.initialise(this.map, this.gl);
                     }
                 }
                 this.currentOption = newOption != null ? newOption : null;
@@ -36,17 +37,19 @@ export class SwitchRenderer<D> implements Renderer<D> {
         }
     }
 
-    initialise(gl: WebGLRenderingContext): void {
+    initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         if (this.currentOption != null) {
-            this.currentOption.renderer.initialise(gl);
+            this.currentOption.renderer.initialise(map, gl);
         }
+        this.map = map;
         this.gl = gl;
     }
 
-    dispose(gl: WebGLRenderingContext): void {
+    dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         this.gl = null;
+        this.map = null;
         if (this.currentOption != null) {
-            this.currentOption.renderer.dispose(gl);
+            this.currentOption.renderer.dispose(map, gl);
         }
     }
 
