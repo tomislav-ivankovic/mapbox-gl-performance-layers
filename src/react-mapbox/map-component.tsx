@@ -5,15 +5,17 @@ export interface MapComponentProps {
     map: mapboxgl.Map;
 }
 
-export const mapComponent = <P extends MapComponentProps>(WrappedComponent: ComponentType<P>) => {
-    return (props: Omit<P, 'map'>) => (
+export function mapComponent<P extends MapComponentProps>(
+    WrappedComponent: ComponentType<P>
+): ComponentType<Omit<P, 'map'>> {
+    return props => (
         <MapContext.Consumer>
-            {(map) => (
+            {map =>
                 <WrappedComponent
                     map={map}
                     {...props as any}
                 />
-            )}
+            }
         </MapContext.Consumer>
     );
-};
+}
