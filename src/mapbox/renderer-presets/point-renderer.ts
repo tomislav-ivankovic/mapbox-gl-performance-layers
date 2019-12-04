@@ -3,7 +3,7 @@ import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
 import {SimplePointShader} from '../shader/point/simple-point-shader';
 import {FancyPointShader} from '../shader/point/fancy-point-shader';
-import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
+import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {Renderer} from '../renderer/renderer';
 import {Color} from '../misc';
 
@@ -41,8 +41,25 @@ export function pointRenderer<P>(options: PointRendererOptions<P>): Renderer<Fea
             condition: data => data.features.length <= 100000
         },
         {
-            renderer: new TiledRenderer(new ShaderRenderer(shader)),
+            renderer: new TiledRenderer(new ShaderRenderer(shader), findDataBounds),
             condition: data => data.features.length > 100000
         }
     ]);
+}
+
+function findDataBounds(data: FeatureCollection<Point, any>): Bounds {
+    const bounds: Bounds = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
+    for (const feature of data.features) {
+        const coords = feature.geometry.coordinates;
+        if (coords[0] < bounds.minX) bounds.minX = coords[0];
+        if (coords[1] < bounds.minY) bounds.minY = coords[1];
+        if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
+        if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
+    }
+    return bounds;
 }

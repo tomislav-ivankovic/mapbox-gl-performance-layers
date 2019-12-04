@@ -1,4 +1,6 @@
 import {TileGenerator} from './tile-generator';
+import {Bounds} from './tiled-renderer';
+import {transformX, transformY} from "../../shader/shader";
 
 interface Tile {
     x: number,
@@ -10,9 +12,11 @@ interface Tile {
 
 export class TileManager<D> {
     private tiles: Tile[] | null = null;
+    private dataBounds: Bounds | null = null;
 
     constructor(
         private generator: TileGenerator<D>,
+        private findDataBounds: (data: D) => Bounds,
         private numberOfTiles: number,
         private tileWidth: number,
         private tileHeight: number
@@ -21,6 +25,13 @@ export class TileManager<D> {
 
     public setData(data: D): void {
         this.generator.setData(data);
+        const bounds = this.findDataBounds(data);
+        this.dataBounds = {
+            minX: transformX(bounds.minX),
+            minY: transformY(bounds.maxY),
+            maxX: transformX(bounds.maxX),
+            maxY: transformY(bounds.minY)
+        };
         if (this.tiles != null) {
             this.tiles.forEach(tile => {
                 tile.zoom = -1;
@@ -30,6 +41,7 @@ export class TileManager<D> {
     }
 
     public clearData(): void {
+        this.dataBounds = null;
         this.generator.clearData();
     }
 
@@ -69,7 +81,7 @@ export class TileManager<D> {
     }
 
     public dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
-        if(this.tiles != null) {
+        if (this.tiles != null) {
             this.tiles.forEach(tile => gl.deleteTexture(tile.texture));
         }
         this.tiles = null;
@@ -81,10 +93,14 @@ export class TileManager<D> {
         x: number,
         y: number,
         zoom: number
-    ): WebGLTexture {
+    ): WebGLTexture | null {
         const tiles = this.tiles;
         if (tiles == null) {
             throw Error('TileManager can not get a tile texture before it is initialised.');
+        }
+
+        if (!this.isTileInDataBounds(x, y, zoom)) {
+            return null;
         }
 
         const foundTile = tiles.find(t => t.x === x && t.y === y && t.zoom === zoom);
@@ -123,5 +139,21 @@ export class TileManager<D> {
         for (const tile of this.tiles) {
             tile.age++;
         }
+    }
+
+    private isTileInDataBounds(x: number, y: number, zoom: number): boolean {
+        const bounds = this.dataBounds;
+        if (bounds == null) {
+            return false;
+        }
+        const size = Math.pow(2, -zoom);
+        const minX = x * size;
+        const minY = y * size;
+        const maxX = minX + size;
+        const maxY = minY + size;
+        return minX <= bounds.maxX &&
+            maxX >= bounds.minX &&
+            minY <= bounds.maxY &&
+            maxY >= bounds.minY;
     }
 }

@@ -13,7 +13,7 @@ export class PointsScreen extends Component<{}, State> {
     constructor(props: {}) {
         super(props);
 
-        const numberOfPoints = 1000000;
+        const numberOfPoints = 10000000;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;

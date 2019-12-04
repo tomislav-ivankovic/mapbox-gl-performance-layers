@@ -12,12 +12,14 @@ export class TiledRenderer<D> implements Renderer<D> {
 
     constructor(
         renderer: Renderer<D>,
+        findDataBounds: (data: D) => Bounds,
         numberOfTiles = 16,
         private tileWidth = 2048,
         private tileHeight = 2048
     ) {
         this.manager = new TileManager(
             new TileGenerator(renderer),
+            findDataBounds,
             numberOfTiles,
             tileWidth,
             tileHeight
@@ -59,7 +61,7 @@ export class TiledRenderer<D> implements Renderer<D> {
             w: viewportArray[2],
             h: viewportArray[3]
         };
-        const bounds = findBoundsFromMap(this.map);
+        const bounds = findViewBounds(this.map);
         const equationFactor = Math.min(
             this.tileWidth * (bounds.maxX - bounds.minX) / viewport.w,
             this.tileHeight * (bounds.maxY - bounds.minY) / viewport.h
@@ -69,7 +71,9 @@ export class TiledRenderer<D> implements Renderer<D> {
         for (let x = Math.floor(bounds.minX / size); x * size < bounds.maxX; x++) {
             for (let y = Math.floor(bounds.minY / size); y * size < bounds.maxY; y++) {
                 const texture = this.manager.getTileTexture(gl, x, y, zoom);
-                this.drawTile(gl, texture, matrix, x, y, zoom);
+                if (texture != null) {
+                    this.drawTile(gl, texture, matrix, x, y, zoom);
+                }
             }
         }
         this.manager.incrementAge();
@@ -88,14 +92,14 @@ export class TiledRenderer<D> implements Renderer<D> {
     }
 }
 
-interface Bounds {
+export interface Bounds {
     minX: number,
     minY: number,
     maxX: number,
     maxY: number
 }
 
-function findBoundsFromMap(map: mapboxgl.Map): Bounds {
+function findViewBounds(map: mapboxgl.Map): Bounds {
     const bounds = map.getBounds();
     return {
         minX: transformX(bounds.getWest()),
