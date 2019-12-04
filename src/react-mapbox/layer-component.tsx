@@ -1,13 +1,16 @@
 import {Component} from 'react';
-import {CustomRenderingLayer} from '../mapbox/custom-rendering-layer';
+import {CustomLayer} from '../mapbox/custom-layer';
 import {MapComponentProps} from './map-component';
+import {FeatureCollection, Geometry} from 'geojson';
 
-export interface CustomLayerComponentProps<D> extends MapComponentProps {
+export interface CustomLayerComponentProps<G extends Geometry, P> extends MapComponentProps {
     id?: string;
-    data: D;
+    data: FeatureCollection<G, P>;
 }
 
-export abstract class CustomLayerComponent<P extends CustomLayerComponentProps<D>, S, D> extends Component<P, S> {
+export abstract class CustomLayerComponent<P extends CustomLayerComponentProps<G, P1>, S, G extends Geometry, P1>
+    extends Component<P, S> {
+
     protected readonly layer = this.constructLayer();
 
     constructor(props: P) {
@@ -15,7 +18,7 @@ export abstract class CustomLayerComponent<P extends CustomLayerComponentProps<D
         this.layer.setData(props.data);
     }
 
-    protected abstract constructLayer(): CustomRenderingLayer<D>;
+    protected abstract constructLayer(): CustomLayer<G, P1>;
 
     componentDidMount(): void {
         this.props.map.addLayer(this.layer);
