@@ -23,6 +23,7 @@ export class SwitchRenderer<D> implements Renderer<D> {
             if (newOption !== currentOption) {
                 if (this.gl != null) {
                     if (this.map != null && currentOption != null) {
+                        currentOption.renderer.clearData();
                         currentOption.renderer.dispose(this.map, this.gl);
                     }
                     if (this.map != null && newOption != null) {
@@ -34,6 +35,12 @@ export class SwitchRenderer<D> implements Renderer<D> {
         }
         if (this.currentOption != null) {
             this.currentOption.renderer.setData(data);
+        }
+    }
+
+    clearData(): void {
+        if (this.currentOption != null) {
+            this.currentOption.renderer.clearData();
         }
     }
 

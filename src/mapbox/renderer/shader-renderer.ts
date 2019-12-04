@@ -20,6 +20,11 @@ export class ShaderRenderer<D> implements Renderer<D> {
         this.elementArray = arrays.elementArray;
     }
 
+    clearData(): void {
+        this.array = new Float32Array([]);
+        this.elementArray = null;
+    }
+
     initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         this.program = createShaderProgram(gl, this.shader.vertexSource, this.shader.fragmentSource);
         this.arrayBuffer = gl.createBuffer();

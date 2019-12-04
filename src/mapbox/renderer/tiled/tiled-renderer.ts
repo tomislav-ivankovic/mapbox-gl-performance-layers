@@ -28,6 +28,10 @@ export class TiledRenderer<D> implements Renderer<D> {
         this.manager.setData(data);
     }
 
+    clearData(): void {
+        this.manager.clearData();
+    }
+
     initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         this.manager.initialise(map, gl);
         this.textureDrawer.initialise(gl);

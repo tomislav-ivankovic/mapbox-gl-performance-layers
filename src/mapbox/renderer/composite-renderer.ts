@@ -13,6 +13,12 @@ export class CompositeRenderer<D> implements Renderer<D> {
         }
     }
 
+    clearData(): void {
+        for (const renderer of this.renderers) {
+            renderer.clearData();
+        }
+    }
+
     initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         for (const renderer of this.renderers) {
             renderer.initialise(map, gl);

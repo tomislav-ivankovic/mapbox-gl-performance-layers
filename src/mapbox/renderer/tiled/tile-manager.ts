@@ -29,6 +29,10 @@ export class TileManager<D> {
         }
     }
 
+    public clearData(): void {
+        this.generator.clearData();
+    }
+
     public initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         this.generator.initialise(map, gl);
 

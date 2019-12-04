@@ -14,6 +14,10 @@ export class TileGenerator<D> {
         this.renderer.setData(data);
     }
 
+    public clearData(): void {
+        this.renderer.clearData();
+    }
+
     public initialise(map: mapboxgl.Map, gl: WebGLRenderingContext) {
         this.frameBuffer = gl.createFramebuffer();
         this.renderer.initialise(map, gl);
