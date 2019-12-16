@@ -53,7 +53,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
         this.map = null;
     }
 
-    clickHandler = (e: MapMouseEvent & EventData) => {
+    private clickHandler = (e: MapMouseEvent & EventData) => {
         if (this.map == null || this.options.onClick == null || this.data == null || this.index == null) {
             return;
         }

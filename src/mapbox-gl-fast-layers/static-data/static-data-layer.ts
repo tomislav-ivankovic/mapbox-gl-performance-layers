@@ -3,7 +3,7 @@ import {Renderer} from './renderer/renderer';
 import {ClickProvider} from './click-provider/click-provider';
 import {FeatureCollection, Geometry} from 'geojson';
 
-export class CustomLayer<G extends Geometry, P> implements CustomLayerInterface {
+export class StaticDataLayer<G extends Geometry, P> implements CustomLayerInterface {
     public type: 'custom' = 'custom';
 
     constructor(

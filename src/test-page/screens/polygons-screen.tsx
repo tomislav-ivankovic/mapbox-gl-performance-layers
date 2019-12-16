@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FeatureCollection, Polygon} from 'geojson';
 import {Map} from '../map';
-import {PolygonLayer} from '../../react-mapbox/polygon-layer';
+import {PolygonLayer} from '../../react-mapbox-gl-fast-layers/static-data/polygon-layer';
 
 interface State {
     center: [number, number];
@@ -59,6 +59,7 @@ export class PolygonsScreen extends Component<{}, State> {
             >
                 <PolygonLayer
                     data={state.data}
+                    onClick={f => console.dir(f)}
                 />
             </Map>
         );

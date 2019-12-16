@@ -5,7 +5,7 @@ import {ShaderRenderer} from '../renderer/shader-renderer';
 import {SimpleLineShader} from '../shader/line/simple-line-shader';
 import {FancyLineShader} from '../shader/line/fancy-line-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
-import {Color} from '../misc';
+import {Color} from '../../misc';
 
 export interface LineStyle {
     size: number;

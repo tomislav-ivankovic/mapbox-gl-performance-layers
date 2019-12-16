@@ -4,7 +4,7 @@ import {ShaderRenderer} from '../renderer/shader-renderer';
 import {PolygonFillShader} from '../shader/polygon/polygon-fill-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {Renderer} from '../renderer/renderer';
-import {Color} from '../misc';
+import {Color} from '../../misc';
 
 export interface PolygonStyle {
     color: Color;

@@ -28,11 +28,12 @@
     "gl-matrix": "^3.1.0",
     "kdbush": "^3.0.0",
     "mapbox-gl": "^1.4.0",
+    "rbush": "^3.0.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-mapbox-gl": "^4.6.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.2.0"
+    "react-scripts": "^3.3.0"
   },
   "devDependencies": {
     "@types/earcut": "^2.1.0",
@@ -42,6 +43,7 @@
     "@types/kdbush": "^3.0.0",
     "@types/mapbox-gl": "^0.54.4",
     "@types/node": "12.7.11",
+    "@types/rbush": "^3.0.0",
     "@types/react": "16.9.5",
     "@types/react-dom": "16.9.1",
     "@types/react-router-dom": "^5.1.0",

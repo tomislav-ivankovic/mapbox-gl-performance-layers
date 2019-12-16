@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Map} from '../map';
-import {PointLayer} from '../../react-mapbox/point-layer';
+import {PointLayer} from '../../react-mapbox-gl-fast-layers/static-data/point-layer';
 import {FeatureCollection, Point} from 'geojson';
 
 interface State {

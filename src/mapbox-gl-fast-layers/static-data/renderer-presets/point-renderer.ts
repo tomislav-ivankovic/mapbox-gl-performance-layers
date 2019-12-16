@@ -5,7 +5,7 @@ import {SimplePointShader} from '../shader/point/simple-point-shader';
 import {FancyPointShader} from '../shader/point/fancy-point-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {Renderer} from '../renderer/renderer';
-import {Color} from '../misc';
+import {Color} from '../../misc';
 
 export interface PointStyle {
     size: number;
