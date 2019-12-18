@@ -4,11 +4,10 @@ import {FeatureTree} from './feature-tree';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 
 export interface PolygonClickProviderOptions<P> {
-    onClick?: (feature: Feature<Polygon, P>) => void;
+    onClick?: (feature: Feature<Polygon, P>, e: MapMouseEvent & EventData) => void;
 }
 
 export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
-    private map: mapboxgl.Map | null = null;
     private tree: FeatureTree<Polygon, P> | null = null;
 
     constructor(
@@ -33,7 +32,6 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         if (this.options.onClick == null) {
             return;
         }
-        this.map = map;
         map.on('click', this.clickHandler);
     }
 
@@ -42,11 +40,10 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
             return;
         }
         map.off('click', this.clickHandler);
-        this.map = null;
     }
 
     private clickHandler = (e: MapMouseEvent & EventData) => {
-        if (this.map == null || this.options.onClick == null || this.tree == null) {
+        if (this.options.onClick == null || this.tree == null) {
             return;
         }
         const x = e.lngLat.lng;
@@ -54,7 +51,7 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         const results = this.tree.search({minX: x, minY: y, maxX: x, maxY: y});
         for (const feature of results) {
             if (isPointInPolygon(x, y, feature.geometry)) {
-                this.options.onClick(feature);
+                this.options.onClick(feature, e);
                 e.originalEvent.stopPropagation();
                 break;
             }

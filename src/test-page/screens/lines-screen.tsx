@@ -64,6 +64,7 @@ export class LinesScreen extends Component<{}, State> {
                         color: {r: 0, g: 0, b: 1},
                         opacity: 0.8
                     })}
+                    onClick={f => console.dir(f)}
                     fancy
                 />
             </Map>

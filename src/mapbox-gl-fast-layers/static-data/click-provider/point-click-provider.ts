@@ -4,7 +4,7 @@ import KDBush from 'kdbush';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 
 export interface PointClickProviderOptions<P> {
-    onClick?: (feature: Feature<Point, P>) => void;
+    onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;
     clickSize?: number;
 }
 
@@ -54,7 +54,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
     }
 
     private clickHandler = (e: MapMouseEvent & EventData) => {
-        if (this.map == null || this.options.onClick == null || this.data == null || this.index == null) {
+        if (this.options.onClick == null || this.map == null || this.data == null || this.index == null) {
             return;
         }
         const bounds = this.map.getBounds();
@@ -80,7 +80,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
             }
         }
         const closestFeature = features[closestIndex];
-        this.options.onClick(closestFeature);
+        this.options.onClick(closestFeature, e);
         e.originalEvent.stopPropagation();
     }
 }
