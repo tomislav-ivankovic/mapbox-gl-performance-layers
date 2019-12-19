@@ -4,7 +4,11 @@ import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {FeatureTree} from './feature-tree';
 
 export interface LineClickProviderOptions<P> {
-    onClick?: (feature: Feature<LineString, P>, e: MapMouseEvent & EventData) => void;
+    onClick?: (
+        feature: Feature<LineString, P>,
+        e: MapMouseEvent & EventData,
+        closestPointOnLine: { x: number, y: number }
+    ) => void;
     clickSize?: number;
 }
 
@@ -68,16 +72,19 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
         }
         let closestFeature = features[0];
         let minDistanceSqr = Infinity;
+        let closestPoint = {x: 0, y: 0};
         for (const feature of features) {
-            const distSqr = pointToLineDistanceSqr(x, y, feature.geometry);
-            if (distSqr < minDistanceSqr) {
+            const point = closestPointOnLine(x, y, feature.geometry);
+            const distanceSqr = pointToPointDistanceSqr(x, y, point.x, point.y);
+            if (distanceSqr < minDistanceSqr) {
                 closestFeature = feature;
-                minDistanceSqr = distSqr;
+                minDistanceSqr = distanceSqr;
+                closestPoint = point;
             }
         }
-        const clickDistanceSqr = 0.25 * Math.max(w*w, h*h);
+        const clickDistanceSqr = 0.25 * Math.max(w * w, h * h);
         if (minDistanceSqr <= clickDistanceSqr) {
-            this.options.onClick(closestFeature, e);
+            this.options.onClick(closestFeature, e, closestPoint);
             e.originalEvent.stopPropagation();
         }
     }
@@ -102,31 +109,35 @@ function addBoundingBoxes<P>(data: FeatureCollection<LineString, P>): void {
     }
 }
 
-function pointToLineDistanceSqr(x: number, y: number, line: LineString) {
-    let min = Infinity;
+function closestPointOnLine(x: number, y: number, line: LineString): { x: number, y: number } {
+    let minDistanceSqr = Infinity;
+    let closestX = x;
+    let closestY = y;
     for (let i = 0; i < line.coordinates.length - 1; i++) {
-        const p1 = line.coordinates[i];
-        const p2 = line.coordinates[i + 1];
-        const distSqr = pointToLineSegmentDistanceSqr(x, y, p1[0], p1[1], p2[0], p2[1]);
-        if (distSqr < min) {
-            min = distSqr;
+        const [x1, y1] = line.coordinates[i];
+        const [x2, y2] = line.coordinates[i + 1];
+        const segmentLengthSqr = pointToPointDistanceSqr(x1, y1, x2, y2);
+        let projectionX = x1;
+        let projectionY = y1;
+        if (segmentLengthSqr > 0) {
+            const projectionFactor = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / segmentLengthSqr;
+            const projectionFactorClamped = Math.max(0, Math.min(1, projectionFactor));
+            projectionX = x1 + projectionFactorClamped * (x2 - x1);
+            projectionY = y1 + projectionFactorClamped * (y2 - y1);
+        }
+        const distanceSqr = pointToPointDistanceSqr(x, y, projectionX, projectionY);
+        if (distanceSqr < minDistanceSqr) {
+            minDistanceSqr = distanceSqr;
+            closestX = projectionX;
+            closestY = projectionY;
         }
     }
-    return min;
+    return {
+        x: closestX,
+        y: closestY
+    };
 }
 
-function pointToLineSegmentDistanceSqr(x: number, y: number, x1: number, y1: number, x2: number, y2: number) {
-    const segmentLengthSqr = pointToPointDistanceSqr(x1, y1, x2, y2);
-    if (segmentLengthSqr === 0) {
-        return pointToPointDistanceSqr(x1, y1, x, y);
-    }
-    const projectionFactor = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / segmentLengthSqr;
-    const projectionFactorClamped = Math.max(0, Math.min(1, projectionFactor));
-    const projectionX = x1 + projectionFactorClamped * (x2 - x1);
-    const projectionY = y1 + projectionFactorClamped * (y2 - y1);
-    return pointToPointDistanceSqr(x, y, projectionX, projectionY);
-}
-
-function pointToPointDistanceSqr(x1: number, y1: number, x2: number, y2: number) {
+function pointToPointDistanceSqr(x1: number, y1: number, x2: number, y2: number): number {
     return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 }
