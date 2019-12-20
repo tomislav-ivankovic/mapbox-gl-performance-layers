@@ -59,11 +59,6 @@ export class LinesScreen extends Component<{}, State> {
             >
                 <LineLayer
                     data={state.data}
-                    style={() => ({
-                        size: 4,
-                        color: {r: 0, g: 0, b: 1},
-                        opacity: 0.8
-                    })}
                     onClick={f => console.dir(f)}
                     fancy
                 />

@@ -7,17 +7,21 @@ uniform float u_interpolation;
 attribute vec2 a_previousPosition;
 attribute vec2 a_currentPosition;
 attribute vec2 a_nextPosition;
-attribute float a_size;
+attribute float a_outlineSize;
+attribute float a_offset;
 attribute vec4 a_color;
+attribute vec4 a_outlineColor;
 
 varying vec4 v_color;
-varying float v_halfSize;
+varying vec4 v_outlineColor;
+varying float v_size;
 varying float v_distance;
 
 void main() {
     v_color = a_color;
-    v_halfSize = 0.5 * (abs(a_size) + u_interpolation);
-    v_distance = sign(a_size) * v_halfSize;
+    v_outlineColor = a_outlineColor;
+    v_size = a_outlineSize + u_interpolation;
+    v_distance = a_offset * v_size;
 
     vec4 previousProjected = u_matrix * vec4(a_previousPosition, 0.0, 1.0);
     vec4 currentProjected = u_matrix * vec4(a_currentPosition, 0.0, 1.0);
@@ -35,5 +39,5 @@ void main() {
     vec2 normal = vec2(-tangent.y, tangent.x);
     vec2 offset = (2.0 * v_distance / max(dot(normal, perp), 0.1) * normal) / u_viewPortSize;
 
-    gl_Position = vec4(currentProjected.xy / max(currentProjected.w, 0.0001) + offset, 0.0, 1.0);
+    gl_Position = vec4(currentProjected.xy / max(currentProjected.w, 0.0001) - offset, 0.0, 1.0);
 }

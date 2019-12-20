@@ -52,8 +52,6 @@ export class PointsScreen extends Component<{}, State> {
                 <PointLayer
                     data={state.data}
                     style={() => ({
-                        size: 10,
-                        color: {r: 0, g: 0, b: 1},
                         opacity: 0.2
                     })}
                     onClick={f => console.dir(f)}

@@ -19,9 +19,11 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
         const previousPosition = gl.getAttribLocation(program, 'a_previousPosition');
         const currentPosition = gl.getAttribLocation(program, 'a_currentPosition');
         const nextPosition = gl.getAttribLocation(program, 'a_nextPosition');
-        const size = gl.getAttribLocation(program, 'a_size');
+        const outlineSize = gl.getAttribLocation(program, 'a_outlineSize');
+        const offset = gl.getAttribLocation(program, 'a_offset');
         const color = gl.getAttribLocation(program, 'a_color');
-        const vertexSize = 12 * Float32Array.BYTES_PER_ELEMENT;
+        const outlineColor = gl.getAttribLocation(program, 'a_outlineColor');
+        const vertexSize = 16 * Float32Array.BYTES_PER_ELEMENT;
         gl.vertexAttribPointer(
             previousPosition,
             2,
@@ -47,12 +49,20 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
             4 * Float32Array.BYTES_PER_ELEMENT
         );
         gl.vertexAttribPointer(
-            size,
+            outlineSize,
             1,
             gl.FLOAT,
             false,
             vertexSize,
             6 * Float32Array.BYTES_PER_ELEMENT
+        );
+        gl.vertexAttribPointer(
+            offset,
+            1,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            7 * Float32Array.BYTES_PER_ELEMENT
         );
         gl.vertexAttribPointer(
             color,
@@ -62,11 +72,21 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
             vertexSize,
             8 * Float32Array.BYTES_PER_ELEMENT
         );
+        gl.vertexAttribPointer(
+            outlineColor,
+            4,
+            gl.FLOAT,
+            false,
+            vertexSize,
+            12 * Float32Array.BYTES_PER_ELEMENT
+        );
         gl.enableVertexAttribArray(previousPosition);
         gl.enableVertexAttribArray(currentPosition);
         gl.enableVertexAttribArray(nextPosition);
-        gl.enableVertexAttribArray(size);
+        gl.enableVertexAttribArray(outlineSize);
+        gl.enableVertexAttribArray(offset);
         gl.enableVertexAttribArray(color);
+        gl.enableVertexAttribArray(outlineColor);
     }
 
     dataToArrays(data: FeatureCollection<Polygon, P>): ShaderBuffers {
@@ -101,13 +121,15 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
                             nextX, nextY,
                             style.outlineSize,
                             0,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                             ,
                             previousX, previousY,
                             currentX, currentY,
                             nextX, nextY,
-                            -style.outlineSize,
-                            0,
+                            style.outlineSize,
+                            1,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         );
                         if (i !== 0) {
@@ -128,13 +150,15 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
                             fakeNextX, fakeNextY,
                             style.outlineSize,
                             0,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                             ,
                             previousX, previousY,
                             currentX, currentY,
                             fakeNextX, fakeNextY,
-                            -style.outlineSize,
-                            0,
+                            style.outlineSize,
+                            1,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                             ,
                             fakePreviousX, fakePreviousY,
@@ -142,13 +166,15 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
                             nextX, nextY,
                             style.outlineSize,
                             0,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                             ,
                             fakePreviousX, fakePreviousY,
                             currentX, currentY,
                             nextX, nextY,
-                            -style.outlineSize,
-                            0,
+                            style.outlineSize,
+                            1,
+                            style.color.r, style.color.g, style.color.b, style.opacity,
                             style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         );
                         if (i !== 0) {
@@ -176,7 +202,7 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
     }
 
     getArrayBufferElementsPerVertex(): number {
-        return 12;
+        return 16;
     }
 
     getPrimitiveType(gl: WebGLRenderingContext): number {

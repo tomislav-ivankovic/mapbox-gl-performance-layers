@@ -17,12 +17,12 @@ export interface PointStyle {
 }
 
 export const defaultPointStyle: PointStyle = {
-    size: 5,
+    size: 10,
     color: {r: 0, g: 0, b: 1},
-    opacity: 1,
+    opacity: 0.8,
     outlineSize: 0,
     outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 1
+    outlineOpacity: 0
 };
 
 export interface PointRendererOptions<P> {

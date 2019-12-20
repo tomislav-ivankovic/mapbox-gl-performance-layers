@@ -19,9 +19,9 @@ export interface PolygonStyle {
 export const defaultPolygonStyle: PolygonStyle = {
     color: {r: 0, g: 0, b: 1},
     opacity: 0.5,
-    outlineSize: 1,
+    outlineSize: 0,
     outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0.8
+    outlineOpacity: 0
 };
 
 export interface PolygonRendererOptions<P>{
