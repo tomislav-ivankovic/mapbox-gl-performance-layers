@@ -14,21 +14,25 @@ export class PolygonsScreen extends Component<{}, State> {
         super(props);
 
         const numberOfPolygons = 10000;
-        const numberOfPointsInPolygons = 4;
+        const numberOfPointsInPolygons = 7;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;
         const polygonSpread = 0.1;
+        const deltaAngle = 2 * Math.PI / numberOfPointsInPolygons;
         const polygons: [number, number][][][] = [];
         for (let i = 0; i < numberOfPolygons; i++) {
-            let x = centerX + (Math.random() - 0.5) * spread;
-            let y = centerY + (Math.random() - 0.5) * spread;
+            const cX = centerX + (Math.random() - 0.5) * spread;
+            const cY = centerY + (Math.random() - 0.5) * spread;
             const points: [number, number][] = [];
             for (let j = 0; j < numberOfPointsInPolygons; j++) {
+                const distance = Math.random() * polygonSpread;
+                const angle = j * deltaAngle + Math.random() * deltaAngle;
+                const x = cX + distance * Math.cos(angle);
+                const y = cY + distance * Math.sin(angle);
                 points.push([x, y]);
-                x += Math.random() * polygonSpread;
-                y += Math.random() * polygonSpread;
             }
+            points.push([points[0][0], points[0][1]]);
             polygons.push([points]);
         }
 
@@ -60,6 +64,7 @@ export class PolygonsScreen extends Component<{}, State> {
                 <PolygonLayer
                     data={state.data}
                     onClick={f => console.dir(f)}
+                    fancy
                 />
             </Map>
         );
