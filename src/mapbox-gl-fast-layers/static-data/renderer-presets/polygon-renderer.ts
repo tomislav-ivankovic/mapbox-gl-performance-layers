@@ -4,28 +4,12 @@ import {ShaderRenderer} from '../renderer/shader-renderer';
 import {PolygonFillShader} from '../shader/polygon/polygon-fill-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {Renderer} from '../renderer/renderer';
-import {Color} from '../../misc';
 import {PolygonOutlineShader} from '../shader/polygon/polygon-outline-shader';
 import {CompositeRenderer} from '../renderer/composite-renderer';
-
-export interface PolygonStyle {
-    color: Color;
-    opacity: number;
-    outlineSize: number;
-    outlineColor: Color;
-    outlineOpacity: number;
-}
-
-export const defaultPolygonStyle: PolygonStyle = {
-    color: {r: 0, g: 0, b: 1},
-    opacity: 0.5,
-    outlineSize: 0,
-    outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
-};
+import {PolygonStyle, StyleOption} from '../shader/styles';
 
 export interface PolygonRendererOptions<P>{
-    style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>;
+    style?: StyleOption<Feature<Polygon, P>, PolygonStyle>;
     fancy?: boolean;
     interpolation?: number;
 }

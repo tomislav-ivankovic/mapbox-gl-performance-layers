@@ -1,6 +1,6 @@
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
-import {defaultPolygonStyle, PolygonStyle} from '../../renderer-presets/polygon-renderer';
+import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './polygon-outline.vert';
 import fragmentSource from './polygon-outline.frag';
@@ -10,7 +10,7 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
     fragmentSource = fragmentSource;
 
     constructor(
-        private style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>,
+        private style?: StyleOption<Feature<Polygon, P>, PolygonStyle>,
         private interpolation: number = 1.8
     ) {
     }
@@ -94,7 +94,7 @@ export class PolygonOutlineShader<P> implements Shader<FeatureCollection<Polygon
         const elementsArray: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
-            const style = this.style != null ? {...defaultPolygonStyle, ...this.style(feature)} : defaultPolygonStyle;
+            const style = resolveStyle(feature, this.style, defaultPolygonStyle);
             for (const coords of feature.geometry.coordinates) {
                 if (coords.length < 3) {
                     continue;

@@ -51,9 +51,7 @@ export class PointsScreen extends Component<{}, State> {
             >
                 <PointLayer
                     data={state.data}
-                    style={() => ({
-                        opacity: 0.2
-                    })}
+                    style={{opacity: 0.2}}
                     onClick={f => console.dir(f)}
                 />
             </Map>

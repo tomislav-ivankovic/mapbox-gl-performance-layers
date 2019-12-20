@@ -1,11 +1,11 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {ShaderBuffers, transformX, transformY} from '../shader';
 import {DefaultShader} from '../default/default-shader';
-import {defaultLineStyle, LineStyle} from '../../renderer-presets/line-renderer';
+import {defaultLineStyle, LineStyle, resolveStyle, StyleOption} from '../styles';
 
 export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineString, P>> {
     constructor(
-        private style?: (feature: Feature<LineString, P>) => Partial<LineStyle>
+        private style?: StyleOption<Feature<LineString, P>, LineStyle>
     ) {
         super();
     }
@@ -15,7 +15,7 @@ export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineStr
         const elementsArray: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
-            const style = this.style != null ? {...defaultLineStyle, ...this.style(feature)} : defaultLineStyle;
+            const style = resolveStyle(feature, this.style, defaultLineStyle);
             for (let i = 0; i < feature.geometry.coordinates.length; i++) {
                 const coords = feature.geometry.coordinates[i];
                 array.push(

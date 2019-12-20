@@ -5,28 +5,10 @@ import {SimplePointShader} from '../shader/point/simple-point-shader';
 import {FancyPointShader} from '../shader/point/fancy-point-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {Renderer} from '../renderer/renderer';
-import {Color} from '../../misc';
-
-export interface PointStyle {
-    size: number;
-    color: Color;
-    opacity: number;
-    outlineSize: number;
-    outlineColor: Color;
-    outlineOpacity: number;
-}
-
-export const defaultPointStyle: PointStyle = {
-    size: 10,
-    color: {r: 0, g: 0, b: 1},
-    opacity: 0.8,
-    outlineSize: 0,
-    outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
-};
+import {PointStyle, StyleOption} from '../shader/styles';
 
 export interface PointRendererOptions<P> {
-    style?: (feature: Feature<Point, P>) => Partial<PointStyle>;
+    style?: StyleOption<Feature<Point, P>, PointStyle>;
     fancy?: boolean;
     interpolation?: number;
 }

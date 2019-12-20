@@ -5,28 +5,10 @@ import {ShaderRenderer} from '../renderer/shader-renderer';
 import {SimpleLineShader} from '../shader/line/simple-line-shader';
 import {FancyLineShader} from '../shader/line/fancy-line-shader';
 import {Bounds, TiledRenderer} from '../renderer/tiled/tiled-renderer';
-import {Color} from '../../misc';
-
-export interface LineStyle {
-    size: number;
-    color: Color;
-    opacity: number;
-    outlineSize: number;
-    outlineColor: Color;
-    outlineOpacity: number;
-}
-
-export const defaultLineStyle: LineStyle = {
-    size: 5,
-    color: {r: 0, g: 0, b: 1},
-    opacity: 0.8,
-    outlineSize: 0,
-    outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
-};
+import {LineStyle, StyleOption} from '../shader/styles';
 
 export interface LineRendererOptions<P> {
-    style?: (feature: Feature<LineString, P>) => Partial<LineStyle>;
+    style?: StyleOption<Feature<LineString, P>, LineStyle>;
     fancy?: boolean;
     interpolation?: number;
 }

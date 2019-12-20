@@ -1,16 +1,17 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
-import {defaultLineStyle, LineStyle} from '../../renderer-presets/line-renderer';
+import {defaultLineStyle, LineStyle, resolveStyle, StyleOption} from '../styles';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-line.vert';
 import fragmentSource from './fancy-line.frag';
+
 
 export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, P>> {
     vertexSource = vertexSource;
     fragmentSource = fragmentSource;
 
     constructor(
-        private style?: (feature: Feature<LineString, P>) => Partial<LineStyle>,
+        private style?: StyleOption<Feature<LineString, P>, LineStyle>,
         private interpolation: number = 1.8
     ) {
     }
@@ -97,7 +98,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
             if (feature.geometry.coordinates.length < 2) {
                 continue;
             }
-            const style = this.style != null ? {...defaultLineStyle, ...this.style(feature)} : defaultLineStyle;
+            const style = resolveStyle(feature, this.style, defaultLineStyle);
             const coords = feature.geometry.coordinates;
             for (let i = 0; i < coords.length; i++) {
                 const currentX = transformX(coords[i][0]);

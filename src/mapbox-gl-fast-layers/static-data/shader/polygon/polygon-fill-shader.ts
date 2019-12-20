@@ -1,12 +1,12 @@
 import {ShaderBuffers, transformX, transformY} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {DefaultShader} from '../default/default-shader';
-import {defaultPolygonStyle, PolygonStyle} from '../../renderer-presets/polygon-renderer';
+import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
 import earcut from 'earcut';
 
 export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
     constructor(
-        private style?: (feature: Feature<Polygon, P>) => Partial<PolygonStyle>,
+        private style?: StyleOption<Feature<Polygon, P>, PolygonStyle>
     ) {
         super();
     }
@@ -16,7 +16,7 @@ export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygo
         const elementArray: number[] = [];
         let indexOffset = 0;
         for (const feature of data.features) {
-            const style = this.style != null ? {...defaultPolygonStyle, ...this.style(feature)} : defaultPolygonStyle;
+            const style = resolveStyle(feature, this.style, defaultPolygonStyle);
             const transformedCoordinates = feature.geometry.coordinates.map(c =>
                 c.map(coords => [transformX(coords[0]), transformY(coords[1])])
             );
