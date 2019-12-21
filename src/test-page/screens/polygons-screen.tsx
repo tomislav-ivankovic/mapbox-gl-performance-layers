@@ -24,16 +24,25 @@ export class PolygonsScreen extends Component<{}, State> {
         for (let i = 0; i < numberOfPolygons; i++) {
             const cX = centerX + (Math.random() - 0.5) * spread;
             const cY = centerY + (Math.random() - 0.5) * spread;
-            const points: [number, number][] = [];
+            const edgePoints: [number, number][] = [];
             for (let j = 0; j < numberOfPointsInPolygons; j++) {
                 const distance = Math.random() * polygonSpread;
                 const angle = j * deltaAngle + Math.random() * deltaAngle;
                 const x = cX + distance * Math.cos(angle);
                 const y = cY + distance * Math.sin(angle);
-                points.push([x, y]);
+                edgePoints.push([x, y]);
             }
-            points.push([points[0][0], points[0][1]]);
-            polygons.push([points]);
+            edgePoints.push([edgePoints[0][0], edgePoints[0][1]]);
+            const holePoints: [number, number][] = [];
+            for (let j = 0; j < numberOfPointsInPolygons; j++) {
+                const distance = Math.random() * 0.25 * polygonSpread;
+                const angle = - j * deltaAngle + Math.random() * deltaAngle;
+                const x = cX + distance * Math.cos(angle);
+                const y = cY + distance * Math.sin(angle);
+                holePoints.push([x, y]);
+            }
+            holePoints.push([holePoints[0][0], holePoints[0][1]]);
+            polygons.push([edgePoints, holePoints]);
         }
 
         this.state = {

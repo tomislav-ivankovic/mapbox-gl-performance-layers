@@ -4,7 +4,7 @@ import {DefaultShader} from '../default/default-shader';
 import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
 import earcut from 'earcut';
 
-export class PolygonFillShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
+export class SimplePolygonShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
     constructor(
         private style?: StyleOption<Feature<Polygon, P>, PolygonStyle>
     ) {
