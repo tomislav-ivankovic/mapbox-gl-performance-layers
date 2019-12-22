@@ -1,10 +1,10 @@
-import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {defaultPointStyle, PointStyle, resolveStyle, StyleOption} from '../styles';
+import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-point.vert';
 import fragmentSource from './fancy-point.frag';
-
 
 export class FancyPointShader<P> implements Shader<FeatureCollection<Point, P>> {
     vertexSource = vertexSource;

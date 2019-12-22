@@ -1,7 +1,8 @@
-import {ShaderBuffers, transformX, transformY} from '../shader';
+import {ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {DefaultShader} from '../default/default-shader';
 import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
+import {transformX, transformY} from '../../../geometry-functions';
 import earcut from 'earcut';
 
 export class SimplePolygonShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {

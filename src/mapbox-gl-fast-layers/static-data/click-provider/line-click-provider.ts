@@ -2,6 +2,11 @@ import {ClickProvider} from './click-provider';
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {FeatureTree} from './feature-tree';
+import {
+    addLineStringCollectionBoundingBoxes,
+    closestPointOnLine,
+    pointToPointDistanceSqr
+} from '../../geometry-functions';
 
 export interface LineClickProviderOptions<P> {
     onClick?: (
@@ -25,7 +30,7 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
         if (this.options.onClick == null) {
             return;
         }
-        addBoundingBoxes(data);
+        addLineStringCollectionBoundingBoxes(data);
         this.tree = new FeatureTree<LineString, P>();
         this.tree.load(data.features);
     }
@@ -88,56 +93,4 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
             e.originalEvent.stopPropagation();
         }
     }
-}
-
-function addBoundingBoxes<P>(data: FeatureCollection<LineString, P>): void {
-    for (const feature of data.features) {
-        if (feature.bbox != null) {
-            continue;
-        }
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        for (const coords of feature.geometry.coordinates) {
-            if (coords[0] < minX) minX = coords[0];
-            if (coords[1] < minY) minY = coords[1];
-            if (coords[0] > maxX) maxX = coords[0];
-            if (coords[1] > maxY) maxY = coords[1];
-        }
-        feature.bbox = [minX, minY, maxX, maxY];
-    }
-}
-
-function closestPointOnLine(x: number, y: number, line: LineString): { x: number, y: number } {
-    let minDistanceSqr = Infinity;
-    let closestX = x;
-    let closestY = y;
-    for (let i = 0; i < line.coordinates.length - 1; i++) {
-        const [x1, y1] = line.coordinates[i];
-        const [x2, y2] = line.coordinates[i + 1];
-        const segmentLengthSqr = pointToPointDistanceSqr(x1, y1, x2, y2);
-        let projectionX = x1;
-        let projectionY = y1;
-        if (segmentLengthSqr > 0) {
-            const projectionFactor = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / segmentLengthSqr;
-            const projectionFactorClamped = Math.max(0, Math.min(1, projectionFactor));
-            projectionX = x1 + projectionFactorClamped * (x2 - x1);
-            projectionY = y1 + projectionFactorClamped * (y2 - y1);
-        }
-        const distanceSqr = pointToPointDistanceSqr(x, y, projectionX, projectionY);
-        if (distanceSqr < minDistanceSqr) {
-            minDistanceSqr = distanceSqr;
-            closestX = projectionX;
-            closestY = projectionY;
-        }
-    }
-    return {
-        x: closestX,
-        y: closestY
-    };
-}
-
-function pointToPointDistanceSqr(x1: number, y1: number, x2: number, y2: number): number {
-    return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 }

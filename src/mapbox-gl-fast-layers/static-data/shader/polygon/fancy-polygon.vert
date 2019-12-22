@@ -14,14 +14,14 @@ attribute vec4 a_outlineColor;
 
 varying vec4 v_color;
 varying vec4 v_outlineColor;
-varying float v_hlafSize;
+varying float v_size;
 varying float v_distance;
 
 void main() {
     v_color = a_color;
     v_outlineColor = a_outlineColor;
-    v_hlafSize = 0.5 * (a_outlineSize + u_interpolation);
-    v_distance = a_offset * v_hlafSize;
+    v_size = a_outlineSize + u_interpolation;
+    v_distance = a_offset * v_size;
 
     vec4 previousProjected = u_matrix * vec4(a_previousPosition, 0.0, 1.0);
     vec4 currentProjected = u_matrix * vec4(a_currentPosition, 0.0, 1.0);

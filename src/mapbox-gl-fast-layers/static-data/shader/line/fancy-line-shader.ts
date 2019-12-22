@@ -1,10 +1,10 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {defaultLineStyle, LineStyle, resolveStyle, StyleOption} from '../styles';
+import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-line.vert';
 import fragmentSource from './fancy-line.frag';
-
 
 export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, P>> {
     vertexSource = vertexSource;
@@ -120,12 +120,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
                     nextX = transformX(coords[i + 1][0]);
                     nextY = transformY(coords[i + 1][1]);
                 }
-                const x1 = previousX - currentX, y1 = previousY - currentY;
-                const x2 = nextX - currentX, y2 = nextY - currentY;
-                const dot = x1 * x2 + y1 * y2;
-                const length1 = Math.sqrt(x1 * x1 + y1 * y1);
-                const length2 = Math.sqrt(x2 * x2 + y2 * y2);
-                const cosAngle = dot / (length1 * length2);
+                const cosAngle = cosOfPointsAngle(previousX, previousY, currentX, currentY, nextX, nextY);
                 if (cosAngle < 0.8) {
                     array.push(
                         previousX, previousY,

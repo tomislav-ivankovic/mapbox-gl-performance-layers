@@ -2,8 +2,8 @@ import {Renderer} from '../renderer';
 import {TileGenerator} from './tile-generator';
 import {TileManager} from './tile-manager';
 import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
+import {Bounds, findViewBounds} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
-import {transformX, transformY} from '../../shader/shader';
 
 export class TiledRenderer<D> implements Renderer<D> {
     private manager: TileManager<D>;
@@ -90,21 +90,4 @@ export class TiledRenderer<D> implements Renderer<D> {
         const size = Math.pow(2, -zoom);
         this.textureDrawer.draw(gl, texture, matrix, x * size, y * size, size, size);
     }
-}
-
-export interface Bounds {
-    minX: number,
-    minY: number,
-    maxX: number,
-    maxY: number
-}
-
-function findViewBounds(map: mapboxgl.Map): Bounds {
-    const bounds = map.getBounds();
-    return {
-        minX: transformX(bounds.getWest()),
-        minY: transformY(bounds.getNorth()),
-        maxX: transformX(bounds.getEast()),
-        maxY: transformY(bounds.getSouth())
-    };
 }

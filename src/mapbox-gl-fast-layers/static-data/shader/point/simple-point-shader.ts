@@ -1,10 +1,10 @@
-import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {defaultPointStyle, PointStyle, resolveStyle, StyleOption} from '../styles';
+import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './simple-point.vert';
 import fragmentSource from './simple-point.frag';
-
 
 export class SimplePointShader<P> implements Shader<FeatureCollection<Point, P>> {
     vertexSource = vertexSource;
@@ -80,4 +80,3 @@ export class SimplePointShader<P> implements Shader<FeatureCollection<Point, P>>
         return gl.POINTS;
     }
 }
-

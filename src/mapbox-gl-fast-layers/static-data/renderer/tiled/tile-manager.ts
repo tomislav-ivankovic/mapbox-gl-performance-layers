@@ -1,6 +1,5 @@
 import {TileGenerator} from './tile-generator';
-import {Bounds} from './tiled-renderer';
-import {transformX, transformY} from "../../shader/shader";
+import {Bounds, transformX, transformY} from '../../../geometry-functions';
 
 interface Tile {
     x: number,

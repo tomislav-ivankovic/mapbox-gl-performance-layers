@@ -1,6 +1,7 @@
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {Shader, ShaderBuffers, transformX, transformY} from '../shader';
+import {Shader, ShaderBuffers} from '../shader';
 import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
+import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-polygon.vert';
 import fragmentSource from './fancy-polygon.frag';
@@ -115,7 +116,7 @@ export class FancyPolygonShader<P> implements Shader<FeatureCollection<Polygon, 
                         currentX, currentY,
                         nextX, nextY,
                         style.outlineSize,
-                        -1,
+                        0,
                         style.color.r, style.color.g, style.color.b, style.opacity,
                         style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                         ,

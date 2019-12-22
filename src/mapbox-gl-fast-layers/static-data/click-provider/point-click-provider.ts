@@ -2,6 +2,7 @@ import {ClickProvider} from './click-provider';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import KDBush from 'kdbush';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
+import {pointToPointDistanceSqr} from '../../geometry-functions';
 
 export interface PointClickProviderOptions<P> {
     onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;
@@ -73,7 +74,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
         let minDistanceSqr = Infinity;
         for (const index of results) {
             const coords = features[index].geometry.coordinates;
-            const distSqr = (coords[0] - x) * (coords[0] - x) + (coords[1] - y) * (coords[1] - y);
+            const distSqr = pointToPointDistanceSqr(coords[0], coords[1], x, y);
             if (distSqr < minDistanceSqr) {
                 closestIndex = index;
                 minDistanceSqr = distSqr;
