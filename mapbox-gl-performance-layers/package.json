@@ -1,0 +1,36 @@
+{
+  "name": "mapbox-gl-performance-layers",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": ["lib/**/*"],
+  "dependencies": {
+    "earcut": "^2.2.1",
+    "gl-matrix": "^3.1.0",
+    "kdbush": "^3.0.0",
+    "mapbox-gl": "^1.4.0",
+    "rbush": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/earcut": "^2.1.0",
+    "@types/geojson": "^7946.0.7",
+    "@types/gl-matrix": "^2.4.5",
+    "@types/jest": "24.0.18",
+    "@types/kdbush": "^3.0.0",
+    "@types/mapbox-gl": "^0.54.4",
+    "@types/node": "12.7.11",
+    "@types/rbush": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
+    "eslint": "^6.6.0",
+    "typescript": "^3.7.4"
+  }
+}
