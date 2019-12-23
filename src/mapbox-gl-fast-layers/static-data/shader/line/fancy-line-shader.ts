@@ -1,6 +1,6 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {Shader, ShaderBuffers} from '../shader';
-import {defaultLineStyle, LineStyle, resolveStyle, StyleOption} from '../styles';
+import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-line.vert';
@@ -92,13 +92,13 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
 
     dataToArrays(data: FeatureCollection<LineString, P>): ShaderBuffers {
         const array: number[] = [];
-        const elementsArray: number[] = [];
+        const elementArray: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
             if (feature.geometry.coordinates.length < 2) {
                 continue;
             }
-            const style = resolveStyle(feature, this.style, defaultLineStyle);
+            const style = resolveLineStyle(feature, this.style);
             const coords = feature.geometry.coordinates;
             for (let i = 0; i < coords.length; i++) {
                 const currentX = transformX(coords[i][0]);
@@ -140,7 +140,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
                         style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                     );
                     if (i !== 0) {
-                        elementsArray.push(
+                        elementArray.push(
                             currentIndex, currentIndex - 2, currentIndex - 1,
                             currentIndex, currentIndex - 1, currentIndex + 1
                         );
@@ -185,7 +185,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
                         style.outlineColor.r, style.outlineColor.g, style.outlineColor.b, style.outlineOpacity
                     );
                     if (i !== 0) {
-                        elementsArray.push(
+                        elementArray.push(
                             currentIndex, currentIndex - 2, currentIndex - 1,
                             currentIndex, currentIndex - 1, currentIndex + 1
                         );
@@ -196,7 +196,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
         }
         return {
             array: new Float32Array(array),
-            elementArray: new Int32Array(elementsArray)
+            elementArray: new Int32Array(elementArray)
         };
     }
 

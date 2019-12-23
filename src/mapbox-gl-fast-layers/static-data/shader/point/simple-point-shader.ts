@@ -1,6 +1,6 @@
 import {Shader, ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Point} from 'geojson';
-import {defaultPointStyle, PointStyle, resolveStyle, StyleOption} from '../styles';
+import {PointStyle, resolvePointStyle, StyleOption} from '../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './simple-point.vert';
@@ -58,7 +58,7 @@ export class SimplePointShader<P> implements Shader<FeatureCollection<Point, P>>
     dataToArrays(data: FeatureCollection<Point, P>): ShaderBuffers {
         const array: number[] = [];
         for (const feature of data.features) {
-            const style = resolveStyle(feature, this.style, defaultPointStyle);
+            const style = resolvePointStyle(feature, this.style);
             const coords = feature.geometry.coordinates;
             array.push(
                 transformX(coords[0]), transformY(coords[1]),

@@ -1,7 +1,7 @@
 import {ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {DefaultShader} from '../default/default-shader';
-import {defaultPolygonStyle, PolygonStyle, resolveStyle, StyleOption} from '../styles';
+import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 import earcut from 'earcut';
 
@@ -17,7 +17,7 @@ export class SimplePolygonShader<P> extends DefaultShader<FeatureCollection<Poly
         const elementArray: number[] = [];
         let indexOffset = 0;
         for (const feature of data.features) {
-            const style = resolveStyle(feature, this.style, defaultPolygonStyle);
+            const style = resolvePolygonStyle(feature, this.style);
             const transformedCoordinates = feature.geometry.coordinates.map(c =>
                 c.map(coords => [transformX(coords[0]), transformY(coords[1])])
             );

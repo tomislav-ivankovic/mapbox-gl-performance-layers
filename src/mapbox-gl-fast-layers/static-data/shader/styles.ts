@@ -58,29 +58,31 @@ export const defaultPolygonStyle: PolygonStyle = {
 
 export type StyleOption<F, S extends {}> = ((feature: F) => Partial<S>) | Partial<S> | undefined;
 
-let lastInputFeature: any | null = null;
-let lastInputStyleOption: StyleOption<any, any> | null = null;
-let lastOutputStyle: any = null;
+let singleAllocationObject: object = {};
 
 export function resolveStyle<F, S extends {}>(feature: F, styleOption: StyleOption<F, S>, defaultStyle: S): S {
-    let style: S;
     if (styleOption == null) {
-        style = defaultStyle;
-    } else if (typeof styleOption == 'object') {
-        if (styleOption === lastInputStyleOption) {
-            style = lastOutputStyle;
-        } else {
-            style = {...defaultStyle, ...styleOption};
-        }
-    } else {
-        if (feature === lastInputFeature && styleOption === lastInputStyleOption) {
-            style = lastOutputStyle;
-        } else {
-            style = {...defaultStyle, ...styleOption(feature)};
-        }
+        return defaultStyle;
     }
-    lastInputFeature = feature;
-    lastInputStyleOption = styleOption;
-    lastOutputStyle = style;
-    return style;
+    const partialStyle = typeof styleOption === 'object' ? styleOption : styleOption(feature);
+    // @ts-ignore
+    Object.keys(singleAllocationObject).forEach(key => delete singleAllocationObject[key]);
+    // @ts-ignore
+    Object.keys(defaultStyle).forEach(key => singleAllocationObject[key] = defaultStyle[key]);
+    // @ts-ignore
+    Object.keys(partialStyle).forEach(key => singleAllocationObject[key] = partialStyle[key]);
+    // @ts-ignore
+    return singleAllocationObject;
+}
+
+export function resolvePointStyle<F>(feature: F, styleOption: StyleOption<F, PointStyle>): PointStyle {
+    return resolveStyle(feature, styleOption, defaultPointStyle);
+}
+
+export function resolveLineStyle<F>(feature: F, styleOption: StyleOption<F, LineStyle>): LineStyle {
+    return resolveStyle(feature, styleOption, defaultLineStyle);
+}
+
+export function resolvePolygonStyle<F>(feature: F, styleOption: StyleOption<F, PolygonStyle>): PolygonStyle {
+    return resolveStyle(feature, styleOption, defaultPolygonStyle);
 }

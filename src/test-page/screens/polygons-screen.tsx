@@ -25,23 +25,18 @@ export class PolygonsScreen extends Component<{}, State> {
             const cX = centerX + (Math.random() - 0.5) * spread;
             const cY = centerY + (Math.random() - 0.5) * spread;
             const edgePoints: [number, number][] = [];
-            for (let j = 0; j < numberOfPointsInPolygons; j++) {
-                const distance = Math.random() * polygonSpread;
-                const angle = j * deltaAngle + Math.random() * deltaAngle;
-                const x = cX + distance * Math.cos(angle);
-                const y = cY + distance * Math.sin(angle);
-                edgePoints.push([x, y]);
-            }
-            edgePoints.push([edgePoints[0][0], edgePoints[0][1]]);
             const holePoints: [number, number][] = [];
             for (let j = 0; j < numberOfPointsInPolygons; j++) {
-                const distance = Math.random() * 0.25 * polygonSpread;
-                const angle = - j * deltaAngle + Math.random() * deltaAngle;
-                const x = cX + distance * Math.cos(angle);
-                const y = cY + distance * Math.sin(angle);
-                holePoints.push([x, y]);
+                const distance = Math.random() * polygonSpread;
+                const angle = (j + Math.random()) * deltaAngle;
+                const xShift = distance * Math.cos(angle);
+                const yShift = distance * Math.sin(angle);
+                edgePoints.push([cX + xShift, cY + yShift]);
+                holePoints.push([cX + 0.3 * xShift, cY + 0.3 * yShift]);
             }
+            edgePoints.push([edgePoints[0][0], edgePoints[0][1]]);
             holePoints.push([holePoints[0][0], holePoints[0][1]]);
+            holePoints.reverse();
             polygons.push([edgePoints, holePoints]);
         }
 

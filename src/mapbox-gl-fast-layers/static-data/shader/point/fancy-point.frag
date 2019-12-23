@@ -10,17 +10,11 @@ varying float v_pointSize;
 varying float v_halfSize;
 
 void main() {
-    float dist = v_pointSize*distance(gl_PointCoord, vec2(0.5, 0.5));
-    vec4 color1, color2;
-    float x = dist - v_halfSize;
-    if (dist < v_halfSize) {
-        color1 = v_color;
-        color2 = v_outlineColor;
-    } else {
-        x -= v_outlineSize;
-        color1 = v_outlineColor;
-        color2 = vec4(v_outlineColor.rgb, 0.0);
-    }
+    float dist = v_pointSize * distance(gl_PointCoord, vec2(0.5, 0.5));
+    bool branch = dist < v_halfSize;
+    float x = branch ? dist - v_halfSize : dist - v_halfSize - v_outlineSize;
+    vec4 color1 = branch ? v_color : v_outlineColor;
+    vec4 color2 = branch ? v_outlineColor : vec4(v_outlineColor.rgb, 0.0);
     float m = smoothstep(-u_interpolation, 0.0, x);
     gl_FragColor = mix(color1, color2, m);
 }
