@@ -1,7 +1,7 @@
 import {ShaderBuffers} from '../shader';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {DefaultShader} from '../../..';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../styles';
+import {DefaultShader} from '../default/default-shader';
 import {transformX, transformY} from '../../../geometry-functions';
 import earcut from 'earcut';
 

@@ -1,5 +1,5 @@
 import {Renderer} from './renderer';
-import {createShaderProgram, Shader} from '../..';
+import {createShaderProgram, Shader} from '../shader/shader';
 import * as glMatrix from 'gl-matrix';
 
 export class ShaderRenderer<D> implements Renderer<D> {

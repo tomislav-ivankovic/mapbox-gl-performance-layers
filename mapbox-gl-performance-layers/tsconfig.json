@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "target": "es2015",
     "declaration": true,
-    "outDir": "./lib",
-    "strict": true,
-    "esModuleInterop": true
+    "moduleResolution": "node",
+    "declarationDir": "./dist",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules", "**/__tests__/*", "dist"]
 }

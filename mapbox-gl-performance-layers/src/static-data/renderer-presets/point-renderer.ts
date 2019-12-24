@@ -1,14 +1,11 @@
 import {Feature, FeatureCollection, Point} from 'geojson';
-import {
-    SwitchRenderer,
-    ShaderRenderer,
-    SimplePointShader,
-    FancyPointShader,
-    TiledRenderer,
-    Renderer,
-    PointStyle,
-    StyleOption
-} from '../..';
+import {PointStyle, StyleOption} from '../shader/styles';
+import {Renderer} from '../renderer/renderer';
+import {FancyPointShader} from '../shader/point/fancy-point-shader';
+import {SimplePointShader} from '../shader/point/simple-point-shader';
+import {SwitchRenderer} from '../renderer/switch-renderer';
+import {ShaderRenderer} from '../renderer/shader-renderer';
+import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {findPointCollectionBounds} from '../../geometry-functions';
 
 export interface PointRendererOptions<P> {

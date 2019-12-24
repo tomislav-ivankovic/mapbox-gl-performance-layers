@@ -1,6 +1,6 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {ShaderBuffers} from '../shader';
-import {DefaultShader} from '../../..';
+import {DefaultShader} from '../default/default-shader';
 import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 

@@ -6,18 +6,22 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": ["lib/**/*"],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "dependencies": {
     "earcut": "^2.2.1",
     "gl-matrix": "^3.1.0",
     "kdbush": "^3.0.0",
     "mapbox-gl": "^1.4.0",
-    "rbush": "^3.0.1"
+    "rbush": "^3.0.1",
+    "save-dev": "0.0.1-security",
+    "webpack-glsl-loader": "^1.0.1"
   },
   "devDependencies": {
     "@types/earcut": "^2.1.0",
@@ -31,6 +35,9 @@
     "@typescript-eslint/eslint-plugin": "^2.12.0",
     "@typescript-eslint/parser": "^2.12.0",
     "eslint": "^6.6.0",
-    "typescript": "^3.7.4"
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4",
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10"
   }
 }

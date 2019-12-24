@@ -1,14 +1,11 @@
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {
-    SwitchRenderer,
-    ShaderRenderer,
-    SimplePolygonShader,
-    TiledRenderer,
-    Renderer,
-    FancyPolygonShader,
-    PolygonStyle,
-    StyleOption
-} from '../..';
+import {PolygonStyle, StyleOption} from '../shader/styles';
+import {Renderer} from '../renderer/renderer';
+import {FancyPolygonShader} from '../shader/polygon/fancy-polygon-shader';
+import {SimplePolygonShader} from '../shader/polygon/simple-polygon-shader';
+import {SwitchRenderer} from '../renderer/switch-renderer';
+import {ShaderRenderer} from '../renderer/shader-renderer';
+import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {findPolygonCollectionBounds} from '../../geometry-functions';
 
 export interface PolygonRendererOptions<P> {

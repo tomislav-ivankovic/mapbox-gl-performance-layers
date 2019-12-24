@@ -1,14 +1,11 @@
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {
-    Renderer,
-    SwitchRenderer,
-    ShaderRenderer,
-    SimpleLineShader,
-    FancyLineShader,
-    TiledRenderer,
-    LineStyle,
-    StyleOption
-} from '../..';
+import {LineStyle, StyleOption} from '../shader/styles';
+import {Renderer} from '../renderer/renderer';
+import {FancyLineShader} from '../shader/line/fancy-line-shader';
+import {SimpleLineShader} from '../shader/line/simple-line-shader';
+import {SwitchRenderer} from '../renderer/switch-renderer';
+import {ShaderRenderer} from '../renderer/shader-renderer';
+import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
 import {findLineStringCollectionBounds} from '../../geometry-functions';
 
 export interface LineRendererOptions<P> {
