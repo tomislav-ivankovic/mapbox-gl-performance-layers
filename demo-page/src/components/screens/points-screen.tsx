@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Map} from '../map';
 import {FeatureCollection, Point} from 'geojson';
-import {PointLayer} from 'react-mapbox-gl-performance-layers';
+import {PointLayer} from '../../react-mapbox/point-layer';
 
 interface State {
     center: [number, number];

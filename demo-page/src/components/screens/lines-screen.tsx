@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FeatureCollection, LineString} from 'geojson';
 import {Map} from '../map';
-import {LineLayer} from 'react-mapbox-gl-performance-layers';
+import {LineLayer} from '../../react-mapbox/line-layer';
 
 interface State {
     center: [number, number];

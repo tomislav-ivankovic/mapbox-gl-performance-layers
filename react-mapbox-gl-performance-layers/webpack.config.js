@@ -9,10 +9,14 @@ const PATHS = {
 module.exports = {
     mode: 'development',
     entry: {
-        'mapbox-gl-performance-layers': PATHS.src + '/index.ts'
+        'react-mapbox-gl-performance-layers': PATHS.src + '/index.ts'
     },
     externals: {
-        'mapbox-gl': 'mapbox-gl'
+        'mapbox-gl-performance-layers': 'mapbox-gl-performance-layers',
+        'mapbox-gl': 'mapbox-gl',
+        'react-mapbox-gl': 'react-mapbox-gl',
+        'react': 'react',
+        'react-dom': 'react-dom'
     },
     output: {
         path: PATHS.dist,
@@ -23,17 +27,17 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                loader: "ts-loader"
+                test: /\.(tsx)|(ts)$/,
+                loader: 'ts-loader'
             },
             {
-                test: /\.(frag|vert|glsl)$/,
-                use: {loader: 'webpack-glsl-loader'}
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             }
         ]
     },
     resolve: {
-        extensions: [".ts", ".js"]
+        extensions: ['.ts', '.tsx', '.js', '.jsx']
     },
     plugins: [
         new webpack.IgnorePlugin(/test\.ts$/),
