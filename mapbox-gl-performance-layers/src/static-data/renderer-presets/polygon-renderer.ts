@@ -12,20 +12,22 @@ export interface PolygonRendererOptions<P> {
     style?: StyleOption<Feature<Polygon, P>, PolygonStyle>;
     fancy?: boolean;
     interpolation?: number;
+    tileThreshold?: number;
 }
 
 export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer<FeatureCollection<Polygon, P>> {
     const shader = (options.fancy != null && options.fancy) ?
         new FancyPolygonShader(options.style, options.interpolation) :
         new SimplePolygonShader(options.style);
+    const threshold = options.tileThreshold != null ? options.tileThreshold : 10000;
     return new SwitchRenderer([
         {
             renderer: new ShaderRenderer(shader),
-            condition: data => data.features.length <= 100000
+            condition: data => data.features.length <= threshold
         },
         {
             renderer: new TiledRenderer(new ShaderRenderer(shader), findPolygonCollectionBounds),
-            condition: data => data.features.length > 100000
+            condition: data => data.features.length > threshold
         }
     ]);
 }

@@ -1,28 +1,26 @@
 import {Polygon} from 'geojson';
-import {mapComponent} from './map-component';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
 import {StaticDataLayerComponent, StaticDataLayerComponentProps} from './static-data-layer';
 import {
-    PolygonClickProvider,
-    PolygonClickProviderOptions,
-    polygonRenderer,
-    PolygonRendererOptions,
-    StaticDataLayer
+    polygonLayer,
+    PolygonLayerOptions,
 } from 'mapbox-gl-performance-layers';
+import React from 'react';
 
-export type PolygonLayerProps<P> =
-    StaticDataLayerComponentProps<Polygon, P> &
-    PolygonRendererOptions<P> &
-    PolygonClickProviderOptions<P>;
-
-class Layer<P> extends StaticDataLayerComponent<PolygonLayerProps<P>, {}, Polygon, P> {
-    protected constructLayer(): StaticDataLayer<Polygon, P> {
-        return new StaticDataLayer(
-            this.props.id || `custom-point-${generateID()}`,
-            polygonRenderer(this.props),
-            new PolygonClickProvider(this.props)
-        );
-    }
+export interface PolygonLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Polygon, P>, 'map'>, 'layer'>,
+    Omit<PolygonLayerOptions<P>, 'id'> {
+    id?: string;
 }
 
-export const PolygonLayer = mapComponent(Layer);
+export function PolygonLayer<P>(props: PolygonLayerProps<P>) {
+    const layerOptions: PolygonLayerOptions<P> = {
+        id: `static-data-polygon-${generateID()}`,
+        ...props
+    };
+    return (
+        <StaticDataLayerComponent
+            layer={polygonLayer(layerOptions)}
+            {...props}
+        />
+    );
+}

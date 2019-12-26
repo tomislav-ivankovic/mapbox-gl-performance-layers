@@ -1,28 +1,23 @@
 import {Point} from 'geojson';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
-import {mapComponent} from './map-component';
 import {StaticDataLayerComponent, StaticDataLayerComponentProps} from './static-data-layer';
-import {
-    PointClickProvider,
-    PointClickProviderOptions,
-    pointRenderer,
-    PointRendererOptions,
-    StaticDataLayer
-} from 'mapbox-gl-performance-layers';
+import {pointLayer, PointLayerOptions} from 'mapbox-gl-performance-layers';
+import React from 'react';
 
-export type PointLayerProps<P> =
-    StaticDataLayerComponentProps<Point, P> &
-    PointRendererOptions<P> &
-    PointClickProviderOptions<P>;
-
-class Layer<P> extends StaticDataLayerComponent<PointLayerProps<P>, {}, Point, P> {
-    protected constructLayer(): StaticDataLayer<Point, P> {
-        return new StaticDataLayer(
-            this.props.id || `custom-point-${generateID()}`,
-            pointRenderer(this.props),
-            new PointClickProvider(this.props)
-        );
-    }
+export interface PointLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Point, P>, 'map'>, 'layer'>,
+    Omit<PointLayerOptions<P>, 'id'> {
+    id?: string;
 }
 
-export const PointLayer = mapComponent(Layer);
+export function PointLayer<P>(props: PointLayerProps<P>) {
+    const layerOptions: PointLayerOptions<P> = {
+        id: `static-data-point-${generateID()}`,
+        ...props
+    };
+    return (
+        <StaticDataLayerComponent
+            layer={pointLayer(layerOptions)}
+            {...props}
+        />
+    );
+}
