@@ -21,12 +21,14 @@ export class SwitchRenderer<D> implements Renderer<D> {
         if (currentOption == null || !currentOption.condition(data)) {
             const newOption = this.options.find(option => option.condition(data));
             if (newOption !== currentOption) {
-                if (this.gl != null) {
-                    if (this.map != null && currentOption != null) {
-                        currentOption.renderer.clearData();
+                if (currentOption != null) {
+                    currentOption.renderer.clearData();
+                }
+                if (this.map != null && this.gl != null) {
+                    if (currentOption != null) {
                         currentOption.renderer.dispose(this.map, this.gl);
                     }
-                    if (this.map != null && newOption != null) {
+                    if (newOption != null) {
                         newOption.renderer.initialise(this.map, this.gl);
                     }
                 }

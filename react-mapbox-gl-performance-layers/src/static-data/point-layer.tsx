@@ -4,7 +4,7 @@ import {StaticDataLayerComponent, StaticDataLayerComponentProps} from './static-
 import {pointLayer, PointLayerOptions} from 'mapbox-gl-performance-layers';
 import React from 'react';
 
-export interface PointLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Point, P>, 'map'>, 'layer'>,
+export interface PointLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Point, P>, 'map'>, 'layerConstructor'>,
     Omit<PointLayerOptions<P>, 'id'> {
     id?: string;
 }
@@ -16,7 +16,7 @@ export function PointLayer<P>(props: PointLayerProps<P>) {
     };
     return (
         <StaticDataLayerComponent
-            layer={pointLayer(layerOptions)}
+            layerConstructor={() => pointLayer(layerOptions)}
             {...props}
         />
     );

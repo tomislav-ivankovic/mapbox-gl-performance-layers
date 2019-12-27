@@ -4,7 +4,7 @@ import {lineLayer, LineLayerOptions} from 'mapbox-gl-performance-layers';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
 import React from 'react';
 
-export interface LineLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<LineString, P>, 'map'>, 'layer'>,
+export interface LineLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<LineString, P>, 'map'>, 'layerConstructor'>,
     Omit<LineLayerOptions<P>, 'id'> {
     id?: string;
 }
@@ -16,7 +16,7 @@ export function LineLayer<P>(props: LineLayerProps<P>) {
     };
     return (
         <StaticDataLayerComponent
-            layer={lineLayer(layerOptions)}
+            layerConstructor={() => lineLayer(layerOptions)}
             {...props}
         />
     );

@@ -23,11 +23,11 @@ export function pointRenderer<P>(options: PointRendererOptions<P>): Renderer<Fea
     return new SwitchRenderer([
         {
             renderer: new ShaderRenderer(shader),
-            condition: data => data.features.length <= threshold
+            condition: data => data.features.length < threshold
         },
         {
             renderer: new TiledRenderer(new ShaderRenderer(shader), findPointCollectionBounds),
-            condition: data => data.features.length > threshold
+            condition: data => data.features.length >= threshold
         }
     ]);
 }

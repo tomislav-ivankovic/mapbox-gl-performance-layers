@@ -7,7 +7,7 @@ import {
 } from 'mapbox-gl-performance-layers';
 import React from 'react';
 
-export interface PolygonLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Polygon, P>, 'map'>, 'layer'>,
+export interface PolygonLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<Polygon, P>, 'map'>, 'layerConstructor'>,
     Omit<PolygonLayerOptions<P>, 'id'> {
     id?: string;
 }
@@ -19,7 +19,7 @@ export function PolygonLayer<P>(props: PolygonLayerProps<P>) {
     };
     return (
         <StaticDataLayerComponent
-            layer={polygonLayer(layerOptions)}
+            layerConstructor={() => polygonLayer(layerOptions)}
             {...props}
         />
     );

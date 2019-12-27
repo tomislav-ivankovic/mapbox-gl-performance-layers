@@ -23,11 +23,11 @@ export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<Featu
     return new SwitchRenderer([
         {
             renderer: new ShaderRenderer(shader),
-            condition: data => data.features.length <= threshold
+            condition: data => data.features.length < threshold
         },
         {
             renderer: new TiledRenderer(new ShaderRenderer(shader), findLineStringCollectionBounds),
-            condition: data => data.features.length > threshold
+            condition: data => data.features.length >= threshold
         }
     ]);
 }

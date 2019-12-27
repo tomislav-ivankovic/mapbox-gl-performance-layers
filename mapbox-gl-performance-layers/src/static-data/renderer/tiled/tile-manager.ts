@@ -32,10 +32,10 @@ export class TileManager<D> {
             maxY: transformY(bounds.minY)
         };
         if (this.tiles != null) {
-            this.tiles.forEach(tile => {
+            for (const tile of this.tiles) {
                 tile.zoom = -1;
                 tile.age = Number.MAX_VALUE / 2;
-            });
+            }
         }
     }
 
