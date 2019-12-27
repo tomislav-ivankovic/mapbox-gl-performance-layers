@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import {Map} from '../map';
-import {FeatureCollection, Point} from 'geojson';
+import {Feature, FeatureCollection, Point} from 'geojson';
 import {PointLayer} from 'react-mapbox-gl-performance-layers';
+import {Popup} from 'react-mapbox-gl';
 
 interface State {
     center: [number, number];
     zoom: [number];
     data: FeatureCollection<Point, {}>;
+    selection: Feature<Point, {}> | null;
 }
 
 export class PointsScreen extends Component<{}, State> {
@@ -37,9 +39,15 @@ export class PointsScreen extends Component<{}, State> {
                     },
                     properties: {}
                 }))
-            }
+            },
+            selection: null
         };
     }
+
+    handleClick = (feature: Feature<Point, {}>) => {
+        const newSelected = feature !== this.state.selection ? feature : null;
+        this.setState({selection: newSelected});
+    };
 
     render() {
         const state = this.state;
@@ -51,10 +59,29 @@ export class PointsScreen extends Component<{}, State> {
             >
                 <PointLayer
                     data={state.data}
-                    style={{opacity: 0.2}}
-                    onClick={f => console.dir(f)}
+                    style={getStyle}
+                    onClick={this.handleClick}
                 />
+                {state.selection != null &&
+                <Popup coordinates={state.selection.geometry.coordinates}>
+                    <p>{JSON.stringify(state.selection, null, 2)}</p>
+                </Popup>
+                }
             </Map>
         );
     }
+}
+
+function getStyle(feature: Feature<Point, {}>) {
+    const x = feature.geometry.coordinates[0];
+    const y = feature.geometry.coordinates[1];
+    return {
+        size: 8 + 2 * Math.sin(x - y),
+        color: {
+            r: x - Math.floor(x),
+            g: y - Math.floor(y),
+            b: 0.5 + 0.5 * Math.sin(x + y)
+        },
+        opacity: 0.5
+    };
 }

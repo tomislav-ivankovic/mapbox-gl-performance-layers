@@ -1,12 +1,18 @@
 import React, {Component} from 'react';
-import {FeatureCollection, LineString} from 'geojson';
+import {Feature, FeatureCollection, LineString} from 'geojson';
 import {Map} from '../map';
 import {LineLayer} from 'react-mapbox-gl-performance-layers';
+import {Popup} from 'react-mapbox-gl';
+import {EventData, MapMouseEvent} from 'mapbox-gl';
 
 interface State {
     center: [number, number];
     zoom: [number];
     data: FeatureCollection<LineString, {}>;
+    selection: {
+        coordinates: [number, number];
+        feature: Feature<LineString, {}>;
+    } | null;
 }
 
 export class LinesScreen extends Component<{}, State> {
@@ -45,9 +51,27 @@ export class LinesScreen extends Component<{}, State> {
                     },
                     properties: {}
                 }))
-            }
+            },
+            selection: null
         };
     }
+
+    handleClick = (
+        feature: Feature<LineString, {}>,
+        e: MapMouseEvent & EventData,
+        closestPointOnLine: { x: number; y: number; }
+    ) => {
+        if (this.state.selection != null && this.state.selection.feature === feature) {
+            this.setState({selection: null});
+            return;
+        }
+        this.setState({
+            selection: {
+                coordinates: [closestPointOnLine.x, closestPointOnLine.y],
+                feature: feature
+            }
+        });
+    };
 
     render() {
         const state = this.state;
@@ -59,10 +83,31 @@ export class LinesScreen extends Component<{}, State> {
             >
                 <LineLayer
                     data={state.data}
-                    onClick={f => console.dir(f)}
+                    style={getStyle}
+                    onClick={this.handleClick}
                     fancy
                 />
+                {state.selection != null &&
+                <Popup coordinates={state.selection.coordinates}>
+                    <p>{JSON.stringify(state.selection.feature, null, 2)}</p>
+                </Popup>
+                }
             </Map>
         );
     }
+}
+
+function getStyle(feature: Feature<LineString, {}>) {
+    const x = feature.geometry.coordinates[0][0];
+    const y = feature.geometry.coordinates[0][1];
+    return {
+        size: 4 + 1.5 * Math.sin(x - y),
+        color: {
+            r: x - Math.floor(x),
+            g: y - Math.floor(y),
+            b: 0.5 + 0.5 * Math.sin(x + y)
+        },
+        outlineOpacity: 0.8,
+        outlineSize: 1.8
+    };
 }
