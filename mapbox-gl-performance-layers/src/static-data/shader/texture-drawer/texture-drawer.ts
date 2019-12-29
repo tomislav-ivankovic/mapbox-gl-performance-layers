@@ -30,6 +30,10 @@ export class TextureDrawer {
             throw Error('TextureDrawer can not draw before it is initialised.');
         }
 
+        gl.enable(gl.BLEND);
+        gl.blendEquation(gl.FUNC_ADD);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
         const x1 = x, x2 = x + w, y1 = y, y2 = y + h;
         const bufferArray =  new Float32Array([
             x1, y1, 0, 1,

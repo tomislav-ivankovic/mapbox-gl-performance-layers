@@ -59,10 +59,6 @@ export class TileGenerator<D> {
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        gl.enable(gl.BLEND);
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
         this.renderer.render(gl, this.matrix);
 
         gl.viewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);

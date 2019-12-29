@@ -44,6 +44,11 @@ export class ShaderRenderer<D> implements Renderer<D> {
         if (this.program == null) {
             throw Error('ShaderRenderer can not render before it is initialised.');
         }
+
+        gl.enable(gl.BLEND);
+        gl.blendEquation(gl.FUNC_ADD);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
         gl.useProgram(this.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
