@@ -5,10 +5,10 @@ import {FancyLineShader} from '../shader/line/fancy-line-shader';
 import {SimpleLineShader} from '../shader/line/simple-line-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
+import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
 import {findLineStringCollectionBounds} from '../../geometry-functions';
 
-export interface LineRendererOptions<P> {
+export interface LineRendererOptions<P> extends TiledRendererOptions {
     style?: StyleOption<Feature<LineString, P>, LineStyle>;
     fancy?: boolean;
     interpolation?: number;
@@ -26,7 +26,11 @@ export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<Featu
             condition: data => data.features.length < threshold
         },
         {
-            renderer: new TiledRenderer(new ShaderRenderer(shader), findLineStringCollectionBounds),
+            renderer: new TiledRenderer(
+                new ShaderRenderer(shader),
+                findLineStringCollectionBounds,
+                options
+            ),
             condition: data => data.features.length >= threshold
         }
     ]);

@@ -10,7 +10,7 @@ export {ClickProvider} from './static-data/click-provider/click-provider';
 export {LineClickProvider, LineClickProviderOptions} from './static-data/click-provider/line-click-provider';
 export {PointClickProvider, PointClickProviderOptions} from './static-data/click-provider/point-click-provider';
 export {PolygonClickProvider, PolygonClickProviderOptions} from './static-data/click-provider/polygon-click-provider';
-export {TiledRenderer} from './static-data/renderer/tiled/tiled-renderer';
+export {TiledRenderer, TiledRendererOptions} from './static-data/renderer/tiled/tiled-renderer';
 export {CompositeRenderer} from './static-data/renderer/composite-renderer';
 export {ShaderRenderer} from './static-data/renderer/shader-renderer';
 export {SwitchRenderer} from './static-data/renderer/switch-renderer';

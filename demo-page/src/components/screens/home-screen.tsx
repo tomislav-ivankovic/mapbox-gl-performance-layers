@@ -10,6 +10,7 @@ export function HomeScreen() {
                     <li><Link to="/points">Points</Link></li>
                     <li><Link to="/lines">Lines</Link></li>
                     <li><Link to="/polygons">Polygons</Link></li>
+                    <li><Link to="/grid">Grid</Link></li>
                 </ul>
             </nav>
         </div>

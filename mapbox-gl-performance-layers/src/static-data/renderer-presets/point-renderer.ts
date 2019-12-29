@@ -5,10 +5,10 @@ import {FancyPointShader} from '../shader/point/fancy-point-shader';
 import {SimplePointShader} from '../shader/point/simple-point-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
+import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
 import {findPointCollectionBounds} from '../../geometry-functions';
 
-export interface PointRendererOptions<P> {
+export interface PointRendererOptions<P> extends TiledRendererOptions {
     style?: StyleOption<Feature<Point, P>, PointStyle>;
     fancy?: boolean;
     interpolation?: number;
@@ -26,7 +26,11 @@ export function pointRenderer<P>(options: PointRendererOptions<P>): Renderer<Fea
             condition: data => data.features.length < threshold
         },
         {
-            renderer: new TiledRenderer(new ShaderRenderer(shader), findPointCollectionBounds),
+            renderer: new TiledRenderer(
+                new ShaderRenderer(shader),
+                findPointCollectionBounds,
+                options
+            ),
             condition: data => data.features.length >= threshold
         }
     ]);

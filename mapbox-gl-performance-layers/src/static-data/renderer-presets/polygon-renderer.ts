@@ -5,10 +5,10 @@ import {FancyPolygonShader} from '../shader/polygon/fancy-polygon-shader';
 import {SimplePolygonShader} from '../shader/polygon/simple-polygon-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer} from '../renderer/tiled/tiled-renderer';
+import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
 import {findPolygonCollectionBounds} from '../../geometry-functions';
 
-export interface PolygonRendererOptions<P> {
+export interface PolygonRendererOptions<P> extends TiledRendererOptions{
     style?: StyleOption<Feature<Polygon, P>, PolygonStyle>;
     fancy?: boolean;
     interpolation?: number;
@@ -26,7 +26,11 @@ export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer
             condition: data => data.features.length < threshold
         },
         {
-            renderer: new TiledRenderer(new ShaderRenderer(shader), findPolygonCollectionBounds),
+            renderer: new TiledRenderer(
+                new ShaderRenderer(shader),
+                findPolygonCollectionBounds,
+                options
+            ),
             condition: data => data.features.length >= threshold
         }
     ]);

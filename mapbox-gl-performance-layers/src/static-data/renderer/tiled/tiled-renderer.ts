@@ -5,24 +5,33 @@ import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
 import {Bounds, findViewBounds} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 
+export interface TiledRendererOptions {
+    numberOfTiles?: number,
+    tileWidth?: number,
+    tileHeight?: number
+}
+
 export class TiledRenderer<D> implements Renderer<D> {
     private manager: TileManager<D>;
     private textureDrawer = new TextureDrawer();
     private map: mapboxgl.Map | null = null;
+    private readonly tileWidth: number;
+    private readonly tileHeight: number;
 
     constructor(
         renderer: Renderer<D>,
         findDataBounds: (data: D) => Bounds,
-        numberOfTiles = 16,
-        private tileWidth = 2048,
-        private tileHeight = 2048
+        options: TiledRendererOptions
     ) {
+        const numberOfTiles = options.numberOfTiles != null ? options.numberOfTiles : 16;
+        this.tileWidth = options.tileWidth != null ? options.tileWidth : 2048;
+        this.tileHeight = options.tileHeight != null ? options.tileHeight : 2048;
         this.manager = new TileManager(
             new TileGenerator(renderer),
             findDataBounds,
             numberOfTiles,
-            tileWidth,
-            tileHeight
+            this.tileWidth,
+            this.tileHeight
         );
     }
 
