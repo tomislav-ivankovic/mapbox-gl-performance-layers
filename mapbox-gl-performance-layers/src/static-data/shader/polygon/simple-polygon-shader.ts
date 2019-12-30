@@ -1,23 +1,20 @@
 import {ShaderBuffers} from '../shader';
-import {Feature, FeatureCollection, Polygon} from 'geojson';
+import {FeatureCollection, Polygon} from 'geojson';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../styles';
 import {DefaultShader} from '../default/default-shader';
 import {transformX, transformY} from '../../../geometry-functions';
 import earcut from 'earcut';
 
-export class SimplePolygonShader<P> extends DefaultShader<FeatureCollection<Polygon, P>> {
-    constructor(
-        private style?: StyleOption<Feature<Polygon, P>, PolygonStyle>
-    ) {
-        super();
-    }
-
-    dataToArrays(data: FeatureCollection<Polygon, P>): ShaderBuffers {
+export class SimplePolygonShader<P> extends DefaultShader<Polygon, P, PolygonStyle> {
+    dataToArrays(
+        data: FeatureCollection<Polygon, P>,
+        styleOption: StyleOption<Polygon, P, PolygonStyle>
+    ): ShaderBuffers {
         const array: number[] = [];
         const elementArray: number[] = [];
         let indexOffset = 0;
         for (const feature of data.features) {
-            const style = resolvePolygonStyle(feature, this.style);
+            const style = resolvePolygonStyle(feature, styleOption);
             const transformedCoordinates = feature.geometry.coordinates.map(c =>
                 c.map(coords => [transformX(coords[0]), transformY(coords[1])])
             );

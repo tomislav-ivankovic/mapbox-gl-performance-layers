@@ -1,17 +1,19 @@
 import {Renderer} from '../renderer';
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
-export class TileGenerator<D> {
+export class TileGenerator<G extends Geometry, P, S extends {}> {
     private frameBuffer: WebGLFramebuffer | null = null;
     private matrix = glMatrix.mat4.create();
 
     constructor(
-        private renderer: Renderer<D>
+        private renderer: Renderer<G, P, S>
     ) {
     }
 
-    public setData(data: D) {
-        this.renderer.setData(data);
+    public setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>) {
+        this.renderer.setDataAndStyle(data, styleOption);
     }
 
     public clearData(): void {

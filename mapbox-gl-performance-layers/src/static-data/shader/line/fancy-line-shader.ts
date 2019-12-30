@@ -1,4 +1,4 @@
-import {Feature, FeatureCollection, LineString} from 'geojson';
+import {FeatureCollection, LineString} from 'geojson';
 import {Shader, ShaderBuffers} from '../shader';
 import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
@@ -6,12 +6,11 @@ import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-line.vert';
 import fragmentSource from './fancy-line.frag';
 
-export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, P>> {
+export class FancyLineShader<P> implements Shader<LineString, P, LineStyle> {
     vertexSource = vertexSource;
     fragmentSource = fragmentSource;
 
     constructor(
-        private style?: StyleOption<Feature<LineString, P>, LineStyle>,
         private interpolation: number = 1.8
     ) {
     }
@@ -90,7 +89,10 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
         gl.enableVertexAttribArray(outlineColor);
     }
 
-    dataToArrays(data: FeatureCollection<LineString, P>): ShaderBuffers {
+    dataToArrays(
+        data: FeatureCollection<LineString, P>,
+        styleOption: StyleOption<LineString, P, LineStyle>
+    ): ShaderBuffers {
         const array: number[] = [];
         const elementArray: number[] = [];
         let currentIndex = 0;
@@ -98,7 +100,7 @@ export class FancyLineShader<P> implements Shader<FeatureCollection<LineString, 
             if (feature.geometry.coordinates.length < 2) {
                 continue;
             }
-            const style = resolveLineStyle(feature, this.style);
+            const style = resolveLineStyle(feature, styleOption);
             const coords = feature.geometry.coordinates;
             for (let i = 0; i < coords.length; i++) {
                 const currentX = transformX(coords[i][0]);

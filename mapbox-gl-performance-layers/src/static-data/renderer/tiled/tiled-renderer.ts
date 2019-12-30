@@ -3,6 +3,8 @@ import {TileGenerator} from './tile-generator';
 import {TileManager} from './tile-manager';
 import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
 import {Bounds, findViewBounds} from '../../../geometry-functions';
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
 export interface TiledRendererOptions {
@@ -11,16 +13,16 @@ export interface TiledRendererOptions {
     tileHeight?: number
 }
 
-export class TiledRenderer<D> implements Renderer<D> {
-    private manager: TileManager<D>;
+export class TiledRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
+    private manager: TileManager<G, P, S>;
     private textureDrawer = new TextureDrawer();
     private map: mapboxgl.Map | null = null;
     private readonly tileWidth: number;
     private readonly tileHeight: number;
 
     constructor(
-        renderer: Renderer<D>,
-        findDataBounds: (data: D) => Bounds,
+        renderer: Renderer<G, P, S>,
+        findDataBounds: (data: FeatureCollection<G, P>) => Bounds,
         options: TiledRendererOptions
     ) {
         const numberOfTiles = options.numberOfTiles != null ? options.numberOfTiles : 16;
@@ -35,8 +37,8 @@ export class TiledRenderer<D> implements Renderer<D> {
         );
     }
 
-    setData(data: D): void {
-        this.manager.setData(data);
+    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
+        this.manager.setDataAndStyle(data, styleOption);
     }
 
     clearData(): void {

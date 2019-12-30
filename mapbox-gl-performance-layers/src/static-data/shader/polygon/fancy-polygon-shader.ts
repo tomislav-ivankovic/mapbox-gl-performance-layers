@@ -1,4 +1,4 @@
-import {Feature, FeatureCollection, Polygon} from 'geojson';
+import {FeatureCollection, Polygon} from 'geojson';
 import {Shader, ShaderBuffers} from '../shader';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
@@ -7,12 +7,11 @@ import vertexSource from './fancy-polygon.vert';
 import fragmentSource from './fancy-polygon.frag';
 import earcut from 'earcut';
 
-export class FancyPolygonShader<P> implements Shader<FeatureCollection<Polygon, P>> {
+export class FancyPolygonShader<P> implements Shader<Polygon, P, PolygonStyle> {
     vertexSource = vertexSource;
     fragmentSource = fragmentSource;
 
     constructor(
-        private style?: StyleOption<Feature<Polygon, P>, PolygonStyle>,
         private interpolation: number = 1.8
     ) {
     }
@@ -91,13 +90,16 @@ export class FancyPolygonShader<P> implements Shader<FeatureCollection<Polygon, 
         gl.enableVertexAttribArray(outlineColor);
     }
 
-    dataToArrays(data: FeatureCollection<Polygon, P>): ShaderBuffers {
+    dataToArrays(
+        data: FeatureCollection<Polygon, P>,
+        styleOption: StyleOption<Polygon, P, PolygonStyle>
+    ): ShaderBuffers {
         const array: number[] = [];
         const elementArray: number[] = [];
         const indexMapper: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
-            const style = resolvePolygonStyle(feature, this.style);
+            const style = resolvePolygonStyle(feature, styleOption);
             const transformedCoords = feature.geometry.coordinates.map(c =>
                 c.map(coords => [transformX(coords[0]), transformY(coords[1])])
             );

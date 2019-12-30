@@ -1,5 +1,7 @@
 import {TileGenerator} from './tile-generator';
 import {Bounds, transformX, transformY} from '../../../geometry-functions';
+import {StyleOption} from '../../shader/styles';
+import {FeatureCollection, Geometry} from 'geojson';
 
 interface Tile {
     x: number,
@@ -9,21 +11,21 @@ interface Tile {
     texture: WebGLTexture
 }
 
-export class TileManager<D> {
+export class TileManager<G extends Geometry, P, S extends {}> {
     private tiles: Tile[] | null = null;
     private dataBounds: Bounds | null = null;
 
     constructor(
-        private generator: TileGenerator<D>,
-        private findDataBounds: (data: D) => Bounds,
+        private generator: TileGenerator<G, P, S>,
+        private findDataBounds: (data: FeatureCollection<G, P>) => Bounds,
         private numberOfTiles: number,
         private tileWidth: number,
         private tileHeight: number
     ) {
     }
 
-    public setData(data: D): void {
-        this.generator.setData(data);
+    public setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
+        this.generator.setDataAndStyle(data, styleOption);
         const bounds = this.findDataBounds(data);
         this.dataBounds = {
             minX: transformX(bounds.minX),

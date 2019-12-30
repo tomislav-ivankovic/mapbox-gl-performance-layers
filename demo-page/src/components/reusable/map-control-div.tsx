@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {mapComponent} from 'react-mapbox-gl-performance-layers';
 import {IControl} from 'mapbox-gl';
 
-export interface MapComponentProps {
+export interface MapControlDivProps {
     map: mapboxgl.Map;
     children: ReactNode;
     className?: string;
@@ -11,7 +11,7 @@ export interface MapComponentProps {
     position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 }
 
-class MapControlComponent extends Component<MapComponentProps, {}> {
+class MapControl extends Component<MapControlDivProps, {}> {
     private readonly div: HTMLDivElement;
     private readonly control: IControl = {
         onAdd: () => this.div,
@@ -23,7 +23,7 @@ class MapControlComponent extends Component<MapComponentProps, {}> {
         }
     };
 
-    constructor(props: MapComponentProps) {
+    constructor(props: MapControlDivProps) {
         super(props);
         this.div = document.createElement('div');
         this.updateClassName();
@@ -39,7 +39,7 @@ class MapControlComponent extends Component<MapComponentProps, {}> {
         this.removeControl();
     }
 
-    componentDidUpdate(prevProps: Readonly<MapComponentProps>): void {
+    componentDidUpdate(prevProps: Readonly<MapControlDivProps>): void {
         if (this.props.children !== prevProps.children) {
             this.updateContent();
         }
@@ -72,7 +72,7 @@ class MapControlComponent extends Component<MapComponentProps, {}> {
         if (this.props.style == null) {
             return;
         }
-        Object.entries(this.props.style).forEach(([key,value]) => {
+        Object.entries(this.props.style).forEach(([key, value]) => {
             this.div.style[key as any] = value;
         });
     }
@@ -86,4 +86,4 @@ class MapControlComponent extends Component<MapComponentProps, {}> {
     }
 }
 
-export const MapControl = mapComponent(MapControlComponent);
+export const MapControlDiv = mapComponent(MapControl);

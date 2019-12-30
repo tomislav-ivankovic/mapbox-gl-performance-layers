@@ -2,19 +2,22 @@ import {CustomLayerInterface} from 'mapbox-gl';
 import {Renderer} from '../renderer/renderer';
 import {ClickProvider} from '../click-provider/click-provider';
 import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../shader/styles';
 
-export interface StaticDataLayerOptions<G extends Geometry, P> {
+export interface StaticDataLayerOptions<G extends Geometry, P, S extends {}> {
     id: string;
-    renderer: Renderer<FeatureCollection<G, P>>;
+    renderer: Renderer<G, P, S>;
     clickProvider?: ClickProvider<G, P>;
     renderingMode?: '2d' | '3d';
 }
 
-export class StaticDataLayer<G extends Geometry, P> implements CustomLayerInterface {
+export class StaticDataLayer<G extends Geometry, P, S extends {}> implements CustomLayerInterface {
     private map: mapboxgl.Map | null = null;
+    private data: FeatureCollection<G, P> | null = null;
+    private styleOption: StyleOption<G, P, S> = undefined;
 
     constructor(
-        private options: StaticDataLayerOptions<G, P>
+        private options: StaticDataLayerOptions<G, P, S>
     ) {
     }
 
@@ -33,8 +36,10 @@ export class StaticDataLayer<G extends Geometry, P> implements CustomLayerInterf
         return 'custom';
     }
 
-    public setData(data: FeatureCollection<G, P>) {
-        this.options.renderer.setData(data);
+    public setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>) {
+        this.data = data;
+        this.styleOption = styleOption;
+        this.options.renderer.setDataAndStyle(data, styleOption);
         if (this.options.clickProvider != null) {
             this.options.clickProvider.setData(data);
         }
@@ -43,7 +48,23 @@ export class StaticDataLayer<G extends Geometry, P> implements CustomLayerInterf
         }
     }
 
+    public setData(data: FeatureCollection<G, P>) {
+        this.setDataAndStyle(data, this.styleOption);
+    }
+
+    public setStyle(styleOption: StyleOption<G, P, S>) {
+        this.styleOption = styleOption;
+        if (this.data == null) {
+            return;
+        }
+        this.options.renderer.setDataAndStyle(this.data, styleOption);
+        if (this.map != null) {
+            this.map.triggerRepaint();
+        }
+    }
+
     public clearData() {
+        this.data = null;
         this.options.renderer.clearData();
         if (this.options.clickProvider != null) {
             this.options.clickProvider.clearData();

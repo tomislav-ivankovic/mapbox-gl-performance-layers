@@ -1,22 +1,19 @@
-import {Feature, FeatureCollection, LineString} from 'geojson';
+import {FeatureCollection, LineString} from 'geojson';
 import {ShaderBuffers} from '../shader';
 import {DefaultShader} from '../default/default-shader';
 import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 
-export class SimpleLineShader<P> extends DefaultShader<FeatureCollection<LineString, P>> {
-    constructor(
-        private style?: StyleOption<Feature<LineString, P>, LineStyle>
-    ) {
-        super();
-    }
-
-    dataToArrays(data: FeatureCollection<LineString, P>): ShaderBuffers {
+export class SimpleLineShader<P> extends DefaultShader<LineString, P, LineStyle> {
+    dataToArrays(
+        data: FeatureCollection<LineString, P>,
+        styleOption: StyleOption<LineString, P, LineStyle>
+    ): ShaderBuffers {
         const array: number[] = [];
         const elementsArray: number[] = [];
         let currentIndex = 0;
         for (const feature of data.features) {
-            const style = resolveLineStyle(feature, this.style);
+            const style = resolveLineStyle(feature, styleOption);
             for (let i = 0; i < feature.geometry.coordinates.length; i++) {
                 const coords = feature.geometry.coordinates[i];
                 array.push(

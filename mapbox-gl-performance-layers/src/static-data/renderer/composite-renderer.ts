@@ -1,15 +1,17 @@
 import {Renderer} from './renderer';
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
-export class CompositeRenderer<D> implements Renderer<D> {
+export class CompositeRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
     constructor(
-        private renderers: Renderer<D>[]
+        private renderers: Renderer<G, P, S>[]
     ){
     }
 
-    setData(data: D): void {
+    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
         for (const renderer of this.renderers) {
-            renderer.setData(data);
+            renderer.setDataAndStyle(data, styleOption);
         }
     }
 

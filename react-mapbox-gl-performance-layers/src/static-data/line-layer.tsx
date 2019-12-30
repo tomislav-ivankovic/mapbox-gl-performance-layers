@@ -1,12 +1,13 @@
-import {StaticDataLayerComponent, StaticDataLayerComponentProps} from './static-data-layer';
-import {LineString} from 'geojson';
-import {lineLayer, LineLayerOptions} from 'mapbox-gl-performance-layers';
+import {StaticDataLayerComponent} from './static-data-layer';
+import {FeatureCollection, LineString} from 'geojson';
+import {lineLayer, LineLayerOptions, LineStyle, StyleOption} from 'mapbox-gl-performance-layers';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
 import React from 'react';
 
-export interface LineLayerProps<P> extends Omit<Omit<StaticDataLayerComponentProps<LineString, P>, 'map'>, 'layerConstructor'>,
-    Omit<LineLayerOptions<P>, 'id'> {
+export interface LineLayerProps<P> extends Omit<LineLayerOptions<P>, 'id'> {
     id?: string;
+    data: FeatureCollection<LineString, P>;
+    style?: StyleOption<LineString, P, LineStyle>;
 }
 
 export function LineLayer<P>(props: LineLayerProps<P>) {

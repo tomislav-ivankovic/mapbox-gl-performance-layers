@@ -7,8 +7,8 @@ import {Popup} from 'react-mapbox-gl';
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<Point, {}>;
-    selection: Feature<Point, {}> | null;
+    data: FeatureCollection<Point, null>;
+    selection: Feature<Point, null> | null;
 }
 
 export class PointsScreen extends Component<{}, State> {
@@ -37,14 +37,14 @@ export class PointsScreen extends Component<{}, State> {
                         type: 'Point',
                         coordinates: p
                     },
-                    properties: {}
+                    properties: null
                 }))
             },
             selection: null
         };
     }
 
-    handleClick = (feature: Feature<Point, {}>) => {
+    handleClick = (feature: Feature<Point, null>) => {
         const newSelected = feature !== this.state.selection ? feature : null;
         this.setState({selection: newSelected});
     };
@@ -72,7 +72,7 @@ export class PointsScreen extends Component<{}, State> {
     }
 }
 
-function getStyle(feature: Feature<Point, {}>) {
+function getStyle(feature: Feature<Point, null>) {
     const x = feature.geometry.coordinates[0];
     const y = feature.geometry.coordinates[1];
     return {

@@ -1,7 +1,9 @@
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
-export interface Renderer<D> {
-    setData(data: D): void;
+export interface Renderer<G extends Geometry, P, S extends {}> {
+    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void;
     clearData(): void;
     initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void;
     dispose(map: mapboxgl.Map, gl: WebGLRenderingContext): void;

@@ -1,5 +1,5 @@
-import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {PolygonStyle, StyleOption} from '../shader/styles';
+import {Polygon} from 'geojson';
+import {PolygonStyle} from '../shader/styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyPolygonShader} from '../shader/polygon/fancy-polygon-shader';
 import {SimplePolygonShader} from '../shader/polygon/simple-polygon-shader';
@@ -9,16 +9,15 @@ import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-rende
 import {findPolygonCollectionBounds} from '../../geometry-functions';
 
 export interface PolygonRendererOptions<P> extends TiledRendererOptions{
-    style?: StyleOption<Feature<Polygon, P>, PolygonStyle>;
     fancy?: boolean;
     interpolation?: number;
     tileThreshold?: number;
 }
 
-export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer<FeatureCollection<Polygon, P>> {
+export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer<Polygon, P, PolygonStyle> {
     const shader = (options.fancy != null && options.fancy) ?
-        new FancyPolygonShader(options.style, options.interpolation) :
-        new SimplePolygonShader(options.style);
+        new FancyPolygonShader(options.interpolation) :
+        new SimplePolygonShader();
     const threshold = options.tileThreshold != null ? options.tileThreshold : 10000;
     return new SwitchRenderer([
         {

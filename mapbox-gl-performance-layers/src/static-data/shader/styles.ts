@@ -1,3 +1,5 @@
+import {Feature, Geometry} from 'geojson';
+
 export interface Color {
     r: number;
     g: number;
@@ -56,11 +58,18 @@ export const defaultPolygonStyle: PolygonStyle = {
     outlineOpacity: 0
 };
 
-export type StyleOption<F, S extends {}> = ((feature: F) => Partial<S>) | Partial<S> | undefined;
+export type StyleOption<G extends Geometry, P, S extends {}> =
+    ((feature: Feature<G, P>) => Partial<S>) |
+    Partial<S> |
+    undefined;
 
 let singleAllocationObject: object = {};
 
-export function resolveStyle<F, S extends {}>(feature: F, styleOption: StyleOption<F, S>, defaultStyle: S): S {
+export function resolveStyle<G extends Geometry, P, S extends {}>(
+    feature: Feature<G, P>,
+    styleOption: StyleOption<G, P, S>,
+    defaultStyle: S
+): S {
     if (styleOption == null) {
         return defaultStyle;
     }
@@ -75,14 +84,23 @@ export function resolveStyle<F, S extends {}>(feature: F, styleOption: StyleOpti
     return singleAllocationObject;
 }
 
-export function resolvePointStyle<F>(feature: F, styleOption: StyleOption<F, PointStyle>): PointStyle {
+export function resolvePointStyle<G extends Geometry, P>(
+    feature: Feature<G, P>,
+    styleOption: StyleOption<G, P, PointStyle>
+): PointStyle {
     return resolveStyle(feature, styleOption, defaultPointStyle);
 }
 
-export function resolveLineStyle<F>(feature: F, styleOption: StyleOption<F, LineStyle>): LineStyle {
+export function resolveLineStyle<G extends Geometry, P>(
+    feature: Feature<G, P>,
+    styleOption: StyleOption<G, P, LineStyle>
+): LineStyle {
     return resolveStyle(feature, styleOption, defaultLineStyle);
 }
 
-export function resolvePolygonStyle<F>(feature: F, styleOption: StyleOption<F, PolygonStyle>): PolygonStyle {
+export function resolvePolygonStyle<G extends Geometry, P, S extends {}>(
+    feature: Feature<G, P>,
+    styleOption: StyleOption<G, P, PolygonStyle>
+): PolygonStyle {
     return resolveStyle(feature, styleOption, defaultPolygonStyle);
 }

@@ -8,10 +8,10 @@ import {EventData, MapMouseEvent} from 'mapbox-gl';
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<LineString, {}>;
+    data: FeatureCollection<LineString, null>;
     selection: {
         coordinates: [number, number];
-        feature: Feature<LineString, {}>;
+        feature: Feature<LineString, null>;
     } | null;
 }
 
@@ -49,7 +49,7 @@ export class LinesScreen extends Component<{}, State> {
                         type: 'LineString',
                         coordinates: l
                     },
-                    properties: {}
+                    properties: null
                 }))
             },
             selection: null
@@ -57,7 +57,7 @@ export class LinesScreen extends Component<{}, State> {
     }
 
     handleClick = (
-        feature: Feature<LineString, {}>,
+        feature: Feature<LineString, null>,
         e: MapMouseEvent & EventData,
         closestPointOnLine: { x: number; y: number; }
     ) => {
@@ -97,7 +97,7 @@ export class LinesScreen extends Component<{}, State> {
     }
 }
 
-function getStyle(feature: Feature<LineString, {}>) {
+function getStyle(feature: Feature<LineString, null>) {
     const x = feature.geometry.coordinates[0][0];
     const y = feature.geometry.coordinates[0][1];
     return {

@@ -1,22 +1,21 @@
 import {Shader, ShaderBuffers} from '../shader';
-import {Feature, FeatureCollection, Point} from 'geojson';
+import {FeatureCollection, Point} from 'geojson';
 import {PointStyle, resolvePointStyle, StyleOption} from '../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-point.vert';
 import fragmentSource from './fancy-point.frag';
 
-export class FancyPointShader<P> implements Shader<FeatureCollection<Point, P>> {
+export class FancyPointShader<P> implements Shader<Point, P, PointStyle> {
     vertexSource = vertexSource;
     fragmentSource = fragmentSource;
 
     constructor(
-        private style?: StyleOption<Feature<Point, P>, PointStyle>,
         private interpolation: number = 1.8
     ) {
     }
 
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram,): void {
         const position = gl.getAttribLocation(program, 'a_position');
         const size = gl.getAttribLocation(program, 'a_size');
         const color = gl.getAttribLocation(program, 'a_color');
@@ -75,10 +74,10 @@ export class FancyPointShader<P> implements Shader<FeatureCollection<Point, P>> 
         gl.uniform1f(gl.getUniformLocation(program, 'u_interpolation'), this.interpolation);
     }
 
-    dataToArrays(data: FeatureCollection<Point, P>): ShaderBuffers {
+    dataToArrays(data: FeatureCollection<Point, P>, styleOption: StyleOption<Point, P, PointStyle>): ShaderBuffers {
         const array: number[] = [];
         for (const feature of data.features) {
-            const style = resolvePointStyle(feature, this.style);
+            const style = resolvePointStyle(feature, styleOption);
             const coords = feature.geometry.coordinates;
             array.push(
                 transformX(coords[0]), transformY(coords[1]),

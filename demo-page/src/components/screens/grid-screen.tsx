@@ -4,7 +4,7 @@ import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
 import {Map} from '../reusable/map';
 import {Color} from 'mapbox-gl-performance-layers';
-import {MapControl} from '../reusable/map-control';
+import {MapControlDiv} from '../reusable/map-control-div';
 
 interface Properties {
     center: [number, number];
@@ -83,18 +83,16 @@ export class GridScreen extends Component<{}, State> {
             >
                 <PolygonLayer
                     data={state.data}
-                    style={f => ({
-                        color: valueToColor(f.properties.values[state.selectedIndex])
-                    })}
+                    style={polygonStyles[state.selectedIndex]}
                     onClick={this.handleClick}
                 />
-                <MapControl style={{pointerEvents: 'auto'}}>
+                <MapControlDiv style={{pointerEvents: 'auto'}}>
                     {[0, 1, 2].map(index =>
                         <button key={index} onClick={() => this.setState({selectedIndex: index})}>
                             Value {index}
                         </button>
                     )}
-                </MapControl>
+                </MapControlDiv>
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>
                     {[0, 1, 2].map(index => state.selection != null &&
@@ -111,6 +109,10 @@ export class GridScreen extends Component<{}, State> {
         );
     }
 }
+
+const polygonStyles = [0, 1, 2].map(index =>
+    (f: Feature<Polygon, Properties>) => ({color: valueToColor(f.properties.values[index])})
+);
 
 function valueToColor(value: number): Color {
     return hslToRgb(0.85 * (1 - value), 1, 0.5);

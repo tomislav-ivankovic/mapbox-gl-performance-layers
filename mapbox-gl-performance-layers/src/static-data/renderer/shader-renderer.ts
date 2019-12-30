@@ -1,8 +1,10 @@
 import {Renderer} from './renderer';
 import {createShaderProgram, Shader} from '../shader/shader';
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
-export class ShaderRenderer<D> implements Renderer<D> {
+export class ShaderRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
     private program: WebGLProgram | null = null;
     private arrayBuffer: WebGLBuffer | null = null;
     private elementArrayBuffer: WebGLBuffer | null = null;
@@ -10,12 +12,12 @@ export class ShaderRenderer<D> implements Renderer<D> {
     private elementArray: Int32Array | null = null;
 
     constructor(
-        private shader: Shader<D>
+        private shader: Shader<G, P, S>
     ) {
     }
 
-    setData(data: D): void {
-        const arrays = this.shader.dataToArrays(data);
+    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
+        const arrays = this.shader.dataToArrays(data, styleOption);
         this.array = arrays.array;
         this.elementArray = arrays.elementArray;
     }

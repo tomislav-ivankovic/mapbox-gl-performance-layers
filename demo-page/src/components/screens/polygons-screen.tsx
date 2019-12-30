@@ -8,10 +8,10 @@ import {Popup} from 'react-mapbox-gl';
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<Polygon, {}>;
+    data: FeatureCollection<Polygon, null>;
     selection: {
         coordinates: [number, number];
-        feature: Feature<Polygon, {}>;
+        feature: Feature<Polygon, null>;
     } | null;
 }
 
@@ -57,14 +57,14 @@ export class PolygonsScreen extends Component<{}, State> {
                         type: 'Polygon',
                         coordinates: p
                     },
-                    properties: {}
+                    properties: null
                 }))
             },
             selection: null
         };
     }
 
-    handleClick = (feature: Feature<Polygon, {}>, e: MapMouseEvent & EventData) => {
+    handleClick = (feature: Feature<Polygon, null>, e: MapMouseEvent & EventData) => {
         if (this.state.selection != null && this.state.selection.feature === feature) {
             this.setState({selection: null});
             return;
@@ -101,7 +101,7 @@ export class PolygonsScreen extends Component<{}, State> {
     }
 }
 
-function getStyle(feature: Feature<Polygon, {}>) {
+function getStyle(feature: Feature<Polygon, null>) {
     const x = feature.geometry.coordinates[0][0][0];
     const y = feature.geometry.coordinates[0][0][1];
     return {

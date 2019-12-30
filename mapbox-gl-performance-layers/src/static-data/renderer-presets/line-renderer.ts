@@ -1,5 +1,5 @@
-import {Feature, FeatureCollection, LineString} from 'geojson';
-import {LineStyle, StyleOption} from '../shader/styles';
+import {LineString} from 'geojson';
+import {LineStyle} from '../shader/styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyLineShader} from '../shader/line/fancy-line-shader';
 import {SimpleLineShader} from '../shader/line/simple-line-shader';
@@ -9,16 +9,15 @@ import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-rende
 import {findLineStringCollectionBounds} from '../../geometry-functions';
 
 export interface LineRendererOptions<P> extends TiledRendererOptions {
-    style?: StyleOption<Feature<LineString, P>, LineStyle>;
     fancy?: boolean;
     interpolation?: number;
     tileThreshold?: number;
 }
 
-export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<FeatureCollection<LineString, P>> {
+export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<LineString, P, LineStyle> {
     const shader = (options.fancy != null && options.fancy) ?
-        new FancyLineShader(options.style, options.interpolation) :
-        new SimpleLineShader(options.style);
+        new FancyLineShader(options.interpolation) :
+        new SimpleLineShader();
     const threshold = options.tileThreshold != null ? options.tileThreshold : 10000;
     return new SwitchRenderer([
         {

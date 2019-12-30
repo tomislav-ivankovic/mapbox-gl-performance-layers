@@ -1,22 +1,24 @@
 import {Renderer} from './renderer';
+import {FeatureCollection, Geometry} from 'geojson';
+import {StyleOption} from '../shader/styles';
 import * as glMatrix from 'gl-matrix';
 
-export interface SwitchOption<D> {
-    renderer: Renderer<D>,
-    condition: (data: D) => boolean,
+export interface SwitchOption<G extends Geometry, P, S extends {}> {
+    renderer: Renderer<G, P, S>,
+    condition: (data: FeatureCollection<G, P>) => boolean,
 }
 
-export class SwitchRenderer<D> implements Renderer<D> {
+export class SwitchRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
     private map: mapboxgl.Map | null = null;
     private gl: WebGLRenderingContext | null = null;
-    private currentOption: SwitchOption<D> | null = null;
+    private currentOption: SwitchOption<G, P, S> | null = null;
 
     constructor(
-        private options: SwitchOption<D>[]
+        private options: SwitchOption<G, P, S>[]
     ){
     }
 
-    setData(data: D): void {
+    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
         const currentOption = this.currentOption;
         if (currentOption == null || !currentOption.condition(data)) {
             const newOption = this.options.find(option => option.condition(data));
@@ -36,7 +38,7 @@ export class SwitchRenderer<D> implements Renderer<D> {
             }
         }
         if (this.currentOption != null) {
-            this.currentOption.renderer.setData(data);
+            this.currentOption.renderer.setDataAndStyle(data, styleOption);
         }
     }
 
