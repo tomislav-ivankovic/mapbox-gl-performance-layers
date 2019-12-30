@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {Map} from '../map';
+import {Map} from '../reusable/map';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {Popup} from 'react-mapbox-gl';

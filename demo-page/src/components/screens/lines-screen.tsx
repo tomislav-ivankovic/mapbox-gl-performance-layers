@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Feature, FeatureCollection, LineString} from 'geojson';
-import {Map} from '../map';
+import {Map} from '../reusable/map';
 import {LineLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
 import {EventData, MapMouseEvent} from 'mapbox-gl';

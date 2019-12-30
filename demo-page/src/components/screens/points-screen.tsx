@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Map} from '../map';
+import {Map} from '../reusable/map';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {PointLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';

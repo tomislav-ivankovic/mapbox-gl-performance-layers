@@ -2,13 +2,13 @@ import {Feature, FeatureCollection, Polygon} from 'geojson';
 import React, {Component} from 'react';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
-import {Map} from '../map';
+import {Map} from '../reusable/map';
+import {Color} from 'mapbox-gl-performance-layers';
+import {MapControl} from '../reusable/map-control';
 
 interface Properties {
     center: [number, number];
-    value1: number;
-    value2: number;
-    value3: number;
+    values: number[];
 }
 
 interface State {
@@ -16,6 +16,7 @@ interface State {
     zoom: [number];
     data: FeatureCollection<Polygon, Properties>;
     selection: Feature<Polygon, Properties> | null;
+    selectedIndex: number;
 }
 
 export class GridScreen extends Component<{}, State> {
@@ -24,8 +25,10 @@ export class GridScreen extends Component<{}, State> {
 
         const cellSize = 0.04;
         const gridSize = 250;
-        const startX = 16 - 0.5 * (gridSize * cellSize);
-        const startY = 45 - 0.5 * (gridSize * cellSize);
+        const centerX = 16;
+        const centerY = 45;
+        const startX = centerX - 0.5 * (gridSize * cellSize);
+        const startY = centerY - 0.5 * (gridSize * cellSize);
         const features: Feature<Polygon, Properties>[] = [];
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
@@ -33,6 +36,8 @@ export class GridScreen extends Component<{}, State> {
                 const y1 = startY + j * cellSize;
                 const x2 = x1 + cellSize;
                 const y2 = y1 + cellSize;
+                const x = 0.5 * (x1 + x2);
+                const y = 0.5 * (y1 + y2);
                 const polygon = [[x1, y1], [x2, y1], [x2, y2], [x1, y2], [x1, y1]];
                 features.push({
                     type: 'Feature',
@@ -41,10 +46,14 @@ export class GridScreen extends Component<{}, State> {
                         coordinates: [polygon]
                     },
                     properties: {
-                        center: [0.5*(x1 + x2), 0.5*(y1 + y2)],
-                        value1: 1,
-                        value2: 2,
-                        value3: 3
+                        center: [x, y],
+                        values: [
+                            0.5 + 0.5 * Math.sin(
+                                Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY))
+                            ),
+                            0.5 + 0.5 * Math.sin(x + y),
+                            x - Math.floor(x)
+                        ]
                     }
                 });
             }
@@ -54,7 +63,8 @@ export class GridScreen extends Component<{}, State> {
             center: [16, 44.5],
             zoom: [6.5],
             data: {type: 'FeatureCollection', features: features},
-            selection: null
+            selection: null,
+            selectedIndex: 0
         };
     }
 
@@ -73,23 +83,56 @@ export class GridScreen extends Component<{}, State> {
             >
                 <PolygonLayer
                     data={state.data}
-                    style={() => ({
-                        color: {
-                            r: Math.random(),
-                            g: Math.random(),
-                            b: Math.random()
-                        }
+                    style={f => ({
+                        color: valueToColor(f.properties.values[state.selectedIndex])
                     })}
                     onClick={this.handleClick}
                 />
+                <MapControl style={{pointerEvents: 'auto'}}>
+                    {[0, 1, 2].map(index =>
+                        <button key={index} onClick={() => this.setState({selectedIndex: index})}>
+                            Value {index}
+                        </button>
+                    )}
+                </MapControl>
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>
-                    <div><b>Value 1:</b>&nbsp;{state.selection.properties.value1}</div>
-                    <div><b>Value 2:</b>&nbsp;{state.selection.properties.value2}</div>
-                    <div><b>Value 3:</b>&nbsp;{state.selection.properties.value3}</div>
+                    {[0, 1, 2].map(index => state.selection != null &&
+                        <div
+                            key={index}
+                            style={{backgroundColor: index === state.selectedIndex ? 'yellow' : 'white'}}
+                        >
+                            <b>Value {index}:</b>&nbsp;{state.selection.properties.values[index]}
+                        </div>
+                    )}
                 </Popup>
                 }
             </Map>
         );
     }
+}
+
+function valueToColor(value: number): Color {
+    return hslToRgb(0.85 * (1 - value), 1, 0.5);
+}
+
+function hslToRgb(h: number, s: number, l: number): Color {
+    if (s === 0) {
+        return {r: 1, g: 1, b: 1};
+    }
+    const hueToRgb = (p: number, q: number, t: number) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    return {
+        r: hueToRgb(p, q, h + 1 / 3),
+        g: hueToRgb(p, q, h),
+        b: hueToRgb(p, q, h - 1 / 3)
+    };
 }
