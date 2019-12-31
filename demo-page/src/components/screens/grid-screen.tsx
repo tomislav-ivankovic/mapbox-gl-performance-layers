@@ -5,6 +5,7 @@ import {Popup} from 'react-mapbox-gl';
 import {Map} from '../reusable/map';
 import {Color} from 'mapbox-gl-performance-layers';
 import {MapControlDiv} from '../reusable/map-control-div';
+import {ExportControl} from "../reusable/export-control";
 
 interface Properties {
     center: [number, number];
@@ -81,11 +82,6 @@ export class GridScreen extends Component<{}, State> {
                 center={state.center}
                 zoom={state.zoom}
             >
-                <PolygonLayer
-                    data={state.data}
-                    style={polygonStyles[state.selectedIndex]}
-                    onClick={this.handleClick}
-                />
                 <MapControlDiv style={{pointerEvents: 'auto'}}>
                     {[0, 1, 2].map(index =>
                         <button key={index} onClick={() => this.setState({selectedIndex: index})}>
@@ -93,6 +89,12 @@ export class GridScreen extends Component<{}, State> {
                         </button>
                     )}
                 </MapControlDiv>
+                <ExportControl/>
+                <PolygonLayer
+                    data={state.data}
+                    style={polygonStyles[state.selectedIndex]}
+                    onClick={this.handleClick}
+                />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>
                     {[0, 1, 2].map(index => state.selection != null &&
