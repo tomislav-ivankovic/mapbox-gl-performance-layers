@@ -7,6 +7,7 @@ export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends 
     layerConstructor: () => StaticDataLayer<G, P, S>;
     data: FeatureCollection<G, P>;
     style?: StyleOption<G, P, S>;
+    before?: string;
 }
 
 class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLayerComponentProps<G, P, S>, {}> {
@@ -19,14 +20,11 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
     }
 
     componentDidMount(): void {
-        this.props.map.addLayer(this.layer);
+        this.addLayer();
     }
 
     componentWillUnmount(): void {
-        if (this.props.map.getStyle() == null) {
-            return;
-        }
-        this.props.map.removeLayer(this.layer.id);
+        this.removeLayer();
     }
 
     componentDidUpdate(prevProps: Readonly<StaticDataLayerComponentProps<G, P, S>>): void {
@@ -39,6 +37,20 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
             this.layer.setData(props.data);
         } else if (didStyleChange) {
             this.layer.setStyle(props.style);
+        }
+        if (props.before !== prevProps.before) {
+            this.removeLayer();
+            this.addLayer();
+        }
+    }
+
+    private addLayer() {
+        this.props.map.addLayer(this.layer, this.props.before);
+    }
+
+    private removeLayer() {
+        if (this.props.map.getStyle() != null) {
+            this.props.map.removeLayer(this.layer.id);
         }
     }
 

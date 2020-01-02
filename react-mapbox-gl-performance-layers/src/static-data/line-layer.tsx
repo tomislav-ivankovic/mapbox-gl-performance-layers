@@ -8,6 +8,7 @@ export interface LineLayerProps<P> extends Omit<LineLayerOptions<P>, 'id'> {
     id?: string;
     data: FeatureCollection<LineString, P>;
     style?: StyleOption<LineString, P, LineStyle>;
+    before?: string;
 }
 
 export function LineLayer<P>(props: LineLayerProps<P>) {

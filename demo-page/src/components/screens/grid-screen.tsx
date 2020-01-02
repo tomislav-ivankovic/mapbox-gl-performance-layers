@@ -1,21 +1,26 @@
-import {Feature, FeatureCollection, Polygon} from 'geojson';
+import {Feature, FeatureCollection, Point, Polygon} from 'geojson';
 import React, {Component} from 'react';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
-import {Popup} from 'react-mapbox-gl';
+import {Layer, Popup, Source} from 'react-mapbox-gl';
 import {Map} from '../reusable/map';
 import {Color} from 'mapbox-gl-performance-layers';
 import {MapControlDiv} from '../reusable/controls/map-control-div';
 
-interface Properties {
+interface PolygonProperties {
     center: [number, number];
     values: number[];
+}
+
+interface PointProperties {
+    [valueId: string]: string;
 }
 
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<Polygon, Properties>;
-    selection: Feature<Polygon, Properties> | null;
+    polygons: FeatureCollection<Polygon, PolygonProperties>;
+    points: FeatureCollection<Point, PointProperties>;
+    selection: Feature<Polygon, PolygonProperties> | null;
     selectedIndex: number;
 }
 
@@ -29,7 +34,8 @@ export class GridScreen extends Component<{}, State> {
         const centerY = 45;
         const startX = centerX - 0.5 * (gridSize * cellSize);
         const startY = centerY - 0.5 * (gridSize * cellSize);
-        const features: Feature<Polygon, Properties>[] = [];
+        const polygons: Feature<Polygon, PolygonProperties>[] = [];
+        const points: Feature<Point, PointProperties>[] = [];
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
                 const x1 = startX + i * cellSize;
@@ -39,22 +45,36 @@ export class GridScreen extends Component<{}, State> {
                 const x = 0.5 * (x1 + x2);
                 const y = 0.5 * (y1 + y2);
                 const polygon = [[x1, y1], [x2, y1], [x2, y2], [x1, y2], [x1, y1]];
-                features.push({
+                const polygonProperties: PolygonProperties = {
+                    center: [x, y],
+                    values: [
+                        0.5 + 0.5 * Math.sin(
+                            Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY))
+                        ),
+                        0.5 + 0.5 * Math.sin(x + y),
+                        x - Math.floor(x)
+                    ]
+                };
+                const pointProperties: PointProperties = {};
+                for (let i = 0; i < polygonProperties.values.length; i++) {
+                    const value = polygonProperties.values[i];
+                    pointProperties[i.toString()] = `${(100 * value).toFixed(2)}%`;
+                }
+                polygons.push({
                     type: 'Feature',
                     geometry: {
                         type: 'Polygon',
                         coordinates: [polygon]
                     },
-                    properties: {
-                        center: [x, y],
-                        values: [
-                            0.5 + 0.5 * Math.sin(
-                                Math.sqrt((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY))
-                            ),
-                            0.5 + 0.5 * Math.sin(x + y),
-                            x - Math.floor(x)
-                        ]
-                    }
+                    properties: polygonProperties
+                });
+                points.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [x, y]
+                    },
+                    properties: pointProperties
                 });
             }
         }
@@ -62,13 +82,14 @@ export class GridScreen extends Component<{}, State> {
         this.state = {
             center: [16, 44.5],
             zoom: [6.5],
-            data: {type: 'FeatureCollection', features: features},
+            polygons: {type: 'FeatureCollection', features: polygons},
+            points: {type: 'FeatureCollection', features: points},
             selection: null,
             selectedIndex: 0
         };
     }
 
-    handleClick = (feature: Feature<Polygon, Properties>) => {
+    handleClick = (feature: Feature<Polygon, PolygonProperties>) => {
         const newSelection = feature !== this.state.selection ? feature : null;
         this.setState({selection: newSelection});
     };
@@ -89,9 +110,33 @@ export class GridScreen extends Component<{}, State> {
                     )}
                 </MapControlDiv>
                 <PolygonLayer
-                    data={state.data}
+                    id={'grid-color'}
+                    data={state.polygons}
                     style={polygonStyles[state.selectedIndex]}
                     onClick={this.handleClick}
+                    before={'grid-text'}
+                />
+                <Layer/>
+                <Source
+                    id={'points-source'}
+                    geoJsonSource={{type: 'geojson', data: state.points}}
+                />
+                <Layer
+                    id={'grid-text'}
+                    sourceId={'points-source'}
+                    data={state.points}
+                    minZoom={10}
+                    layout={{
+                        'text-field': `{${state.selectedIndex}}`,
+                        'text-anchor': 'center',
+                        'icon-allow-overlap': true
+                    }}
+                    paint={{
+                        'text-opacity': 1,
+                        'text-color': '#000000',
+                        'text-halo-color': '#FFFFFF',
+                        'text-halo-width': 1
+                    }}
                 />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>
@@ -100,7 +145,9 @@ export class GridScreen extends Component<{}, State> {
                             key={index}
                             style={{backgroundColor: index === state.selectedIndex ? 'yellow' : 'white'}}
                         >
-                            <b>Value {index}:</b>&nbsp;{state.selection.properties.values[index]}
+                            <b>Value {index}:</b>
+                            &nbsp;
+                            {`${(100 * state.selection.properties.values[index]).toFixed(2)}%`}
                         </div>
                     )}
                 </Popup>
@@ -111,7 +158,7 @@ export class GridScreen extends Component<{}, State> {
 }
 
 const polygonStyles = [0, 1, 2].map(index =>
-    (f: Feature<Polygon, Properties>) => ({color: valueToColor(f.properties.values[index])})
+    (f: Feature<Polygon, PolygonProperties>) => ({color: valueToColor(f.properties.values[index])})
 );
 
 function valueToColor(value: number): Color {

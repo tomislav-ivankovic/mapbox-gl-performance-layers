@@ -8,6 +8,7 @@ export interface PolygonLayerProps<P> extends Omit<PolygonLayerOptions<P>, 'id'>
     id?: string;
     data: FeatureCollection<Polygon, P>;
     style?: StyleOption<Polygon, P, PolygonStyle>;
+    before?: string;
 }
 
 export function PolygonLayer<P>(props: PolygonLayerProps<P>) {

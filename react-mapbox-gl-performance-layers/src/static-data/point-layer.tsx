@@ -8,6 +8,7 @@ export interface PointLayerProps<P> extends Omit<PointLayerOptions<P>, 'id'> {
     id?: string;
     data: FeatureCollection<Point, P>;
     style?: StyleOption<Point, P, PointStyle>;
+    before?: string;
 }
 
 export function PointLayer<P>(props: PointLayerProps<P>) {
