@@ -4,8 +4,7 @@ import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
 import {Map} from '../reusable/map';
 import {Color} from 'mapbox-gl-performance-layers';
-import {MapControlDiv} from '../reusable/map-control-div';
-import {ExportControl} from "../reusable/export-control";
+import {MapControlDiv} from '../reusable/controls/map-control-div';
 
 interface Properties {
     center: [number, number];
@@ -89,7 +88,6 @@ export class GridScreen extends Component<{}, State> {
                         </button>
                     )}
                 </MapControlDiv>
-                <ExportControl/>
                 <PolygonLayer
                     data={state.data}
                     style={polygonStyles[state.selectedIndex]}

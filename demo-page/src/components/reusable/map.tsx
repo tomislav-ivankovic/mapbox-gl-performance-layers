@@ -1,27 +1,27 @@
 import ReactMapboxGl from 'react-mapbox-gl';
-import React, {ComponentType, ReactNodeArray} from 'react';
+import React, {Fragment, ComponentType} from 'react';
+import {ExportControl} from './controls/export-control';
+import {NavigationControl} from './controls/navigation-control';
+import {FullScreenControl} from './controls/full-screen-control';
 
-function filterChildren<P>(WrappedComponent: ComponentType<P>): ComponentType<P> {
+function addDefaultChildren<P>(WrappedComponent: ComponentType<P>): ComponentType<P> {
     return (props) => {
-        const children = props.children;
-        let filteredChildren: ReactNodeArray;
-        if (children == null) {
-            filteredChildren = [];
-        } else if (Array.isArray(children)) {
-            filteredChildren = children.filter(c => c);
-        } else {
-            filteredChildren = children ? [children] : [];
-        }
-        return (
-            <WrappedComponent
-                {...props}
-                children={filteredChildren}
-            />
-        );
+        const configuredProps = {
+            ...props,
+            children: (
+                <Fragment>
+                    <NavigationControl position={'top-left'}/>
+                    <FullScreenControl position={'top-left'}/>
+                    <ExportControl position={'top-left'}/>
+                    {props.children}
+                </Fragment>
+            )
+        };
+        return <WrappedComponent {...configuredProps}/>;
     };
 }
 
-export const Map = filterChildren(
+export const Map = addDefaultChildren(
     // @ts-ignore
     ReactMapboxGl({
         accessToken: 'pk.eyJ1IjoiZmFyYWRheTIiLCJhIjoiTUVHbDl5OCJ9.buFaqIdaIM3iXr1BOYKpsQ'
