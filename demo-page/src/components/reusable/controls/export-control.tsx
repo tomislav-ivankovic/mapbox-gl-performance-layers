@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {mapComponent, MapComponentProps} from '../map-component';
 import {MapControlPosition} from './map-control';
 import {MapControlDiv} from './map-control-div';
+import html2canvas from 'html2canvas';
 import icon from './export-icon.svg';
 
 interface ExportControlProps extends MapComponentProps {
@@ -9,13 +10,17 @@ interface ExportControlProps extends MapComponentProps {
     imageType?: string;
     imageQuality?: number;
     fileName?: string;
+    showTopLeftControls?: boolean;
+    showTopRightControls?: boolean;
+    showBottomLeftControls?: boolean;
+    showBottomRightControls?: boolean;
 }
 
 interface State {
     isLoading: boolean;
 }
 
-class Control extends Component<ExportControlProps, State>{
+class Control extends Component<ExportControlProps, State> {
     constructor(props: MapComponentProps) {
         super(props);
         this.state = {
@@ -28,16 +33,42 @@ class Control extends Component<ExportControlProps, State>{
         const imageType = props.imageType != null ? props.imageType : 'image/png';
         const imageQuality = props.imageQuality != null ? props.imageQuality : 1.0;
         const fileName = props.fileName != null ? props.fileName : 'export.png';
+        const showTopLeft = props.showTopLeftControls ? props.showTopLeftControls : false;
+        const showTopRight = props.showTopRightControls ? props.showTopRightControls : false;
+        const showBottomLeft = props.showBottomLeftControls ? props.showBottomLeftControls : false;
+        const showBottomRight = props.showBottomRightControls ? props.showBottomRightControls : false;
         const map = props.map;
-
         this.setState({isLoading: true});
         map.once('render', () => {
-            const dataUrl = map.getCanvas().toDataURL(imageType, imageQuality);
-            const a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = fileName;
-            a.click();
-            this.setState({isLoading: false});
+            html2canvas(
+                map.getContainer(),
+                {
+                    ignoreElements: element => {
+                        const parent = element.parentElement;
+                        if (parent == null || !parent.classList.contains('mapboxgl-control-container')) {
+                            return false;
+                        }
+                        const classList = element.classList;
+                        const isTopLeft = classList.contains('mapboxgl-ctrl-top-left');
+                        const isTopRight = classList.contains('mapboxgl-ctrl-top-right');
+                        const isBottomLeft = classList.contains('mapboxgl-ctrl-bottom-left');
+                        const isBottomRight = classList.contains('mapboxgl-ctrl-bottom-right');
+                        return !(isTopLeft && showTopLeft) &&
+                            !(isTopRight && showTopRight) &&
+                            !(isBottomLeft && showBottomLeft) &&
+                            !(isBottomRight && showBottomRight);
+                    }
+                }
+            )
+                .then(canvas => {
+                    const dataUrl = canvas.toDataURL(imageType, imageQuality);
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = fileName;
+                    a.click();
+                    this.setState({isLoading: false});
+                })
+                .catch(() => this.setState({isLoading: false}));
         });
         map.triggerRepaint();
     };

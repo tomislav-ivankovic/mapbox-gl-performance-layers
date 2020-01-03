@@ -12,7 +12,7 @@ function addDefaultChildren<P>(WrappedComponent: ComponentType<P>): ComponentTyp
                 <Fragment>
                     <NavigationControl position={'top-left'}/>
                     <FullScreenControl position={'top-left'}/>
-                    <ExportControl position={'top-left'}/>
+                    <ExportControl position={'top-left'} showBottomRightControls/>
                     {props.children}
                 </Fragment>
             )
