@@ -6,6 +6,7 @@ import {PointsScreen} from './screens/points-screen';
 import {LinesScreen} from './screens/lines-screen';
 import {PolygonsScreen} from './screens/polygons-screen';
 import {GridScreen} from './screens/grid-screen';
+import {MultiLayerScreen} from './screens/multi-layer-screen';
 
 export class Main extends Component<{}, {}> {
     render() {
@@ -16,6 +17,7 @@ export class Main extends Component<{}, {}> {
                     <Route exact path={'/lines'} component={LinesScreen}/>
                     <Route exact path={'/polygons'} component={PolygonsScreen}/>
                     <Route exact path={'/grid'} component={GridScreen}/>
+                    <Route exact path={'/multi-layer'} component={MultiLayerScreen}/>
                     <Route component={HomeScreen}/>
                 </Switch>
             </Router>
