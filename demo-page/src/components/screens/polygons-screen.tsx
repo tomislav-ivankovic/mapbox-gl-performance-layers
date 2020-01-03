@@ -2,17 +2,17 @@ import React, {Component} from 'react';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {Map} from '../reusable/map';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {Popup} from 'react-mapbox-gl';
+
+interface Properties {
+    center: [number, number]
+}
 
 interface State {
     center: [number, number];
     zoom: [number];
-    data: FeatureCollection<Polygon, null>;
-    selection: {
-        coordinates: [number, number];
-        feature: Feature<Polygon, null>;
-    } | null;
+    data: FeatureCollection<Polygon, Properties>;
+    selection: Feature<Polygon, Properties> | null;
 }
 
 export class PolygonsScreen extends Component<{}, State> {
@@ -26,7 +26,7 @@ export class PolygonsScreen extends Component<{}, State> {
         const spread = 10;
         const polygonSpread = 0.1;
         const deltaAngle = 2 * Math.PI / numberOfPointsInPolygons;
-        const polygons: [number, number][][][] = [];
+        const features: Feature<Polygon, Properties>[] = [];
         for (let i = 0; i < numberOfPolygons; i++) {
             const cX = centerX + (Math.random() - 0.5) * spread;
             const cY = centerY + (Math.random() - 0.5) * spread;
@@ -43,7 +43,16 @@ export class PolygonsScreen extends Component<{}, State> {
             edgePoints.push([edgePoints[0][0], edgePoints[0][1]]);
             holePoints.push([holePoints[0][0], holePoints[0][1]]);
             holePoints.reverse();
-            polygons.push([edgePoints, holePoints]);
+            features.push({
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [edgePoints, holePoints]
+                },
+                properties: {
+                    center: [cX, cY]
+                }
+            });
         }
 
         this.state = {
@@ -51,30 +60,15 @@ export class PolygonsScreen extends Component<{}, State> {
             zoom: [6.5],
             data: {
                 type: 'FeatureCollection',
-                features: polygons.map(p => ({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: p
-                    },
-                    properties: null
-                }))
+                features: features
             },
             selection: null
         };
     }
 
-    handleClick = (feature: Feature<Polygon, null>, e: MapMouseEvent & EventData) => {
-        if (this.state.selection != null && this.state.selection.feature === feature) {
-            this.setState({selection: null});
-            return;
-        }
-        this.setState({
-            selection: {
-                coordinates: [e.lngLat.lng, e.lngLat.lat],
-                feature: feature
-            }
-        });
+    handleClick = (feature: Feature<Polygon, Properties>) => {
+        const newSelected = feature !== this.state.selection ? feature : null;
+        this.setState({selection: newSelected});
     };
 
     render() {
@@ -92,8 +86,8 @@ export class PolygonsScreen extends Component<{}, State> {
                     fancy
                 />
                 {state.selection != null &&
-                <Popup coordinates={state.selection.coordinates}>
-                    <p>{JSON.stringify(state.selection.feature, null, 2)}</p>
+                <Popup coordinates={state.selection.properties.center}>
+                    <p>{JSON.stringify(state.selection, null, 2)}</p>
                 </Popup>
                 }
             </Map>
@@ -101,7 +95,7 @@ export class PolygonsScreen extends Component<{}, State> {
     }
 }
 
-function getStyle(feature: Feature<Polygon, null>) {
+function getStyle(feature: Feature<Polygon, Properties>) {
     const x = feature.geometry.coordinates[0][0][0];
     const y = feature.geometry.coordinates[0][0][1];
     return {

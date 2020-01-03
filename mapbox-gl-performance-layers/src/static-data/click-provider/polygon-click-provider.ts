@@ -1,15 +1,15 @@
 import {ClickProvider} from './click-provider';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {FeatureTree} from './feature-tree';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
-import {addPolygonCollectionBoundingBoxes, isPointInPolygon} from '../../geometry-functions';
+import {PackedFeature, isPointInPolygon, packPolygonFeature} from '../../geometry-functions';
+import RBush from 'rbush';
 
 export interface PolygonClickProviderOptions<P> {
     onClick?: (feature: Feature<Polygon, P>, e: MapMouseEvent & EventData) => void;
 }
 
 export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
-    private tree: FeatureTree<Polygon, P> | null = null;
+    private tree: RBush<PackedFeature<Polygon, P>> | null = null;
 
     constructor(
         public options: PolygonClickProviderOptions<P>
@@ -20,9 +20,9 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         if (this.options.onClick == null) {
             return;
         }
-        addPolygonCollectionBoundingBoxes(data);
-        this.tree = new FeatureTree<Polygon, P>();
-        this.tree.load(data.features);
+        const packedData = data.features.map((feature, index) => packPolygonFeature(feature, index));
+        this.tree = new RBush();
+        this.tree.load(packedData);
     }
 
     clearData(): void {
@@ -50,12 +50,17 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         const x = e.lngLat.lng;
         const y = e.lngLat.lat;
         const results = this.tree.search({minX: x, minY: y, maxX: x, maxY: y});
-        for (const feature of results) {
-            if (isPointInPolygon(x, y, feature.geometry)) {
-                this.options.onClick(feature, e);
-                e.originalEvent.stopPropagation();
-                break;
+        let closestResult : PackedFeature<Polygon, P> | null = null;
+        let closestIndex = -1;
+        for (const result of results) {
+            if (result.index > closestIndex && isPointInPolygon(x, y, result.feature.geometry)) {
+                closestResult = result;
+                closestIndex = result.index;
             }
+        }
+        if (closestResult != null) {
+            this.options.onClick(closestResult.feature, e);
+            e.originalEvent.stopPropagation();
         }
     }
 }

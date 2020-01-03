@@ -1,4 +1,4 @@
-import {FeatureCollection, LineString, Point, Polygon} from 'geojson';
+import {Feature, FeatureCollection, Geometry, LineString, Point, Polygon} from 'geojson';
 
 export function transformX(lng: number) {
     return (180 + lng) / 360;
@@ -150,42 +150,45 @@ export function findPolygonCollectionBounds(data: FeatureCollection<Polygon, any
     return bounds;
 }
 
-export function addLineStringCollectionBoundingBoxes<P>(data: FeatureCollection<LineString, P>): void {
-    for (const feature of data.features) {
-        if (feature.bbox != null) {
-            continue;
-        }
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        for (const coords of feature.geometry.coordinates) {
-            if (coords[0] < minX) minX = coords[0];
-            if (coords[1] < minY) minY = coords[1];
-            if (coords[0] > maxX) maxX = coords[0];
-            if (coords[1] > maxY) maxY = coords[1];
-        }
-        feature.bbox = [minX, minY, maxX, maxY];
-    }
+export interface PackedFeature<G extends Geometry, P> extends Bounds {
+    feature: Feature<G, P>;
+    index: number;
 }
 
-export function addPolygonCollectionBoundingBoxes<P>(data: FeatureCollection<Polygon, P>): void {
-    for (const feature of data.features) {
-        if (feature.bbox != null) {
-            continue;
-        }
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        for (const coordinates of feature.geometry.coordinates) {
-            for (const coords of coordinates) {
-                if (coords[0] < minX) minX = coords[0];
-                if (coords[1] < minY) minY = coords[1];
-                if (coords[0] > maxX) maxX = coords[0];
-                if (coords[1] > maxY) maxY = coords[1];
-            }
-        }
-        feature.bbox = [minX, minY, maxX, maxY];
+export function packLineStringFeature<P>(feature: Feature<LineString, P>, index: number): PackedFeature<LineString, P> {
+    const packed: PackedFeature<LineString, P> = {
+        feature: feature,
+        index: index,
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
+    for (const coords of feature.geometry.coordinates) {
+        if (coords[0] < packed.minX) packed.minX = coords[0];
+        if (coords[1] < packed.minY) packed.minY = coords[1];
+        if (coords[0] > packed.maxX) packed.maxX = coords[0];
+        if (coords[1] > packed.maxY) packed.maxY = coords[1];
     }
+    return packed;
+}
+
+export function packPolygonFeature<P>(feature: Feature<Polygon, P>, index: number): PackedFeature<Polygon, P> {
+    const packed: PackedFeature<Polygon, P> = {
+        feature: feature,
+        index: index,
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
+    for (const coordinates of feature.geometry.coordinates) {
+        for (const coords of coordinates) {
+            if (coords[0] < packed.minX) packed.minX = coords[0];
+            if (coords[1] < packed.minY) packed.minY = coords[1];
+            if (coords[0] > packed.maxX) packed.maxX = coords[0];
+            if (coords[1] > packed.maxY) packed.maxY = coords[1];
+        }
+    }
+    return packed;
 }

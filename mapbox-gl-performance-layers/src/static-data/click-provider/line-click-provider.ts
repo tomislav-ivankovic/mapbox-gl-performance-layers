@@ -1,12 +1,11 @@
 import {ClickProvider} from './click-provider';
 import {Feature, FeatureCollection, LineString} from 'geojson';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
-import {FeatureTree} from './feature-tree';
 import {
-    addLineStringCollectionBoundingBoxes,
-    closestPointOnLine,
+    closestPointOnLine, PackedFeature, packLineStringFeature,
     pointToPointDistanceSqr
 } from '../../geometry-functions';
+import RBush from 'rbush';
 
 export interface LineClickProviderOptions<P> {
     onClick?: (
@@ -19,7 +18,7 @@ export interface LineClickProviderOptions<P> {
 
 export class LineClickProvider<P> implements ClickProvider<LineString, P> {
     private map: mapboxgl.Map | null = null;
-    private tree: FeatureTree<LineString, P> | null = null;
+    private tree: RBush<PackedFeature<LineString, P>> | null = null;
 
     constructor(
         public options: LineClickProviderOptions<P>
@@ -30,9 +29,9 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
         if (this.options.onClick == null) {
             return;
         }
-        addLineStringCollectionBoundingBoxes(data);
-        this.tree = new FeatureTree<LineString, P>();
-        this.tree.load(data.features);
+        const packedData = data.features.map((feature, index) => packLineStringFeature(feature, index));
+        this.tree = new RBush();
+        this.tree.load(packedData);
     }
 
     clearData(): void {
@@ -66,30 +65,30 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
         const y = e.lngLat.lat;
         const w = clickSize * (bounds.getEast() - bounds.getWest()) / canvas.width;
         const h = clickSize * (bounds.getNorth() - bounds.getSouth()) / canvas.height;
-        const features = this.tree.search({
+        const results = this.tree.search({
             minX: x - 0.5 * w,
             minY: y - 0.5 * h,
             maxX: x + 0.5 * w,
             maxY: y + 0.5 * h
         });
-        if (features.length === 0) {
+        if (results.length === 0) {
             return;
         }
-        let closestFeature = features[0];
+        let closestResult = results[0];
         let minDistanceSqr = Infinity;
         let closestPoint = {x: 0, y: 0};
-        for (const feature of features) {
-            const point = closestPointOnLine(x, y, feature.geometry);
+        for (const result of results) {
+            const point = closestPointOnLine(x, y, result.feature.geometry);
             const distanceSqr = pointToPointDistanceSqr(x, y, point.x, point.y);
             if (distanceSqr < minDistanceSqr) {
-                closestFeature = feature;
+                closestResult = result;
                 minDistanceSqr = distanceSqr;
                 closestPoint = point;
             }
         }
         const clickDistanceSqr = 0.25 * Math.max(w * w, h * h);
         if (minDistanceSqr <= clickDistanceSqr) {
-            this.options.onClick(closestFeature, e, closestPoint);
+            this.options.onClick(closestResult.feature, e, closestPoint);
             e.originalEvent.stopPropagation();
         }
     }
