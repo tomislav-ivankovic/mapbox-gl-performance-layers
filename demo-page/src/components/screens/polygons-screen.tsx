@@ -105,7 +105,6 @@ function getStyle(feature: Feature<Polygon, Properties>) {
             b: 0.5 + 0.5 * Math.sin(x + y)
         },
         opacity: 0.5,
-        outlineOpacity: 0.8,
         outlineSize: 1.8
     };
 }

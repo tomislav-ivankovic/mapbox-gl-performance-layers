@@ -107,7 +107,6 @@ function getStyle(feature: Feature<LineString, null>) {
             g: y - Math.floor(y),
             b: 0.5 + 0.5 * Math.sin(x + y)
         },
-        outlineOpacity: 0.8,
         outlineSize: 1.8
     };
 }

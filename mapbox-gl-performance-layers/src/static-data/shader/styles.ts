@@ -38,7 +38,7 @@ export const defaultPointStyle: PointStyle = {
     opacity: 0.8,
     outlineSize: 0,
     outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
+    outlineOpacity: 0.8
 };
 
 export const defaultLineStyle: LineStyle = {
@@ -47,7 +47,7 @@ export const defaultLineStyle: LineStyle = {
     opacity: 0.8,
     outlineSize: 0,
     outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
+    outlineOpacity: 0.8
 };
 
 export const defaultPolygonStyle: PolygonStyle = {
@@ -55,7 +55,7 @@ export const defaultPolygonStyle: PolygonStyle = {
     opacity: 0.5,
     outlineSize: 0,
     outlineColor: {r: 0, g: 0, b: 0},
-    outlineOpacity: 0
+    outlineOpacity: 0.8
 };
 
 export type StyleOption<G extends Geometry, P, S extends {}> =
@@ -88,19 +88,34 @@ export function resolvePointStyle<G extends Geometry, P>(
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, PointStyle>
 ): PointStyle {
-    return resolveStyle(feature, styleOption, defaultPointStyle);
+    const style = resolveStyle(feature, styleOption, defaultPointStyle);
+    if (style.outlineSize <= 0) {
+        style.outlineColor = style.color;
+        style.outlineOpacity = style.opacity;
+    }
+    return style;
 }
 
 export function resolveLineStyle<G extends Geometry, P>(
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, LineStyle>
 ): LineStyle {
-    return resolveStyle(feature, styleOption, defaultLineStyle);
+    const style = resolveStyle(feature, styleOption, defaultLineStyle);
+    if (style.outlineSize <= 0) {
+        style.outlineColor = style.color;
+        style.outlineOpacity = style.opacity;
+    }
+    return style;
 }
 
 export function resolvePolygonStyle<G extends Geometry, P, S extends {}>(
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, PolygonStyle>
 ): PolygonStyle {
-    return resolveStyle(feature, styleOption, defaultPolygonStyle);
+    const style = resolveStyle(feature, styleOption, defaultPolygonStyle);
+    if (style.outlineSize <= 0) {
+        style.outlineColor = style.color;
+        style.outlineOpacity = style.opacity;
+    }
+    return style;
 }
