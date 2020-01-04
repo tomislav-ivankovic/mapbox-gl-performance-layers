@@ -1,12 +1,13 @@
 import {Component} from 'react';
 import {mapComponent, MapComponentProps} from '../map-component';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StaticDataLayer, StyleOption} from 'mapbox-gl-performance-layers';
+import {StaticDataLayer, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 
 export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {
     layerConstructor: () => StaticDataLayer<G, P, S>;
     data: FeatureCollection<G, P>;
     style?: StyleOption<G, P, S>;
+    visibility?: Visibility;
     before?: string;
 }
 
@@ -17,6 +18,7 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
         super(props);
         this.layer = this.props.layerConstructor();
         this.layer.setDataAndStyle(props.data, props.style);
+        this.layer.setVisibility(props.visibility);
     }
 
     componentDidMount(): void {
@@ -37,6 +39,9 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
             this.layer.setData(props.data);
         } else if (didStyleChange) {
             this.layer.setStyle(props.style);
+        }
+        if (props.visibility !== prevProps.visibility) {
+            this.layer.setVisibility(props.visibility);
         }
         if (props.before !== prevProps.before) {
             this.removeLayer();

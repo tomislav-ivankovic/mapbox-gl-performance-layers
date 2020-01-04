@@ -3,6 +3,7 @@ import {Feature, FeatureCollection, Point} from 'geojson';
 import KDBush from 'kdbush';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {pointToPointDistanceSqr} from '../../geometry-functions';
+import {Visibility, resolveVisibility} from '../../visibility';
 
 export interface PointClickProviderOptions<P> {
     onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;
@@ -13,6 +14,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
     private map: mapboxgl.Map | null = null;
     private data: FeatureCollection<Point, P> | null = null;
     private index: KDBush<Feature<Point, P>> | null = null;
+    private visibility: Visibility = true;
 
     constructor(
         public options: PointClickProviderOptions<P>
@@ -54,8 +56,15 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
         this.map = null;
     }
 
+    setVisibility(visibility: Visibility): void {
+        this.visibility = visibility;
+    }
+
     private clickHandler = (e: MapMouseEvent & EventData) => {
         if (this.options.onClick == null || this.map == null || this.data == null || this.index == null) {
+            return;
+        }
+        if (!resolveVisibility(this.visibility, this.map)) {
             return;
         }
         const bounds = this.map.getBounds();

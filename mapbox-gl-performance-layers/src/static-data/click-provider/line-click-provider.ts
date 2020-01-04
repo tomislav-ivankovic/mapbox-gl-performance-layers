@@ -6,6 +6,7 @@ import {
     pointToPointDistanceSqr
 } from '../../geometry-functions';
 import RBush from 'rbush';
+import {Visibility, resolveVisibility} from '../../visibility';
 
 export interface LineClickProviderOptions<P> {
     onClick?: (
@@ -19,6 +20,7 @@ export interface LineClickProviderOptions<P> {
 export class LineClickProvider<P> implements ClickProvider<LineString, P> {
     private map: mapboxgl.Map | null = null;
     private tree: RBush<PackedFeature<LineString, P>> | null = null;
+    private visibility: Visibility = true;
 
     constructor(
         public options: LineClickProviderOptions<P>
@@ -54,8 +56,15 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
         map.off('click', this.clickHandler);
     }
 
+    setVisibility(visibility: Visibility): void {
+        this.visibility = visibility;
+    }
+
     private clickHandler = (e: MapMouseEvent & EventData) => {
         if (this.options.onClick == null || this.map == null || this.tree == null) {
+            return;
+        }
+        if (!resolveVisibility(this.visibility, this.map)) {
             return;
         }
         const bounds = this.map.getBounds();

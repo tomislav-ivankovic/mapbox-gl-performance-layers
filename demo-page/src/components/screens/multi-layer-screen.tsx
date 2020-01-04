@@ -3,6 +3,7 @@ import {Feature, FeatureCollection, Geometry, LineString, Point, Polygon} from '
 import {Map} from '../reusable/map';
 import {LineLayer, PointLayer, PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
+import {MapControlDiv} from '../reusable/controls/map-control-div';
 
 interface Properties {
     center: [number, number];
@@ -15,6 +16,9 @@ interface State {
     lines: FeatureCollection<LineString, Properties>;
     polygons: FeatureCollection<Polygon, Properties>;
     selection: Feature<Geometry, Properties> | null;
+    arePointsEnabled: boolean;
+    areLinesEnabled: boolean;
+    arePolygonsEnabled: boolean;
 }
 
 export class MultiLayerScreen extends Component<{}, State> {
@@ -74,7 +78,10 @@ export class MultiLayerScreen extends Component<{}, State> {
                     properties: {center: [16, 45.5]}
                 }]
             },
-            selection: null
+            selection: null,
+            arePointsEnabled: true,
+            areLinesEnabled: true,
+            arePolygonsEnabled: true
         };
     }
 
@@ -91,6 +98,17 @@ export class MultiLayerScreen extends Component<{}, State> {
                 center={state.center}
                 zoom={state.zoom}
             >
+                <MapControlDiv position={'top-right'} style={{pointerEvents: 'auto'}}>
+                    <button onClick={() => this.setState({arePointsEnabled: !state.arePointsEnabled})}>
+                        Points
+                    </button>
+                    <button onClick={() => this.setState({areLinesEnabled: !state.areLinesEnabled})}>
+                        Lines
+                    </button>
+                    <button onClick={() => this.setState({arePolygonsEnabled: !state.arePolygonsEnabled})}>
+                        Polygons
+                    </button>
+                </MapControlDiv>
                 <PolygonLayer
                     data={state.polygons}
                     style={{
@@ -100,6 +118,7 @@ export class MultiLayerScreen extends Component<{}, State> {
                         outlineSize: 1.8
                     }}
                     onClick={this.handleClick}
+                    visibility={state.arePolygonsEnabled}
                     fancy
                 />
                 <LineLayer
@@ -111,6 +130,7 @@ export class MultiLayerScreen extends Component<{}, State> {
                         outlineSize: 1.8
                     }}
                     onClick={this.handleClick}
+                    visibility={state.areLinesEnabled}
                     fancy
                 />
                 <PointLayer
@@ -122,6 +142,7 @@ export class MultiLayerScreen extends Component<{}, State> {
                         outlineSize: 1.8
                     }}
                     onClick={this.handleClick}
+                    visibility={state.arePointsEnabled}
                     fancy
                 />
                 {state.selection != null &&

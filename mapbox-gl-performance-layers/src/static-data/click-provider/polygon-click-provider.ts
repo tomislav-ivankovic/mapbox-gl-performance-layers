@@ -2,6 +2,7 @@ import {ClickProvider} from './click-provider';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {PackedFeature, isPointInPolygon, packPolygonFeature} from '../../geometry-functions';
+import {Visibility, resolveVisibility} from '../../visibility';
 import RBush from 'rbush';
 
 export interface PolygonClickProviderOptions<P> {
@@ -9,7 +10,9 @@ export interface PolygonClickProviderOptions<P> {
 }
 
 export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
+    private map: mapboxgl.Map | null = null;
     private tree: RBush<PackedFeature<Polygon, P>> | null = null;
+    private visibility: Visibility = true;
 
     constructor(
         public options: PolygonClickProviderOptions<P>
@@ -33,6 +36,7 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         if (this.options.onClick == null) {
             return;
         }
+        this.map = map;
         map.on('click', this.clickHandler);
     }
 
@@ -40,11 +44,19 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         if (this.options.onClick == null) {
             return;
         }
+        this.map = null;
         map.off('click', this.clickHandler);
+    }
+
+    setVisibility(visibility: Visibility): void {
+        this.visibility = visibility;
     }
 
     private clickHandler = (e: MapMouseEvent & EventData) => {
         if (this.options.onClick == null || this.tree == null) {
+            return;
+        }
+        if (!resolveVisibility(this.visibility, this.map)) {
             return;
         }
         const x = e.lngLat.lng;

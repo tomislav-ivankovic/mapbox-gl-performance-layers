@@ -1,6 +1,6 @@
 import {StaticDataLayerComponent} from './static-data-layer';
 import {FeatureCollection, LineString} from 'geojson';
-import {lineLayer, LineLayerOptions, LineStyle, StyleOption} from 'mapbox-gl-performance-layers';
+import {lineLayer, LineLayerOptions, LineStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
 import React from 'react';
 
@@ -8,6 +8,7 @@ export interface LineLayerProps<P> extends Omit<LineLayerOptions<P>, 'id'> {
     id?: string;
     data: FeatureCollection<LineString, P>;
     style?: StyleOption<LineString, P, LineStyle>;
+    visibility?: Visibility;
     before?: string;
 }
 

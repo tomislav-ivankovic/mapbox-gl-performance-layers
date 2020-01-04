@@ -3,6 +3,7 @@ import {Renderer} from '../renderer/renderer';
 import {ClickProvider} from '../click-provider/click-provider';
 import {FeatureCollection, Geometry} from 'geojson';
 import {StyleOption} from '../shader/styles';
+import {resolveVisibility, Visibility} from '../../visibility';
 
 export interface StaticDataLayerOptions<G extends Geometry, P, S extends {}> {
     id: string;
@@ -15,6 +16,7 @@ export class StaticDataLayer<G extends Geometry, P, S extends {}> implements Cus
     private map: mapboxgl.Map | null = null;
     private data: FeatureCollection<G, P> | null = null;
     private styleOption: StyleOption<G, P, S> = undefined;
+    private visibility: Visibility = true;
 
     constructor(
         private options: StaticDataLayerOptions<G, P, S>
@@ -27,7 +29,7 @@ export class StaticDataLayer<G extends Geometry, P, S extends {}> implements Cus
 
     public get renderingMode(): '2d' | '3d' {
         if (this.options.renderingMode == null) {
-            return  '2d';
+            return '2d';
         }
         return this.options.renderingMode;
     }
@@ -74,6 +76,20 @@ export class StaticDataLayer<G extends Geometry, P, S extends {}> implements Cus
         }
     }
 
+    public setVisibility(visibility: Visibility) {
+        this.visibility = visibility;
+        if (this.options.clickProvider != null) {
+            this.options.clickProvider.setVisibility(visibility);
+        }
+        if (this.map != null) {
+            this.map.triggerRepaint();
+        }
+    }
+
+    public isVisible(): boolean {
+        return resolveVisibility(this.visibility, this.map);
+    }
+
     onAdd(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
         gl.getExtension('OES_element_index_uint');
         this.map = map;
@@ -92,10 +108,14 @@ export class StaticDataLayer<G extends Geometry, P, S extends {}> implements Cus
     }
 
     prerender(gl: WebGLRenderingContext, matrix: number[]): void {
-        this.options.renderer.prerender(gl, matrix);
+        if (this.isVisible()) {
+            this.options.renderer.prerender(gl, matrix);
+        }
     }
 
     render(gl: WebGLRenderingContext, matrix: number[]): void {
-        this.options.renderer.render(gl, matrix);
+        if (this.isVisible()) {
+            this.options.renderer.render(gl, matrix);
+        }
     }
 }

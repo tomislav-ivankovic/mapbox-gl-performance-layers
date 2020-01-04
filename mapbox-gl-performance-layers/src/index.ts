@@ -23,3 +23,4 @@ export {FancyPointShader} from './static-data/shader/point/fancy-point-shader';
 export {SimplePointShader} from './static-data/shader/point/simple-point-shader';
 export {FancyPolygonShader} from './static-data/shader/polygon/fancy-polygon-shader';
 export {SimplePolygonShader} from './static-data/shader/polygon/simple-polygon-shader';
+export {Visibility, resolveVisibility} from './visibility';
