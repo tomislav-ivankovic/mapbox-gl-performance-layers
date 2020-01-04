@@ -1,5 +1,5 @@
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from './styles';
+import {StyleOption} from '../../styles';
 import * as glMatrix from 'gl-matrix';
 
 export interface ShaderBuffers {

@@ -1,6 +1,6 @@
 import {TileGenerator} from './tile-generator';
 import {Bounds, transformX, transformY} from '../../../geometry-functions';
-import {StyleOption} from '../../shader/styles';
+import {StyleOption} from '../../../styles';
 import {FeatureCollection, Geometry} from 'geojson';
 
 interface Tile {

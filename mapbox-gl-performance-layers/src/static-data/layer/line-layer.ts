@@ -2,7 +2,7 @@ import {lineRenderer, LineRendererOptions} from '../renderer-presets/line-render
 import {LineClickProvider, LineClickProviderOptions} from '../click-provider/line-click-provider';
 import {StaticDataLayer} from './static-data-layer';
 import {LineString} from 'geojson';
-import {LineStyle} from '../shader/styles';
+import {LineStyle} from '../../styles';
 
 export interface LineLayerOptions<P> extends LineRendererOptions<P>, LineClickProviderOptions<P> {
     id: string;

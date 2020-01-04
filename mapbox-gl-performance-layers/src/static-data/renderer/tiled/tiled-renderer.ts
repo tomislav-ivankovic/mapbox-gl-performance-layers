@@ -4,7 +4,7 @@ import {TileManager} from './tile-manager';
 import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
 import {Bounds, findViewBounds} from '../../../geometry-functions';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../shader/styles';
+import {StyleOption} from '../../../styles';
 import * as glMatrix from 'gl-matrix';
 
 export interface TiledRendererOptions {

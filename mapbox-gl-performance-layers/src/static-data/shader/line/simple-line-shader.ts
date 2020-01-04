@@ -1,7 +1,7 @@
 import {FeatureCollection, LineString} from 'geojson';
 import {ShaderBuffers} from '../shader';
 import {DefaultShader} from '../default/default-shader';
-import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
+import {LineStyle, resolveLineStyle, StyleOption} from '../../../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 
 export class SimpleLineShader<P> extends DefaultShader<LineString, P, LineStyle> {

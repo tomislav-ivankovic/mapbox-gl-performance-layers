@@ -1,6 +1,6 @@
 import {Renderer} from './renderer';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../shader/styles';
+import {StyleOption} from '../../styles';
 import * as glMatrix from 'gl-matrix';
 
 export class CompositeRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {

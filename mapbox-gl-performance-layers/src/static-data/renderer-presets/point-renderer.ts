@@ -1,5 +1,5 @@
 import {Point} from 'geojson';
-import {PointStyle} from '../shader/styles';
+import {PointStyle} from '../../styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyPointShader} from '../shader/point/fancy-point-shader';
 import {SimplePointShader} from '../shader/point/simple-point-shader';
@@ -9,15 +9,15 @@ import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-rende
 import {findPointCollectionBounds} from '../../geometry-functions';
 
 export interface PointRendererOptions<P> extends TiledRendererOptions {
-    fancy?: boolean;
+    simpleRendering?: boolean;
     interpolation?: number;
     tileThreshold?: number;
 }
 
 export function pointRenderer<P>(options: PointRendererOptions<P>): Renderer<Point, P, PointStyle> {
-    const shader = (options.fancy != null && options.fancy) ?
-        new FancyPointShader(options.interpolation) :
-        new SimplePointShader(options.interpolation);
+    const shader = (options.simpleRendering != null && options.simpleRendering) ?
+        new SimplePointShader(options.interpolation) :
+        new FancyPointShader(options.interpolation);
     const threshold = options.tileThreshold != null ? options.tileThreshold : 100000;
     return new SwitchRenderer([
         {

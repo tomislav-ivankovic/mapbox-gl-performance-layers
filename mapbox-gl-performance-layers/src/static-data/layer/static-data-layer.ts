@@ -2,7 +2,7 @@ import {CustomLayerInterface} from 'mapbox-gl';
 import {Renderer} from '../renderer/renderer';
 import {ClickProvider} from '../click-provider/click-provider';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../shader/styles';
+import {StyleOption} from '../../styles';
 import {resolveVisibility, Visibility} from '../../visibility';
 
 export interface StaticDataLayerOptions<G extends Geometry, P, S extends {}> {

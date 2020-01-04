@@ -119,7 +119,6 @@ export class MultiLayerScreen extends Component<{}, State> {
                     }}
                     onClick={this.handleClick}
                     visibility={state.arePolygonsEnabled}
-                    fancy
                 />
                 <LineLayer
                     data={state.lines}
@@ -131,7 +130,6 @@ export class MultiLayerScreen extends Component<{}, State> {
                     }}
                     onClick={this.handleClick}
                     visibility={state.areLinesEnabled}
-                    fancy
                 />
                 <PointLayer
                     data={state.points}
@@ -143,7 +141,6 @@ export class MultiLayerScreen extends Component<{}, State> {
                     }}
                     onClick={this.handleClick}
                     visibility={state.arePointsEnabled}
-                    fancy
                 />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>

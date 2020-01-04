@@ -1,6 +1,6 @@
 import {Shader, ShaderBuffers} from '../shader';
 import {FeatureCollection, Point} from 'geojson';
-import {PointStyle, resolvePointStyle, StyleOption} from '../styles';
+import {PointStyle, resolvePointStyle, StyleOption} from '../../../styles';
 import {transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './simple-point.vert';

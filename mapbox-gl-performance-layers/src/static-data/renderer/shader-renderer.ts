@@ -1,7 +1,7 @@
 import {Renderer} from './renderer';
 import {createShaderProgram, Shader} from '../shader/shader';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../shader/styles';
+import {StyleOption} from '../../styles';
 import * as glMatrix from 'gl-matrix';
 
 export class ShaderRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {

@@ -1,6 +1,6 @@
 import {FeatureCollection, Polygon} from 'geojson';
 import {Shader, ShaderBuffers} from '../shader';
-import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../styles';
+import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../../styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-polygon.vert';

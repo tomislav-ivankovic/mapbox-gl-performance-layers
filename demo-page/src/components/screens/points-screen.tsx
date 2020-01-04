@@ -61,6 +61,7 @@ export class PointsScreen extends Component<{}, State> {
                     data={state.data}
                     style={getStyle}
                     onClick={this.handleClick}
+                    simpleRendering
                 />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.geometry.coordinates}>

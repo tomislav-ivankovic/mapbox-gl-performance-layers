@@ -15,7 +15,7 @@ export {CompositeRenderer} from './static-data/renderer/composite-renderer';
 export {ShaderRenderer} from './static-data/renderer/shader-renderer';
 export {SwitchRenderer} from './static-data/renderer/switch-renderer';
 export {Shader, ShaderBuffers, createShaderProgram} from './static-data/shader/shader';
-export {Color, PointStyle, LineStyle, PolygonStyle, StyleOption} from './static-data/shader/styles';
+export {Color, PointStyle, LineStyle, PolygonStyle, StyleOption} from './styles';
 export {DefaultShader} from './static-data/shader/default/default-shader';
 export {FancyLineShader} from './static-data/shader/line/fancy-line-shader';
 export {SimpleLineShader} from './static-data/shader/line/simple-line-shader';

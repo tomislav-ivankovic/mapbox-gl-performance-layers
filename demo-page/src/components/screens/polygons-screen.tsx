@@ -83,7 +83,6 @@ export class PolygonsScreen extends Component<{}, State> {
                     data={state.data}
                     style={getStyle}
                     onClick={this.handleClick}
-                    fancy
                 />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.properties.center}>

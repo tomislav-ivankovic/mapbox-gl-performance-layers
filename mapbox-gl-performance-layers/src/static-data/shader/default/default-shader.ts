@@ -3,7 +3,7 @@ import * as glMatrix from 'gl-matrix';
 import vertexSource from './default.vert';
 import fragmentSource from './default.frag';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../styles';
+import {StyleOption} from '../../../styles';
 
 export abstract class DefaultShader<G extends Geometry, P, S extends {}> implements Shader<G, P, S> {
     vertexSource = vertexSource;

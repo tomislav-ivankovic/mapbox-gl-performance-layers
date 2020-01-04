@@ -1,6 +1,6 @@
 import {FeatureCollection, LineString} from 'geojson';
 import {Shader, ShaderBuffers} from '../shader';
-import {LineStyle, resolveLineStyle, StyleOption} from '../styles';
+import {LineStyle, resolveLineStyle, StyleOption} from '../../../styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../../geometry-functions';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './fancy-line.vert';

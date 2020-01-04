@@ -146,6 +146,7 @@ export class GridScreen extends Component<{}, State> {
                     style={polygonStyles[state.selectedIndex]}
                     onClick={this.handleClick}
                     before={'grid-text'}
+                    simpleRendering
                 />
                 <Layer/>
                 <Source

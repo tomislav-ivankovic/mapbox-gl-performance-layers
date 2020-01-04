@@ -2,7 +2,7 @@ import {polygonRenderer, PolygonRendererOptions} from '../renderer-presets/polyg
 import {PolygonClickProvider, PolygonClickProviderOptions} from '../click-provider/polygon-click-provider';
 import {StaticDataLayer} from './static-data-layer';
 import {Polygon} from 'geojson';
-import {PolygonStyle} from '../shader/styles';
+import {PolygonStyle} from '../../styles';
 
 export interface PolygonLayerOptions<P> extends PolygonRendererOptions<P>, PolygonClickProviderOptions<P> {
     id: string;
