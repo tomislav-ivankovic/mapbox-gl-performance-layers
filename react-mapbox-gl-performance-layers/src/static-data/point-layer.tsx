@@ -1,6 +1,6 @@
 import {FeatureCollection, Point} from 'geojson';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
-import {StaticDataLayerComponent} from './static-data-layer';
+import {StaticDataLayerComponent} from './static-data-layer-component';
 import {pointLayer, PointLayerOptions, PointStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import React from 'react';
 

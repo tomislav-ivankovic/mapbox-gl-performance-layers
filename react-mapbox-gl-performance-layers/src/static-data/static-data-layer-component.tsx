@@ -2,6 +2,7 @@ import {Component} from 'react';
 import {mapComponent, MapComponentProps} from '../map-component';
 import {FeatureCollection, Geometry} from 'geojson';
 import {StaticDataLayer, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
+import {compareStyles} from '../compare-styles';
 
 export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {
     layerConstructor: () => StaticDataLayer<G, P, S>;
@@ -62,43 +63,6 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
     render() {
         return null;
     }
-}
-
-function compareStyles<G extends Geometry, P, S extends {}>(a: StyleOption<G, P, S>, b: StyleOption<G, P, S>): boolean {
-    if (a === b) {
-        return true;
-    }
-    if (typeof a === 'object' && typeof  b === 'object') {
-        return compareObjects(a, b);
-    }
-    return false;
-}
-
-function compareObjects(a: object, b: object) {
-    if (a === b) {
-        return true;
-    }
-    const aKeys = Object.keys(a);
-    const bKeys = Object.keys(b);
-    if (aKeys.length != bKeys.length) {
-        return false;
-    }
-    for (const key of aKeys) {
-        // @ts-ignore
-        const aChild = a[key];
-        // @ts-ignore
-        const bChild = b[key];
-        if (aChild === bChild) {
-            continue;
-        }
-        if (typeof aChild !== 'object' || typeof bChild !== 'object') {
-            return false;
-        }
-        if (!compareObjects(aChild, bChild)) {
-            return false;
-        }
-    }
-    return true;
 }
 
 export const StaticDataLayerComponent = mapComponent(Layer);

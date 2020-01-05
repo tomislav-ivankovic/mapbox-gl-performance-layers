@@ -1,4 +1,4 @@
-import {lineRenderer, LineRendererOptions} from '../renderer-presets/line-renderer';
+import {lineRenderer, LineRendererOptions} from '../renderer-preset/line-renderer';
 import {LineClickProvider, LineClickProviderOptions} from '../click-provider/line-click-provider';
 import {StaticDataLayer} from './static-data-layer';
 import {LineString} from 'geojson';

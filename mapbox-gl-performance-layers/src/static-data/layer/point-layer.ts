@@ -1,4 +1,4 @@
-import {pointRenderer, PointRendererOptions} from '../renderer-presets/point-renderer';
+import {pointRenderer, PointRendererOptions} from '../renderer-preset/point-renderer';
 import {PointClickProvider, PointClickProviderOptions} from '../click-provider/point-click-provider';
 import {StaticDataLayer} from './static-data-layer';
 import {Point} from 'geojson';

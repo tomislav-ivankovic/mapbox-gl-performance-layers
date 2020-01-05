@@ -1,7 +1,7 @@
 import {Renderer} from '../renderer';
 import {TileGenerator} from './tile-generator';
 import {TileManager} from './tile-manager';
-import {TextureDrawer} from '../../shader/texture-drawer/texture-drawer';
+import {TextureDrawer} from '../../../shader/texture-drawer/texture-drawer';
 import {Bounds, findViewBounds} from '../../../geometry-functions';
 import {FeatureCollection, Geometry} from 'geojson';
 import {StyleOption} from '../../../styles';

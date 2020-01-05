@@ -1,17 +1,9 @@
-import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../styles';
 import * as glMatrix from 'gl-matrix';
 
-export interface ShaderBuffers {
-    array: Float32Array;
-    elementArray: Int32Array | null;
-}
-
-export interface Shader<G extends Geometry, P, S extends {}> {
+export interface Shader {
     vertexSource: string,
     fragmentSource: string,
     configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void;
-    dataToArrays(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): ShaderBuffers;
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void;
     getArrayBufferElementsPerVertex(): number;
     getPrimitiveType(gl: WebGLRenderingContext): GLenum;

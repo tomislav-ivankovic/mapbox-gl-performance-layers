@@ -1,6 +1,6 @@
 import {FeatureCollection, Polygon} from 'geojson';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
-import {StaticDataLayerComponent} from './static-data-layer';
+import {StaticDataLayerComponent} from './static-data-layer-component';
 import {polygonLayer, PolygonLayerOptions, PolygonStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import React from 'react';
 

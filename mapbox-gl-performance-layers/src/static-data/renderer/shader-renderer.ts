@@ -1,5 +1,6 @@
 import {Renderer} from './renderer';
-import {createShaderProgram, Shader} from '../shader/shader';
+import {createShaderProgram, Shader} from '../../shader/shader';
+import {VertexDataMapper} from '../vertex-data-mapper/vertex-data-mapper';
 import {FeatureCollection, Geometry} from 'geojson';
 import {StyleOption} from '../../styles';
 import * as glMatrix from 'gl-matrix';
@@ -12,12 +13,13 @@ export class ShaderRenderer<G extends Geometry, P, S extends {}> implements Rend
     private elementArray: Int32Array | null = null;
 
     constructor(
-        private shader: Shader<G, P, S>
+        private shader: Shader,
+        private vertexDataMapper: VertexDataMapper<G, P, S>
     ) {
     }
 
     setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
-        const arrays = this.shader.dataToArrays(data, styleOption);
+        const arrays = this.vertexDataMapper(data, styleOption);
         this.array = arrays.array;
         this.elementArray = arrays.elementArray;
     }

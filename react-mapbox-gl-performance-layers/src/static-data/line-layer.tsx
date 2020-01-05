@@ -1,4 +1,4 @@
-import {StaticDataLayerComponent} from './static-data-layer';
+import {StaticDataLayerComponent} from './static-data-layer-component';
 import {FeatureCollection, LineString} from 'geojson';
 import {lineLayer, LineLayerOptions, LineStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';

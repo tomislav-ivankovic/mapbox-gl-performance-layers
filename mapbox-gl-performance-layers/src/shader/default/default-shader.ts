@@ -1,11 +1,8 @@
-import {Shader, ShaderBuffers} from '../shader';
 import * as glMatrix from 'gl-matrix';
 import vertexSource from './default.vert';
 import fragmentSource from './default.frag';
-import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../../styles';
 
-export abstract class DefaultShader<G extends Geometry, P, S extends {}> implements Shader<G, P, S> {
+export abstract class DefaultShader {
     vertexSource = vertexSource;
     fragmentSource = fragmentSource;
 
@@ -41,6 +38,5 @@ export abstract class DefaultShader<G extends Geometry, P, S extends {}> impleme
         gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
     }
 
-    abstract dataToArrays(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): ShaderBuffers;
     abstract getPrimitiveType(gl: WebGLRenderingContext): number;
 }
