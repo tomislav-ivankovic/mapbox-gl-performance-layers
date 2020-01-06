@@ -1,15 +1,13 @@
 export interface BaseDataOperations<E> {
-    addToFront(element: E): void;
-    addToBack(element: E): void;
+    add(element: E): void;
     removeFirst(): void;
     removeLast(): void;
     clear(): void;
-    size(): number;
+    getSize(): number;
 }
 
 export interface DataOperations<E> extends BaseDataOperations<E> {
-    addAllToFront(elements: E[]): void;
-    addAllToBack(elements: E[]): void;
+    addAll(elements: E[]): void;
     removeNFirst(n: number): void;
     removeNLast(n: number): void;
 }
@@ -21,15 +19,8 @@ export class BaseDataOperationsForwarder<E> implements BaseDataOperations<E> {
     ) {
     }
 
-    addToFront(element: E): void {
-        this.base.addToFront(element);
-        if (this.onDataChange != null) {
-            this.onDataChange();
-        }
-    }
-
-    addToBack(element: E): void {
-        this.base.addToBack(element);
+    add(element: E): void {
+        this.base.add(element);
         if (this.onDataChange != null) {
             this.onDataChange();
         }
@@ -56,28 +47,21 @@ export class BaseDataOperationsForwarder<E> implements BaseDataOperations<E> {
         }
     }
 
-    size(): number {
-        return this.base.size();
+    getSize(): number {
+        return this.base.getSize();
     }
 }
 
 export class DataOperationsForwarder<E> extends BaseDataOperationsForwarder<E> implements DataOperations<E> {
     constructor(
         protected base: DataOperations<E>,
-        protected onDataChange?: () => void
+        onDataChange?: () => void
     ) {
         super(base, onDataChange);
     }
 
-    addAllToFront(elements: E[]): void {
-        this.base.addAllToFront(elements);
-        if (this.onDataChange != null) {
-            this.onDataChange();
-        }
-    }
-
-    addAllToBack(elements: E[]): void {
-        this.base.addAllToBack(elements);
+    addAll(elements: E[]): void {
+        this.base.addAll(elements);
         if (this.onDataChange != null) {
             this.onDataChange();
         }
@@ -99,15 +83,9 @@ export class DataOperationsForwarder<E> extends BaseDataOperationsForwarder<E> i
 }
 
 export class DataOperationsExtender<E> extends BaseDataOperationsForwarder<E> implements DataOperations<E> {
-    addAllToFront(elements: E[]): void {
+    addAll(elements: E[]): void {
         for (const element of elements) {
-            this.base.addToFront(element);
-        }
-    }
-
-    addAllToBack(elements: E[]): void {
-        for (let i = elements.length - 1; i >= 0; i--) {
-            this.base.addToFront(elements[i]);
+            this.base.add(element);
         }
     }
 

@@ -42,13 +42,13 @@ export class DynamicPointsScreen extends Component<{}, State> {
             return;
         }
 
-        const maxNumberOfPoints = 1000;
-        const numberOfPointsPerInterval = 10;
+        const maxNumberOfPoints = 100000;
+        const numberOfPointsPerInterval = 1000;
         const centerX = 15.9819;
         const centerY = 45.8150;
         const spread = 10;
 
-        if (data.size() + numberOfPointsPerInterval > maxNumberOfPoints) {
+        if (data.getSize() + numberOfPointsPerInterval > maxNumberOfPoints) {
             data.removeNFirst(numberOfPointsPerInterval);
         }
 
@@ -71,7 +71,7 @@ export class DynamicPointsScreen extends Component<{}, State> {
                 }
             });
         }
-        data.addAllToBack(features);
+        data.addAll(features);
     };
 
     handleClick = (feature: Feature<Point, Properties>) => {
@@ -90,6 +90,7 @@ export class DynamicPointsScreen extends Component<{}, State> {
                 <DynamicPointLayer
                     data={dataOperations => this.dataOperations = dataOperations}
                     style={getStyle}
+                    simpleRendering
                 />
                 {state.selection != null &&
                 <Popup coordinates={state.selection.geometry.coordinates}>
@@ -103,8 +104,7 @@ export class DynamicPointsScreen extends Component<{}, State> {
 
 function getStyle(feature: Feature<Point, Properties>) {
     return {
-        size: 10,
+        size: 8,
         color: feature.properties.color,
-        outlineSize: 2
     };
 }
