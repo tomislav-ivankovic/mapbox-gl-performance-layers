@@ -1,16 +1,17 @@
 import {Point} from 'geojson';
-import {PointStyle} from '../../styles';
+import {PointStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
-import {FancyPointShader} from '../../shader/point/fancy-point-shader';
-import {SimplePointShader} from '../../shader/point/simple-point-shader';
+import {FancyPointShader} from '../../shared/shader/point/fancy-point-shader';
+import {SimplePointShader} from '../../shared/shader/point/simple-point-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
-import {findPointCollectionBounds} from '../../geometry-functions';
+import {TiledRenderer} from '../renderer/tiled-renderer';
+import {findPointCollectionBounds} from '../../shared/geometry-functions';
 import {simplePointsToShaderBuffers} from '../vertex-data-mapper/simple-points-to-shader-buffers';
 import {fancyPointsToShaderBuffers} from '../vertex-data-mapper/fancy-points-to-shader-buffers';
+import {TileRendererOptions} from '../../shared/tile/tile-renderer';
 
-export interface PointRendererOptions<P> extends TiledRendererOptions {
+export interface PointRendererOptions<P> extends TileRendererOptions {
     simpleRendering?: boolean;
     interpolation?: number;
     tileThreshold?: number;

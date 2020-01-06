@@ -1,5 +1,5 @@
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../styles';
+import {StyleOption} from '../../shared/styles';
 import * as glMatrix from 'gl-matrix';
 
 export interface Renderer<G extends Geometry, P, S extends {}> {

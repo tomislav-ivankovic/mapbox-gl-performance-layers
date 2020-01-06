@@ -1,9 +1,9 @@
 import {Feature, Geometry} from 'geojson';
-import {DynamicRenderer} from '../dynamic-renderer';
-import {createShaderProgram, Shader} from '../../../shader/shader';
-import {DynamicVertexDataMapper} from '../../vertex-data-mapper/dynamic-vertex-data-mapper';
-import {DataOperations, DataOperationsExtender} from '../../data-operations';
-import {StyleOption} from '../../../styles';
+import {DynamicRenderer} from './dynamic-renderer';
+import {createShaderProgram, Shader} from '../../shared/shader/shader';
+import {DynamicVertexDataMapper} from '../vertex-data-mapper/dynamic-vertex-data-mapper';
+import {DataOperations, DataOperationsExtender} from '../data-operations';
+import {StyleOption} from '../../shared/styles';
 import * as glMatrix from 'gl-matrix';
 import {DynamicShaderDataCollection} from './dynamic-shader-data-collection';
 

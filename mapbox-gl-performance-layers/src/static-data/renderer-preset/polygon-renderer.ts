@@ -1,16 +1,17 @@
 import {Polygon} from 'geojson';
-import {PolygonStyle} from '../../styles';
+import {PolygonStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
-import {FancyPolygonShader} from '../../shader/polygon/fancy-polygon-shader';
-import {SimplePolygonShader} from '../../shader/polygon/simple-polygon-shader';
+import {FancyPolygonShader} from '../../shared/shader/polygon/fancy-polygon-shader';
+import {SimplePolygonShader} from '../../shared/shader/polygon/simple-polygon-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
-import {findPolygonCollectionBounds} from '../../geometry-functions';
+import {TiledRenderer} from '../renderer/tiled-renderer';
+import {findPolygonCollectionBounds} from '../../shared/geometry-functions';
 import {simplePolygonsToShaderBuffers} from '../vertex-data-mapper/simple-polygons-to-shader-buffers';
 import {fancyPolygonsToShaderBuffers} from '../vertex-data-mapper/fancy-polygons-to-shader-buffers';
+import {TileRendererOptions} from '../../shared/tile/tile-renderer';
 
-export interface PolygonRendererOptions<P> extends TiledRendererOptions{
+export interface PolygonRendererOptions<P> extends TileRendererOptions{
     simpleRendering?: boolean;
     interpolation?: number;
     tileThreshold?: number;

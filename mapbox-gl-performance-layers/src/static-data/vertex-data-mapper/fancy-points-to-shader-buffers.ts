@@ -1,6 +1,6 @@
 import {FeatureCollection, Point} from 'geojson';
-import {PointStyle, resolvePointStyle, StyleOption} from '../../styles';
-import {transformX, transformY} from '../../geometry-functions';
+import {PointStyle, resolvePointStyle, StyleOption} from '../../shared/styles';
+import {transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';
 
 export function fancyPointsToShaderBuffers<P>(

@@ -1,16 +1,17 @@
 import {LineString} from 'geojson';
-import {LineStyle} from '../../styles';
+import {LineStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
-import {FancyLineShader} from '../../shader/line/fancy-line-shader';
-import {SimpleLineShader} from '../../shader/line/simple-line-shader';
+import {FancyLineShader} from '../../shared/shader/line/fancy-line-shader';
+import {SimpleLineShader} from '../../shared/shader/line/simple-line-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
-import {TiledRenderer, TiledRendererOptions} from '../renderer/tiled/tiled-renderer';
-import {findLineStringCollectionBounds} from '../../geometry-functions';
+import {TiledRenderer} from '../renderer/tiled-renderer';
+import {findLineStringCollectionBounds} from '../../shared/geometry-functions';
 import {simpleLinesToShaderBuffers} from '../vertex-data-mapper/simple-lines-to-shader-buffers';
 import {fancyLinesToShaderBuffers} from '../vertex-data-mapper/fancy-lines-to-shader-buffers';
+import {TileRendererOptions} from '../../shared/tile/tile-renderer';
 
-export interface LineRendererOptions<P> extends TiledRendererOptions {
+export interface LineRendererOptions<P> extends TileRendererOptions {
     simpleRendering?: boolean;
     interpolation?: number;
     tileThreshold?: number;

@@ -1,5 +1,5 @@
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../styles';
+import {StyleOption} from '../../shared/styles';
 
 export interface ShaderBuffers {
     array: Float32Array;

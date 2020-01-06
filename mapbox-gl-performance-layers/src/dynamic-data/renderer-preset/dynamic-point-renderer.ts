@@ -1,11 +1,11 @@
 import {Point} from 'geojson';
 import {DynamicRenderer} from '../renderer/dynamic-renderer';
-import {PointStyle} from '../../styles';
-import {SimplePointShader} from '../../shader/point/simple-point-shader';
-import {FancyPointShader} from '../../shader/point/fancy-point-shader';
+import {PointStyle} from '../../shared/styles';
+import {SimplePointShader} from '../../shared/shader/point/simple-point-shader';
+import {FancyPointShader} from '../../shared/shader/point/fancy-point-shader';
 import {simplePointToVertexArray} from '../vertex-data-mapper/simple-point-to-vertex-array';
 import {fancyPointToVertexArray} from '../vertex-data-mapper/fancy-point-to-vertex-array';
-import {DynamicShaderRenderer} from '../renderer/shader/dynamic-shader-renderer';
+import {DynamicShaderRenderer} from '../renderer/dynamic-shader-renderer';
 
 export interface DynamicPointRendererOptions<P> {
     simpleRendering?: boolean;

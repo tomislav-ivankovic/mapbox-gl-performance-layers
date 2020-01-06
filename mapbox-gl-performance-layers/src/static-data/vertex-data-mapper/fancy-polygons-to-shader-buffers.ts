@@ -1,6 +1,6 @@
 import {FeatureCollection, Polygon} from 'geojson';
-import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../styles';
-import {cosOfPointsAngle, transformX, transformY} from '../../geometry-functions';
+import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../shared/styles';
+import {cosOfPointsAngle, transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';
 import earcut from 'earcut';
 

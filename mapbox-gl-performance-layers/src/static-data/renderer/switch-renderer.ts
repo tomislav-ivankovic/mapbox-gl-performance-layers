@@ -1,11 +1,11 @@
 import {Renderer} from './renderer';
 import {FeatureCollection, Geometry} from 'geojson';
-import {StyleOption} from '../../styles';
+import {StyleOption} from '../../shared/styles';
 import * as glMatrix from 'gl-matrix';
 
 export interface SwitchOption<G extends Geometry, P, S extends {}> {
-    renderer: Renderer<G, P, S>,
-    condition: (data: FeatureCollection<G, P>) => boolean,
+    renderer: Renderer<G, P, S>;
+    condition: (data: FeatureCollection<G, P>) => boolean;
 }
 
 export class SwitchRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {

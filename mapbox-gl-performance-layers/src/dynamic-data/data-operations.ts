@@ -12,92 +12,134 @@ export interface DataOperations<E> extends BaseDataOperations<E> {
     removeNLast(n: number): void;
 }
 
-export class BaseDataOperationsForwarder<E> implements BaseDataOperations<E> {
+export class BaseDataOperationsComposer<E> implements BaseDataOperations<E> {
     constructor(
-        protected base: BaseDataOperations<E>,
+        protected sources: BaseDataOperations<E>[],
         protected onDataChange?: () => void
     ) {
     }
 
     add(element: E): void {
-        this.base.add(element);
+        for (const source of this.sources) {
+            source.add(element);
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     removeFirst(): void {
-        this.base.removeFirst();
+        for (const source of this.sources) {
+            source.removeFirst();
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     removeLast(): void {
-        this.base.removeLast();
+        for (const source of this.sources) {
+            source.removeLast();
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     clear(): void {
-        this.base.clear();
+        for (const source of this.sources) {
+            source.clear();
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     getSize(): number {
-        return this.base.getSize();
+        if (this.sources.length == 0) {
+            throw Error('No data sources provided.');
+        }
+        return this.sources[0].getSize();
     }
 }
 
-export class DataOperationsForwarder<E> extends BaseDataOperationsForwarder<E> implements DataOperations<E> {
+export class DataOperationsComposer<E> extends BaseDataOperationsComposer<E> implements DataOperations<E> {
     constructor(
-        protected base: DataOperations<E>,
+        protected sources: DataOperations<E>[],
         onDataChange?: () => void
     ) {
-        super(base, onDataChange);
+        super(sources, onDataChange);
     }
 
     addAll(elements: E[]): void {
-        this.base.addAll(elements);
+        for (const source of this.sources) {
+            source.addAll(elements);
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     removeNFirst(n: number): void {
-        this.base.removeNFirst(n);
+        for (const source of this.sources) {
+            source.removeNFirst(n);
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 
     removeNLast(n: number): void {
-        this.base.removeNLast(n);
+        for (const source of this.sources) {
+            source.removeNLast(n);
+        }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
     }
 }
 
-export class DataOperationsExtender<E> extends BaseDataOperationsForwarder<E> implements DataOperations<E> {
+export class DataOperationsExtender<E> implements DataOperations<E> {
+    constructor(
+        protected source: BaseDataOperations<E>,
+    ){
+    }
+
+    add(element: E): void {
+        this.source.add(element);
+    }
+
+    removeFirst(): void {
+        this.source.removeFirst();
+    }
+
+    removeLast(): void {
+        this.source.removeLast();
+    }
+
+    clear(): void {
+        this.source.clear();
+    }
+
+    getSize(): number {
+        return this.source.getSize();
+    }
+
     addAll(elements: E[]): void {
         for (const element of elements) {
-            this.base.add(element);
+            this.source.add(element);
         }
     }
 
     removeNFirst(n: number): void {
         for (let i = 0; i < n; i++) {
-            this.base.removeFirst();
+            this.source.removeFirst();
         }
     }
 
     removeNLast(n: number): void {
         for (let i = 0; i < n; i++) {
-            this.base.removeLast();
+            this.source.removeLast();
         }
     }
 }

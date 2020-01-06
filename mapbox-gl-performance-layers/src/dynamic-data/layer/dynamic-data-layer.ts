@@ -1,9 +1,9 @@
 import {Geometry} from 'geojson';
 import {DynamicRenderer} from '../renderer/dynamic-renderer';
 import {CustomLayerInterface} from 'mapbox-gl';
-import {StyleOption} from '../../styles';
-import {resolveVisibility, Visibility} from '../../visibility';
-import {DataOperationsForwarder} from '../data-operations';
+import {StyleOption} from '../../shared/styles';
+import {resolveVisibility, Visibility} from '../../shared/visibility';
+import {DataOperationsComposer} from '../data-operations';
 
 export interface DynamicDataLayerOptions<G extends Geometry, P, S extends {}> {
     id: string;
@@ -15,8 +15,8 @@ export class DynamicDataLayer<G extends Geometry, P, S extends {}> implements Cu
     private map: mapboxgl.Map | null = null;
     private visibility: Visibility = true;
 
-    public readonly dataOperations = new DataOperationsForwarder(
-        this.options.renderer.dataOperations,
+    public readonly dataOperations = new DataOperationsComposer(
+        [this.options.renderer.dataOperations],
         () => {
             if (this.map != null) {
                 this.map.triggerRepaint();

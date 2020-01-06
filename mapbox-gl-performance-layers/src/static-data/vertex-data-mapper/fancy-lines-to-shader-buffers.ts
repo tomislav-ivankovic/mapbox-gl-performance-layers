@@ -1,6 +1,6 @@
 import {FeatureCollection, LineString} from 'geojson';
-import {LineStyle, resolveLineStyle, StyleOption} from '../../styles';
-import {cosOfPointsAngle, transformX, transformY} from '../../geometry-functions';
+import {LineStyle, resolveLineStyle, StyleOption} from '../../shared/styles';
+import {cosOfPointsAngle, transformX, transformY} from '../../shared/geometry-functions';
 import { ShaderBuffers } from './vertex-data-mapper';
 
 export function fancyLinesToShaderBuffers<P>(

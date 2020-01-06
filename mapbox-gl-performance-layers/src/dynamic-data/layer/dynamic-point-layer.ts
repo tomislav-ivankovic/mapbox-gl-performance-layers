@@ -1,6 +1,6 @@
 import {dynamicPointRenderer, DynamicPointRendererOptions} from '../renderer-preset/dynamic-point-renderer';
 import {Point} from 'geojson';
-import {PointStyle} from '../../styles';
+import {PointStyle} from '../../shared/styles';
 import {DynamicDataLayer} from './dynamic-data-layer';
 
 export interface DynamicPointLayerOptions<P> extends DynamicPointRendererOptions<P> {

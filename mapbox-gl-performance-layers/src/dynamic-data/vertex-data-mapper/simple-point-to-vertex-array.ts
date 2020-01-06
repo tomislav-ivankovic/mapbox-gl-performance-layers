@@ -1,6 +1,6 @@
 import {Feature, Point} from 'geojson';
-import {PointStyle, resolvePointStyle, StyleOption} from '../../styles';
-import {transformX, transformY} from '../../geometry-functions';
+import {PointStyle, resolvePointStyle, StyleOption} from '../../shared/styles';
+import {transformX, transformY} from '../../shared/geometry-functions';
 
 export function simplePointToVertexArray<P>(
     feature: Feature<Point, P>,

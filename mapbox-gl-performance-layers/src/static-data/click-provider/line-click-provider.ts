@@ -4,9 +4,9 @@ import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {
     closestPointOnLine, PackedFeature, packLineStringFeature,
     pointToPointDistanceSqr
-} from '../../geometry-functions';
+} from '../../shared/geometry-functions';
 import RBush from 'rbush';
-import {Visibility, resolveVisibility} from '../../visibility';
+import {Visibility, resolveVisibility} from '../../shared/visibility';
 
 export interface LineClickProviderOptions<P> {
     onClick?: (

@@ -1,7 +1,5 @@
 import {TileGenerator} from './tile-generator';
-import {Bounds, transformX, transformY} from '../../../geometry-functions';
-import {StyleOption} from '../../../styles';
-import {FeatureCollection, Geometry} from 'geojson';
+import {Bounds} from '../geometry-functions';
 
 interface Tile {
     x: number,
@@ -11,28 +9,18 @@ interface Tile {
     texture: WebGLTexture
 }
 
-export class TileManager<G extends Geometry, P, S extends {}> {
+export class TileManager {
     private tiles: Tile[] | null = null;
-    private dataBounds: Bounds | null = null;
 
     constructor(
-        private generator: TileGenerator<G, P, S>,
-        private findDataBounds: (data: FeatureCollection<G, P>) => Bounds,
+        private generator: TileGenerator,
         private numberOfTiles: number,
         private tileWidth: number,
         private tileHeight: number
     ) {
     }
 
-    public setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
-        this.generator.setDataAndStyle(data, styleOption);
-        const bounds = this.findDataBounds(data);
-        this.dataBounds = {
-            minX: transformX(bounds.minX),
-            minY: transformY(bounds.maxY),
-            maxX: transformX(bounds.maxX),
-            maxY: transformY(bounds.minY)
-        };
+    public markAllTilesOutdated(): void {
         if (this.tiles != null) {
             for (const tile of this.tiles) {
                 tile.zoom = -1;
@@ -41,9 +29,15 @@ export class TileManager<G extends Geometry, P, S extends {}> {
         }
     }
 
-    public clearData(): void {
-        this.dataBounds = null;
-        this.generator.clearData();
+    public markOutdatedTiles(bounds: Bounds): void {
+        if (this.tiles != null) {
+            for (const tile of this.tiles) {
+                if (isTileInDataBounds(tile.x, tile.y, tile.zoom, bounds)) {
+                    tile.zoom = -1;
+                    tile.age = Number.MAX_VALUE / 2;
+                }
+            }
+        }
     }
 
     public initialise(map: mapboxgl.Map, gl: WebGLRenderingContext): void {
@@ -93,14 +87,15 @@ export class TileManager<G extends Geometry, P, S extends {}> {
         gl: WebGLRenderingContext,
         x: number,
         y: number,
-        zoom: number
+        zoom: number,
+        dataBounds: Bounds | null
     ): WebGLTexture | null {
         const tiles = this.tiles;
         if (tiles == null) {
             throw Error('TileManager can not get a tile texture before it is initialised.');
         }
 
-        if (!this.isTileInDataBounds(x, y, zoom)) {
+        if (!isTileInDataBounds(x, y, zoom, dataBounds)) {
             return null;
         }
 
@@ -141,20 +136,19 @@ export class TileManager<G extends Geometry, P, S extends {}> {
             tile.age++;
         }
     }
+}
 
-    private isTileInDataBounds(x: number, y: number, zoom: number): boolean {
-        const bounds = this.dataBounds;
-        if (bounds == null) {
-            return false;
-        }
-        const size = Math.pow(2, -zoom);
-        const minX = x * size;
-        const minY = y * size;
-        const maxX = minX + size;
-        const maxY = minY + size;
-        return minX <= bounds.maxX &&
-            maxX >= bounds.minX &&
-            minY <= bounds.maxY &&
-            maxY >= bounds.minY;
+function isTileInDataBounds(x: number, y: number, zoom: number, bounds: Bounds | null): boolean {
+    if (bounds == null) {
+        return true;
     }
+    const size = Math.pow(2, -zoom);
+    const minX = x * size;
+    const minY = y * size;
+    const maxX = minX + size;
+    const maxY = minY + size;
+    return minX <= bounds.maxX &&
+        maxX >= bounds.minX &&
+        minY <= bounds.maxY &&
+        maxY >= bounds.minY;
 }

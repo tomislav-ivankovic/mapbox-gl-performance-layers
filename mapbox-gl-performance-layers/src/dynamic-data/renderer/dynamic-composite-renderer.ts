@@ -1,23 +1,22 @@
-import {Renderer} from './renderer';
-import {FeatureCollection, Geometry} from 'geojson';
+import {Feature, Geometry} from 'geojson';
+import {DynamicRenderer} from './dynamic-renderer';
+import {DataOperations, DataOperationsComposer} from '../data-operations';
 import {StyleOption} from '../../shared/styles';
 import * as glMatrix from 'gl-matrix';
 
-export class CompositeRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
+export class DynamicCompositeRenderer<G extends Geometry, P, S extends {}> implements DynamicRenderer<G, P, S> {
     constructor(
-        private renderers: Renderer<G, P, S>[]
+        private renderers: DynamicRenderer<G, P, S>[]
     ){
     }
 
-    setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
-        for (const renderer of this.renderers) {
-            renderer.setDataAndStyle(data, styleOption);
-        }
-    }
+    dataOperations: DataOperations<Feature<G, P>> = new DataOperationsComposer(
+        this.renderers.map(r => r.dataOperations)
+    );
 
-    clearData(): void {
+    setStyle(styleOption: StyleOption<G, P, S>) {
         for (const renderer of this.renderers) {
-            renderer.clearData();
+            renderer.setStyle(styleOption);
         }
     }
 

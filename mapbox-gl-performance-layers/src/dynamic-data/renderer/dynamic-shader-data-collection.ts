@@ -1,7 +1,7 @@
 import {Feature, Geometry} from 'geojson';
-import {BaseDataOperations} from '../../data-operations';
-import {StyleOption} from '../../../styles';
-import {DynamicVertexDataMapper} from '../../vertex-data-mapper/dynamic-vertex-data-mapper';
+import {BaseDataOperations} from '../data-operations';
+import {StyleOption} from '../../shared/styles';
+import {DynamicVertexDataMapper} from '../vertex-data-mapper/dynamic-vertex-data-mapper';
 
 export class DynamicShaderDataCollection<G extends Geometry, P, S extends {}> implements BaseDataOperations<Feature<G, P>> {
     private styleOption: StyleOption<G, P, S> = undefined;
