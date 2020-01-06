@@ -6,7 +6,7 @@ import {SimplePolygonShader} from '../../shared/shader/polygon/simple-polygon-sh
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
 import {TiledRenderer} from '../renderer/tiled-renderer';
-import {findPolygonCollectionBounds} from '../../shared/geometry-functions';
+import {findPolygonsBounds} from '../../shared/geometry-functions';
 import {simplePolygonsToShaderBuffers} from '../vertex-data-mapper/simple-polygons-to-shader-buffers';
 import {fancyPolygonsToShaderBuffers} from '../vertex-data-mapper/fancy-polygons-to-shader-buffers';
 import {TileRendererOptions} from '../../shared/tile/tile-renderer';
@@ -30,7 +30,7 @@ export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer
         {
             renderer: new TiledRenderer(
                 new ShaderRenderer(shader, dataMapper),
-                findPolygonCollectionBounds,
+                findPolygonsBounds,
                 options
             ),
             condition: data => data.features.length >= threshold

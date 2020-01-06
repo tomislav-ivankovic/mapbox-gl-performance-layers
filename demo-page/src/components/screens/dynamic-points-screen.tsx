@@ -48,7 +48,7 @@ export class DynamicPointsScreen extends Component<{}, State> {
         const centerY = 45.8150;
         const spread = 10;
 
-        if (data.getSize() + numberOfPointsPerInterval > maxNumberOfPoints) {
+        if (data.getArray().length + numberOfPointsPerInterval > maxNumberOfPoints) {
             data.removeNFirst(numberOfPointsPerInterval);
         }
 

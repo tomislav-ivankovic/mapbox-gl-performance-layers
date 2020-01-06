@@ -1,15 +1,15 @@
 export interface BaseDataOperations<E> {
     add(element: E): void;
-    removeFirst(): void;
-    removeLast(): void;
+    removeFirst(): E | null;
+    removeLast(): E | null;
     clear(): void;
-    getSize(): number;
+    getArray(): ReadonlyArray<E>;
 }
 
 export interface DataOperations<E> extends BaseDataOperations<E> {
     addAll(elements: E[]): void;
-    removeNFirst(n: number): void;
-    removeNLast(n: number): void;
+    removeNFirst(n: number): E[];
+    removeNLast(n: number): E[];
 }
 
 export class BaseDataOperationsComposer<E> implements BaseDataOperations<E> {
@@ -28,22 +28,26 @@ export class BaseDataOperationsComposer<E> implements BaseDataOperations<E> {
         }
     }
 
-    removeFirst(): void {
+    removeFirst(): E | null {
+        let removed: E | null = null;
         for (const source of this.sources) {
-            source.removeFirst();
+            removed = source.removeFirst();
         }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
+        return removed;
     }
 
-    removeLast(): void {
+    removeLast(): E | null {
+        let removed: E | null = null;
         for (const source of this.sources) {
-            source.removeLast();
+            removed = source.removeLast();
         }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
+        return removed;
     }
 
     clear(): void {
@@ -55,11 +59,11 @@ export class BaseDataOperationsComposer<E> implements BaseDataOperations<E> {
         }
     }
 
-    getSize(): number {
+    getArray(): ReadonlyArray<E> {
         if (this.sources.length == 0) {
             throw Error('No data sources provided.');
         }
-        return this.sources[0].getSize();
+        return this.sources[this.sources.length - 1].getArray();
     }
 }
 
@@ -80,22 +84,26 @@ export class DataOperationsComposer<E> extends BaseDataOperationsComposer<E> imp
         }
     }
 
-    removeNFirst(n: number): void {
+    removeNFirst(n: number): E[] {
+        let removed: E[] | null = null;
         for (const source of this.sources) {
-            source.removeNFirst(n);
+            removed = source.removeNFirst(n);
         }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
+        return removed != null ? removed : [];
     }
 
-    removeNLast(n: number): void {
+    removeNLast(n: number): E[] {
+        let removed: E[] | null = null;
         for (const source of this.sources) {
-            source.removeNLast(n);
+            removed = source.removeNLast(n);
         }
         if (this.onDataChange != null) {
             this.onDataChange();
         }
+        return removed != null ? removed : [];
     }
 }
 
@@ -109,20 +117,20 @@ export class DataOperationsExtender<E> implements DataOperations<E> {
         this.source.add(element);
     }
 
-    removeFirst(): void {
-        this.source.removeFirst();
+    removeFirst(): E | null {
+        return this.source.removeFirst();
     }
 
-    removeLast(): void {
-        this.source.removeLast();
+    removeLast(): E | null {
+        return this.source.removeLast();
     }
 
     clear(): void {
         this.source.clear();
     }
 
-    getSize(): number {
-        return this.source.getSize();
+    getArray(): ReadonlyArray<E> {
+        return this.source.getArray();
     }
 
     addAll(elements: E[]): void {
@@ -131,16 +139,26 @@ export class DataOperationsExtender<E> implements DataOperations<E> {
         }
     }
 
-    removeNFirst(n: number): void {
+    removeNFirst(n: number): E[] {
+        let removed: E[] = [];
         for (let i = 0; i < n; i++) {
-            this.source.removeFirst();
+            const r = this.source.removeFirst();
+            if (r != null) {
+                removed.push(r);
+            }
         }
+        return removed;
     }
 
-    removeNLast(n: number): void {
+    removeNLast(n: number): E[] {
+        let removed: E[] = [];
         for (let i = 0; i < n; i++) {
-            this.source.removeLast();
+            const r = this.source.removeLast();
+            if (r != null) {
+                removed.unshift(r);
+            }
         }
+        return removed;
     }
 }
 

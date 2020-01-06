@@ -1,5 +1,5 @@
 import {TileGenerator} from './tile-generator';
-import {Bounds} from '../geometry-functions';
+import {Bounds, transformX, transformY} from '../geometry-functions';
 
 interface Tile {
     x: number,
@@ -21,21 +21,23 @@ export class TileManager {
     }
 
     public markAllTilesOutdated(): void {
-        if (this.tiles != null) {
-            for (const tile of this.tiles) {
-                tile.zoom = -1;
-                tile.age = Number.MAX_VALUE / 2;
-            }
+        if (this.tiles == null) {
+            return;
+        }
+        for (const tile of this.tiles) {
+            tile.zoom = -1;
+            tile.age = Number.MAX_VALUE / 2;
         }
     }
 
     public markOutdatedTiles(bounds: Bounds): void {
-        if (this.tiles != null) {
-            for (const tile of this.tiles) {
-                if (isTileInDataBounds(tile.x, tile.y, tile.zoom, bounds)) {
-                    tile.zoom = -1;
-                    tile.age = Number.MAX_VALUE / 2;
-                }
+        if (this.tiles == null) {
+            return;
+        }
+        for (const tile of this.tiles) {
+            if (isTileInDataBounds(tile.x, tile.y, tile.zoom, bounds)) {
+                tile.zoom = -1;
+                tile.age = Number.MAX_VALUE / 2;
             }
         }
     }
@@ -143,12 +145,16 @@ function isTileInDataBounds(x: number, y: number, zoom: number, bounds: Bounds |
         return true;
     }
     const size = Math.pow(2, -zoom);
-    const minX = x * size;
-    const minY = y * size;
-    const maxX = minX + size;
-    const maxY = minY + size;
-    return minX <= bounds.maxX &&
-        maxX >= bounds.minX &&
-        minY <= bounds.maxY &&
-        maxY >= bounds.minY;
+    const tileMinX = x * size;
+    const tileMinY = y * size;
+    const tileMaxX = tileMinX + size;
+    const tileMaxY = tileMinY + size;
+    const minX = transformX(bounds.minX);
+    const minY = transformY(bounds.maxY);
+    const maxX = transformX(bounds.maxX);
+    const maxY = transformY(bounds.minY);
+    return tileMinX <= maxX &&
+        tileMaxX >= minX &&
+        tileMinY <= maxY &&
+        tileMaxY >= minY;
 }

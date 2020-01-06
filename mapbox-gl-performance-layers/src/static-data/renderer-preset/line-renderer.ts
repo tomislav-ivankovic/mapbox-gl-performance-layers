@@ -6,7 +6,7 @@ import {SimpleLineShader} from '../../shared/shader/line/simple-line-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
 import {TiledRenderer} from '../renderer/tiled-renderer';
-import {findLineStringCollectionBounds} from '../../shared/geometry-functions';
+import {findLinesBounds} from '../../shared/geometry-functions';
 import {simpleLinesToShaderBuffers} from '../vertex-data-mapper/simple-lines-to-shader-buffers';
 import {fancyLinesToShaderBuffers} from '../vertex-data-mapper/fancy-lines-to-shader-buffers';
 import {TileRendererOptions} from '../../shared/tile/tile-renderer';
@@ -30,7 +30,7 @@ export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<LineS
         {
             renderer: new TiledRenderer(
                 new ShaderRenderer(shader, dataMapper),
-                findLineStringCollectionBounds,
+                findLinesBounds,
                 options
             ),
             condition: data => data.features.length >= threshold

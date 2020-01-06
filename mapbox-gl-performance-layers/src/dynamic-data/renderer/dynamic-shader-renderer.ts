@@ -52,7 +52,7 @@ export class DynamicShaderRenderer<G extends Geometry, P, S extends {}> implemen
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
         this.shader.configureAttributes(gl, this.program);
-        gl.bufferData(gl.ARRAY_BUFFER, this.collection.getArray(), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.collection.getVertexArray(), gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         this.shader.setUniforms(gl, this.program, matrix);

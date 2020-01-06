@@ -1,7 +1,7 @@
 import {Feature, Geometry} from 'geojson';
 import {DynamicRenderer} from './dynamic-renderer';
-import {DataOperations} from '../../../dist';
 import {StyleOption} from '../../shared/styles';
+import {DataOperations} from '../data-operations';
 import * as glMatrix from 'gl-matrix';
 
 export interface DynamicSwitchOption<G extends Geometry, P, S extends {}> {
@@ -33,24 +33,28 @@ export class DynamicSwitchRenderer<G extends Geometry, P, S extends {}> implemen
             this.handleDataChange();
         },
         removeFirst: () => {
+            let removed: Feature<G, P> | null = null;
             if (this.broadcastData) {
                 for (const option of this.options) {
-                    option.renderer.dataOperations.removeFirst();
+                    removed = option.renderer.dataOperations.removeFirst();
                 }
             } else if (this.currentOption != null) {
-                this.currentOption.renderer.dataOperations.removeFirst();
+                removed = this.currentOption.renderer.dataOperations.removeFirst();
             }
             this.handleDataChange();
+            return removed;
         },
         removeLast: () => {
+            let removed: Feature<G, P> | null = null;
             if (this.broadcastData) {
                 for (const option of this.options) {
-                    option.renderer.dataOperations.removeLast();
+                    removed = option.renderer.dataOperations.removeLast();
                 }
             } else if (this.currentOption != null) {
-                this.currentOption.renderer.dataOperations.removeLast();
+                removed = this.currentOption.renderer.dataOperations.removeLast();
             }
             this.handleDataChange();
+            return removed;
         },
         clear: () => {
             if (this.broadcastData) {
@@ -62,11 +66,11 @@ export class DynamicSwitchRenderer<G extends Geometry, P, S extends {}> implemen
             }
             this.handleDataChange();
         },
-        getSize: () => {
+        getArray: () => {
             if (this.currentOption != null) {
-                return this.currentOption.renderer.dataOperations.getSize();
+                return this.currentOption.renderer.dataOperations.getArray();
             }
-            return 0;
+            return [];
         },
         addAll: (elements: Feature<G, P>[]) => {
             if (this.broadcastData) {
@@ -79,24 +83,28 @@ export class DynamicSwitchRenderer<G extends Geometry, P, S extends {}> implemen
             this.handleDataChange();
         },
         removeNFirst: (n: number) => {
+            let removed: Feature<G, P>[] | null = null;
             if (this.broadcastData) {
                 for (const option of this.options) {
-                    option.renderer.dataOperations.removeNFirst(n);
+                    removed = option.renderer.dataOperations.removeNFirst(n);
                 }
             } else if (this.currentOption != null) {
-                this.currentOption.renderer.dataOperations.removeNFirst(n);
+                removed = this.currentOption.renderer.dataOperations.removeNFirst(n);
             }
             this.handleDataChange();
+            return removed != null ? removed : [];
         },
         removeNLast: (n: number) => {
+            let removed: Feature<G, P>[] | null = null;
             if (this.broadcastData) {
                 for (const option of this.options) {
-                    option.renderer.dataOperations.removeNLast(n);
+                    removed = option.renderer.dataOperations.removeNLast(n);
                 }
             } else if (this.currentOption != null) {
-                this.currentOption.renderer.dataOperations.removeNLast(n);
+                removed = this.currentOption.renderer.dataOperations.removeNLast(n);
             }
             this.handleDataChange();
+            return removed != null ? removed : [];
         }
     };
 

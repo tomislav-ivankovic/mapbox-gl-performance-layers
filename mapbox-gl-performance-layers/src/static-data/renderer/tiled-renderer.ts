@@ -1,6 +1,6 @@
 import {Renderer} from './renderer';
-import {Bounds, transformX, transformY} from '../../shared/geometry-functions';
-import {FeatureCollection, Geometry} from 'geojson';
+import {Bounds} from '../../shared/geometry-functions';
+import {Feature, FeatureCollection, Geometry} from 'geojson';
 import {StyleOption} from '../../shared/styles';
 import {TileRenderer, TileRendererOptions} from '../../shared/tile/tile-renderer';
 import * as glMatrix from 'gl-matrix';
@@ -11,7 +11,7 @@ export class TiledRenderer<G extends Geometry, P, S extends {}> implements Rende
 
     constructor(
         private renderer: Renderer<G, P, S>,
-        private findDataBounds: (data: FeatureCollection<G, P>) => Bounds,
+        private findDataBounds: (data: ReadonlyArray<Feature<G, P>>) => Bounds,
         options: TileRendererOptions
     ) {
         this.tileRenderer = new TileRenderer(renderer, options);
@@ -19,13 +19,7 @@ export class TiledRenderer<G extends Geometry, P, S extends {}> implements Rende
 
     setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
         this.renderer.setDataAndStyle(data, styleOption);
-        const bounds = this.findDataBounds(data);
-        this.dataBounds = {
-            minX: transformX(bounds.minX),
-            minY: transformY(bounds.maxY),
-            maxX: transformX(bounds.maxX),
-            maxY: transformY(bounds.minY)
-        };
+        this.dataBounds = this.findDataBounds(data.features);
         this.tileRenderer.markAllTilesOutdated();
     }
 

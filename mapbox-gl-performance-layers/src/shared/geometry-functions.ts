@@ -1,4 +1,4 @@
-import {Feature, FeatureCollection, Geometry, LineString, Point, Polygon} from 'geojson';
+import {Feature, Geometry, LineString, Point, Polygon} from 'geojson';
 
 export function transformX(lng: number) {
     return (180 + lng) / 360;
@@ -95,14 +95,24 @@ export function findViewBounds(map: mapboxgl.Map): Bounds {
     };
 }
 
-export function findPointCollectionBounds(data: FeatureCollection<Point, any>): Bounds {
+export function findPointBounds(feature: Feature<Point, any>): Bounds {
+    const coords = feature.geometry.coordinates;
+    return {
+        minX: coords[0],
+        minY: coords[1],
+        maxX: coords[0],
+        maxY: coords[1]
+    };
+}
+
+export function findPointsBounds(features: ReadonlyArray<Feature<Point, any>>): Bounds {
     const bounds: Bounds = {
         minX: Infinity,
         minY: Infinity,
         maxX: -Infinity,
         maxY: -Infinity
     };
-    for (const feature of data.features) {
+    for (const feature of features) {
         const coords = feature.geometry.coordinates;
         if (coords[0] < bounds.minX) bounds.minX = coords[0];
         if (coords[1] < bounds.minY) bounds.minY = coords[1];
@@ -112,14 +122,14 @@ export function findPointCollectionBounds(data: FeatureCollection<Point, any>): 
     return bounds;
 }
 
-export function findLineStringCollectionBounds(data: FeatureCollection<LineString, any>): Bounds {
+export function findLinesBounds(features: ReadonlyArray<Feature<LineString, any>>): Bounds {
     const bounds: Bounds = {
         minX: Infinity,
         minY: Infinity,
         maxX: -Infinity,
         maxY: -Infinity
     };
-    for (const feature of data.features) {
+    for (const feature of features) {
         for (const coords of feature.geometry.coordinates) {
             if (coords[0] < bounds.minX) bounds.minX = coords[0];
             if (coords[1] < bounds.minY) bounds.minY = coords[1];
@@ -130,14 +140,14 @@ export function findLineStringCollectionBounds(data: FeatureCollection<LineStrin
     return bounds;
 }
 
-export function findPolygonCollectionBounds(data: FeatureCollection<Polygon, any>): Bounds {
+export function findPolygonsBounds(features: ReadonlyArray<Feature<Polygon, any>>): Bounds {
     const bounds: Bounds = {
         minX: Infinity,
         minY: Infinity,
         maxX: -Infinity,
         maxY: -Infinity
     };
-    for (const feature of data.features) {
+    for (const feature of features) {
         for (const coordinates of feature.geometry.coordinates) {
             for (const coords of coordinates) {
                 if (coords[0] < bounds.minX) bounds.minX = coords[0];
