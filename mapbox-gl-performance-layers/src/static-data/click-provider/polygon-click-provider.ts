@@ -1,6 +1,9 @@
+import {Feature} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Polygon} from 'geojson';
+import {EventData} from 'mapbox-gl';
+import {MapMouseEvent} from 'mapbox-gl';
 import {ClickProvider} from './click-provider';
-import {Feature, FeatureCollection, Polygon} from 'geojson';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {PackedFeature, isPointInPolygon, packPolygonFeature} from '../../shared/geometry-functions';
 import {Visibility, resolveVisibility} from '../../shared/visibility';
 import RBush from 'rbush';

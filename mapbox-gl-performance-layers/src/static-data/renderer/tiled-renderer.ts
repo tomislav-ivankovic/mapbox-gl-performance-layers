@@ -1,6 +1,8 @@
+import {Feature} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Geometry} from 'geojson';
 import {Renderer} from './renderer';
 import {Bounds} from '../../shared/geometry-functions';
-import {Feature, FeatureCollection, Geometry} from 'geojson';
 import {StyleOption} from '../../shared/styles';
 import {TileRenderer, TileRendererOptions} from '../../shared/tile/tile-renderer';
 import * as glMatrix from 'gl-matrix';

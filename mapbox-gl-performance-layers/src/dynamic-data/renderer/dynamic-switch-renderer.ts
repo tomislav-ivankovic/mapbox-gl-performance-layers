@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {DynamicRenderer} from './dynamic-renderer';
 import {StyleOption} from '../../shared/styles';
 import {DataOperations} from '../data-operations';

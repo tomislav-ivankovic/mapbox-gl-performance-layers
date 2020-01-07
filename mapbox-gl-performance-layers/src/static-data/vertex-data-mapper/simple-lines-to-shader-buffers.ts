@@ -1,4 +1,5 @@
-import {FeatureCollection, LineString} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {LineString} from 'geojson';
 import {LineStyle, resolveLineStyle, StyleOption} from '../../shared/styles';
 import {transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';

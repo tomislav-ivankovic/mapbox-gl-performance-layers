@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 
 export interface Color {
     r: number;

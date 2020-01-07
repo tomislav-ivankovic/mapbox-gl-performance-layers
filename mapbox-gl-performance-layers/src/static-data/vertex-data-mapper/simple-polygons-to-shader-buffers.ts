@@ -1,4 +1,5 @@
-import {FeatureCollection, Polygon} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Polygon} from 'geojson';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../shared/styles';
 import {transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';

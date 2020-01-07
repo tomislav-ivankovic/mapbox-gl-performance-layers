@@ -1,5 +1,7 @@
-import {Feature, Point} from 'geojson';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
+import {Feature} from 'geojson';
+import {Point} from 'geojson';
+import {EventData} from 'mapbox-gl';
+import {MapMouseEvent} from 'mapbox-gl';
 import {DynamicClickProvider} from './dynamic-click-provider';
 import {DataOperations} from '../data-operations';
 import {resolveVisibility, Visibility} from '../../shared/visibility';

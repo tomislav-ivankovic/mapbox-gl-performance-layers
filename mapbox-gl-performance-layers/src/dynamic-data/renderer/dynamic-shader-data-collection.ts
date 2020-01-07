@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {BaseDataOperations} from '../data-operations';
 import {StyleOption} from '../../shared/styles';
 import {DynamicVertexDataMapper} from '../vertex-data-mapper/dynamic-vertex-data-mapper';

@@ -1,4 +1,5 @@
-import React, {ComponentType} from 'react';
+import React from 'react';
+import {ComponentType} from 'react';
 import {MapContext} from 'react-mapbox-gl';
 
 export interface MapComponentProps {

@@ -1,4 +1,5 @@
-import {FeatureCollection, Point} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Point} from 'geojson';
 import {PointStyle, resolvePointStyle, StyleOption} from '../../shared/styles';
 import {transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';

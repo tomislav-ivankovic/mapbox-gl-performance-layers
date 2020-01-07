@@ -1,8 +1,13 @@
-import {FeatureCollection, Polygon} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Polygon} from 'geojson';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
-import {StaticDataLayerComponent} from './static-data-layer-component';
-import {polygonLayer, PolygonLayerOptions, PolygonStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import React from 'react';
+import {polygonLayer} from 'mapbox-gl-performance-layers';
+import {PolygonLayerOptions} from 'mapbox-gl-performance-layers';
+import {PolygonStyle} from 'mapbox-gl-performance-layers';
+import {StyleOption} from 'mapbox-gl-performance-layers';
+import {Visibility} from 'mapbox-gl-performance-layers';
+import {StaticDataLayerComponent} from './static-data-layer-component';
 
 export interface PolygonLayerProps<P> extends Omit<PolygonLayerOptions<P>, 'id'> {
     id?: string;

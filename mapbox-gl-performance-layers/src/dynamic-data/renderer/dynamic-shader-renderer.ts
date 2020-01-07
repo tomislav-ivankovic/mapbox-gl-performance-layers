@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {DynamicRenderer} from './dynamic-renderer';
 import {createShaderProgram, Shader} from '../../shared/shader/shader';
 import {DynamicVertexDataMapper} from '../vertex-data-mapper/dynamic-vertex-data-mapper';

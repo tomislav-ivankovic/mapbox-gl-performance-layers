@@ -1,6 +1,9 @@
+import {Feature} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {LineString} from 'geojson';
+import {EventData} from 'mapbox-gl';
+import {MapMouseEvent} from 'mapbox-gl';
 import {ClickProvider} from './click-provider';
-import {Feature, FeatureCollection, LineString} from 'geojson';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
 import {
     closestPointOnLine, PackedFeature, packLineStringFeature,
     pointToPointDistanceSqr

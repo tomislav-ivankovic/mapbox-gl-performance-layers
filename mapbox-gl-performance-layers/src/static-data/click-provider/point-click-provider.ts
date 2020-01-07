@@ -1,9 +1,12 @@
+import {Feature} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Point} from 'geojson';
 import {ClickProvider} from './click-provider';
-import {Feature, FeatureCollection, Point} from 'geojson';
-import KDBush from 'kdbush';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
+import {EventData} from 'mapbox-gl';
+import {MapMouseEvent} from 'mapbox-gl';
 import {pointToPointDistanceSqr} from '../../shared/geometry-functions';
 import {Visibility, resolveVisibility} from '../../shared/visibility';
+import KDBush from 'kdbush';
 
 export interface PointClickProviderOptions<P> {
     onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;

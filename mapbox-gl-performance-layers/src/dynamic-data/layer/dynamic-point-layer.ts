@@ -1,5 +1,5 @@
-import {dynamicPointRenderer, DynamicPointRendererOptions} from '../renderer-preset/dynamic-point-renderer';
 import {Point} from 'geojson';
+import {dynamicPointRenderer, DynamicPointRendererOptions} from '../renderer-preset/dynamic-point-renderer';
 import {PointStyle} from '../../shared/styles';
 import {DynamicDataLayer} from './dynamic-data-layer';
 import {

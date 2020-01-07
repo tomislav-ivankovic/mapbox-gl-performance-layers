@@ -1,7 +1,10 @@
+import {FeatureCollection} from 'geojson';
+import {Geometry} from 'geojson';
 import {Component} from 'react';
+import {StaticDataLayer} from 'mapbox-gl-performance-layers';
+import {StyleOption} from 'mapbox-gl-performance-layers';
+import {Visibility} from 'mapbox-gl-performance-layers';
 import {mapComponent, MapComponentProps} from '../map-component';
-import {FeatureCollection, Geometry} from 'geojson';
-import {StaticDataLayer, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
 import {compareStyles} from '../compare-styles';
 
 export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {

@@ -1,9 +1,10 @@
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {DynamicRenderer} from './dynamic-renderer';
-import {Feature, Geometry} from 'geojson';
 import {DataOperations} from '../data-operations';
 import {StyleOption} from '../../shared/styles';
 import {TileRenderer, TileRendererOptions} from '../../shared/tile/tile-renderer';
-import {Bounds, transformX, transformY} from '../../shared/geometry-functions';
+import {Bounds} from '../../shared/geometry-functions';
 import * as glMatrix from 'gl-matrix';
 
 export class DynamicTiledRenderer<G extends Geometry, P, S extends {}> implements DynamicRenderer<G, P, S> {

@@ -4,7 +4,7 @@
     "target": "es2015",
     "declaration": true,
     "moduleResolution": "node",
-    "declarationDir": "./dist",
+    "declarationDir": "./dist/types",
     "allowSyntheticDefaultImports": true
   },
   "include": ["src"],

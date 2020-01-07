@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {StyleOption} from '../../shared/styles';
 
 export type DynamicVertexDataMapper<G extends Geometry, P, S extends {}> =

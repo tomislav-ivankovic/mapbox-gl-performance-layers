@@ -1,4 +1,8 @@
-import {Feature, Geometry, LineString, Point, Polygon} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
+import {LineString} from 'geojson';
+import {Point} from 'geojson';
+import {Polygon} from 'geojson';
 
 export function transformX(lng: number) {
     return (180 + lng) / 360;

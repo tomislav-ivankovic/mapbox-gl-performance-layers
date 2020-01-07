@@ -1,4 +1,5 @@
-import {FeatureCollection, Geometry} from 'geojson';
+import {FeatureCollection} from 'geojson';
+import {Geometry} from 'geojson';
 import {Visibility} from '../../shared/visibility';
 
 export interface ClickProvider<G extends Geometry, P> {

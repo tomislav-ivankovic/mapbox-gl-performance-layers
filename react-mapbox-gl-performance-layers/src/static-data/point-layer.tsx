@@ -1,8 +1,13 @@
-import {FeatureCollection, Point} from 'geojson';
-import {generateID} from 'react-mapbox-gl/lib/util/uid';
-import {StaticDataLayerComponent} from './static-data-layer-component';
-import {pointLayer, PointLayerOptions, PointStyle, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
+import {FeatureCollection} from 'geojson';
+import {Point} from 'geojson';
 import React from 'react';
+import {generateID} from 'react-mapbox-gl/lib/util/uid';
+import {pointLayer} from 'mapbox-gl-performance-layers';
+import {PointLayerOptions} from 'mapbox-gl-performance-layers';
+import {PointStyle} from 'mapbox-gl-performance-layers';
+import {StyleOption} from 'mapbox-gl-performance-layers';
+import {Visibility} from 'mapbox-gl-performance-layers';
+import {StaticDataLayerComponent} from './static-data-layer-component';
 
 export interface PointLayerProps<P> extends Omit<PointLayerOptions<P>, 'id'> {
     id?: string;

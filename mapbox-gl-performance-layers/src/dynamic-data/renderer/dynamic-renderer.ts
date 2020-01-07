@@ -1,4 +1,5 @@
-import {Feature, Geometry} from 'geojson';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {StyleOption} from '../../shared/styles';
 import {DataOperations} from '../data-operations';
 import * as glMatrix from 'gl-matrix';

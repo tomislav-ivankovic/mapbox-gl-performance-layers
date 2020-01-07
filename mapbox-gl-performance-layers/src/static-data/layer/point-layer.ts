@@ -1,7 +1,7 @@
+import {Point} from 'geojson';
 import {pointRenderer, PointRendererOptions} from '../renderer-preset/point-renderer';
 import {PointClickProvider, PointClickProviderOptions} from '../click-provider/point-click-provider';
 import {StaticDataLayer} from './static-data-layer';
-import {Point} from 'geojson';
 import {PointStyle} from '../../shared/styles';
 
 export interface PointLayerOptions<P> extends PointRendererOptions<P>, PointClickProviderOptions<P> {

@@ -1,13 +1,13 @@
+import {Feature} from 'geojson';
+import {Point} from 'geojson';
 import React from 'react';
-import {
-    DataOperations, dynamicPointLayer,
-    DynamicPointLayerOptions,
-    PointStyle,
-    StyleOption,
-    Visibility
-} from 'mapbox-gl-performance-layers';
-import {Feature, Point} from 'geojson';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
+import {DataOperations} from 'mapbox-gl-performance-layers';
+import {dynamicPointLayer} from 'mapbox-gl-performance-layers';
+import {DynamicPointLayerOptions} from 'mapbox-gl-performance-layers';
+import {PointStyle} from 'mapbox-gl-performance-layers';
+import {StyleOption} from 'mapbox-gl-performance-layers';
+import {Visibility} from 'mapbox-gl-performance-layers';
 import {DynamicDataLayerComponent} from './dynamic-data-layer-component';
 
 export interface DynamicPointLayerProps<P> extends Omit<DynamicPointLayerOptions<P>, 'id'> {

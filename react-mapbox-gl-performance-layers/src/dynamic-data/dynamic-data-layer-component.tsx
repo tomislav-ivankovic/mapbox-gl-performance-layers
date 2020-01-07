@@ -1,7 +1,11 @@
-import {Feature, Geometry} from 'geojson';
-import {mapComponent, MapComponentProps} from '../map-component';
-import {DataOperations, DynamicDataLayer, StyleOption, Visibility} from 'mapbox-gl-performance-layers';
+import {Feature} from 'geojson';
+import {Geometry} from 'geojson';
 import {Component} from 'react';
+import {DataOperations} from 'mapbox-gl-performance-layers';
+import {DynamicDataLayer} from 'mapbox-gl-performance-layers';
+import {StyleOption} from 'mapbox-gl-performance-layers';
+import {Visibility} from 'mapbox-gl-performance-layers';
+import {mapComponent, MapComponentProps} from '../map-component';
 import {compareStyles} from '../compare-styles';
 
 export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {
