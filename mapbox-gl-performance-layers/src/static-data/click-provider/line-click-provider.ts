@@ -23,7 +23,7 @@ export class LineClickProvider<P> implements ClickProvider<LineString, P> {
     private visibility: Visibility = true;
 
     constructor(
-        public options: LineClickProviderOptions<P>
+        private options: LineClickProviderOptions<P>
     ) {
     }
 

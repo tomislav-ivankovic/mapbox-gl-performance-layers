@@ -15,7 +15,7 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
     private visibility: Visibility = true;
 
     constructor(
-        public options: PolygonClickProviderOptions<P>
+        private options: PolygonClickProviderOptions<P>
     ) {
     }
 

@@ -17,7 +17,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
     private visibility: Visibility = true;
 
     constructor(
-        public options: PointClickProviderOptions<P>
+        private options: PointClickProviderOptions<P>
     ) {
     }
 

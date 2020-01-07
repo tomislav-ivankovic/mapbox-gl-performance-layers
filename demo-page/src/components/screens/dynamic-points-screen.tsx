@@ -90,6 +90,7 @@ export class DynamicPointsScreen extends Component<{}, State> {
                 <DynamicPointLayer
                     data={dataOperations => this.dataOperations = dataOperations}
                     style={getStyle}
+                    onClick={this.handleClick}
                     simpleRendering
                 />
                 {state.selection != null &&

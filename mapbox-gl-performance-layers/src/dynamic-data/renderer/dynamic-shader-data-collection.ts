@@ -27,24 +27,22 @@ export class DynamicShaderDataCollection<G extends Geometry, P, S extends {}> im
         this.features.push(feature);
     }
 
-    removeFirst(): Feature<G, P> {
+    removeFirst(): Feature<G, P> | null {
         const feature = this.features.shift();
-        if (feature == null) {
-            throw Error('Can not remove elements from a empty data source.');
+        if (feature != null) {
+            const mapped = this.vertexDataMapper(feature, this.styleOption);
+            this.startIndex += mapped.length;
         }
-        const mapped = this.vertexDataMapper(feature, this.styleOption);
-        this.startIndex += mapped.length;
-        return feature;
+        return feature != null ? feature : null;
     }
 
-    removeLast(): Feature<G, P> {
+    removeLast(): Feature<G, P> | null {
         const feature = this.features.pop();
-        if (feature == null) {
-            throw Error('Can not remove elements from a empty data source.');
+        if (feature != null) {
+            const mapped = this.vertexDataMapper(feature, this.styleOption);
+            this.endIndex -= mapped.length;
         }
-        const mapped = this.vertexDataMapper(feature, this.styleOption);
-        this.endIndex -= mapped.length;
-        return feature;
+        return feature != null ? feature : null;
     }
 
     clear(): void {
