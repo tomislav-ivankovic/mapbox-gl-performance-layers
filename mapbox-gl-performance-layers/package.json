@@ -17,7 +17,6 @@
   "dependencies": {
     "earcut": "^2.2.1",
     "gl-matrix": "^3.1.0",
-    "kdbush": "^3.0.0",
     "rbush": "^3.0.1"
   },
   "peerDependencies": {
@@ -28,7 +27,6 @@
     "@types/geojson": "^7946.0.7",
     "@types/gl-matrix": "^2.4.5",
     "@types/jest": "24.0.24",
-    "@types/kdbush": "^3.0.0",
     "@types/mapbox-gl": "^1.6.1",
     "@types/node": "13.1.0",
     "@types/rbush": "^3.0.0",

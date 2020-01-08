@@ -1,4 +1,5 @@
 import {Polygon} from 'geojson';
+import {MultiPolygon} from 'geojson';
 import {PolygonStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyPolygonShader} from '../../shared/shader/polygon/fancy-polygon-shader';
@@ -17,7 +18,9 @@ export interface PolygonRendererOptions<P> extends TileRendererOptions{
     tileThreshold?: number;
 }
 
-export function polygonRenderer<P>(options: PolygonRendererOptions<P>): Renderer<Polygon, P, PolygonStyle> {
+export function polygonRenderer<G extends Polygon | MultiPolygon, P>(
+    options: PolygonRendererOptions<P>
+): Renderer<G, P, PolygonStyle> {
     const isSimple = options.simpleRendering != null && options.simpleRendering;
     const shader = isSimple ? new SimplePolygonShader() : new FancyPolygonShader(options.interpolation);
     const dataMapper = isSimple ? simplePolygonsToShaderBuffers : fancyPolygonsToShaderBuffers;

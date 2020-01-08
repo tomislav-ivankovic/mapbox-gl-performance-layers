@@ -1,4 +1,5 @@
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import {PointStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyPointShader} from '../../shared/shader/point/fancy-point-shader';
@@ -17,7 +18,9 @@ export interface PointRendererOptions<P> extends TileRendererOptions {
     tileThreshold?: number;
 }
 
-export function pointRenderer<P>(options: PointRendererOptions<P>): Renderer<Point, P, PointStyle> {
+export function pointRenderer<G extends Point | MultiPoint, P>(
+    options: PointRendererOptions<P>
+): Renderer<G, P, PointStyle> {
     const isSimple = options.simpleRendering != null && options.simpleRendering;
     const shader = isSimple ? new SimplePointShader(options.interpolation) : new FancyPointShader(options.interpolation);
     const dataMapper = isSimple ? simplePointsToShaderBuffers : fancyPointsToShaderBuffers;

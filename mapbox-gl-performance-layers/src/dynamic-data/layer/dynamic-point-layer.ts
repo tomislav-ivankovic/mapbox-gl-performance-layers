@@ -1,4 +1,5 @@
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import {dynamicPointRenderer, DynamicPointRendererOptions} from '../renderer-preset/dynamic-point-renderer';
 import {PointStyle} from '../../shared/styles';
 import {DynamicDataLayer} from './dynamic-data-layer';
@@ -7,11 +8,14 @@ import {
     DynamicPointClickProviderOptions
 } from '../click-provider/dynamic-point-click-provider';
 
-export interface DynamicPointLayerOptions<P> extends DynamicPointRendererOptions<P>, DynamicPointClickProviderOptions<P> {
+export interface DynamicPointLayerOptions<G extends Point | MultiPoint, P>
+    extends DynamicPointRendererOptions<P>, DynamicPointClickProviderOptions<G, P> {
     id: string;
 }
 
-export function dynamicPointLayer<P>(options: DynamicPointLayerOptions<P>): DynamicDataLayer<Point, P, PointStyle> {
+export function dynamicPointLayer<G extends Point | MultiPoint, P>(
+    options: DynamicPointLayerOptions<G, P>
+): DynamicDataLayer<G, P, PointStyle> {
     return new DynamicDataLayer({
         id: options.id,
         renderer: dynamicPointRenderer(options),

@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {Feature, FeatureCollection, Geometry, LineString, Point, Polygon} from 'geojson';
+import {
+    Feature,
+    FeatureCollection,
+    Geometry,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon
+} from 'geojson';
 import {Map} from '../reusable/map';
 import {LineLayer, PointLayer, PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
@@ -12,9 +19,9 @@ interface Properties {
 interface State {
     center: [number, number];
     zoom: [number];
-    points: FeatureCollection<Point, Properties>;
-    lines: FeatureCollection<LineString, Properties>;
-    polygons: FeatureCollection<Polygon, Properties>;
+    points: FeatureCollection<MultiPoint, Properties>;
+    lines: FeatureCollection<MultiLineString, Properties>;
+    polygons: FeatureCollection<MultiPolygon, Properties>;
     selection: Feature<Geometry, Properties> | null;
     arePointsEnabled: boolean;
     areLinesEnabled: boolean;
@@ -33,16 +40,24 @@ export class MultiLayerScreen extends Component<{}, State> {
                     {
                         type: 'Feature',
                         geometry: {
-                            type: 'Point',
-                            coordinates: [15, 45]
+                            type: 'MultiPoint',
+                            coordinates: [
+                                [15, 45],
+                                [15, 45 + 0.25],
+                                [15, 45 - 0.25]
+                            ]
                         },
                         properties: {center: [15, 45]}
                     },
                     {
                         type: 'Feature',
                         geometry: {
-                            type: 'Point',
-                            coordinates: [17, 45]
+                            type: 'MultiPoint',
+                            coordinates: [
+                                [17, 45],
+                                [17, 45 + 0.25],
+                                [17, 45 - 0.25]
+                            ],
                         },
                         properties: {center: [17, 45]}
                     }
@@ -53,8 +68,12 @@ export class MultiLayerScreen extends Component<{}, State> {
                 features: [{
                     type: 'Feature',
                     geometry: {
-                        type: 'LineString',
-                        coordinates: [[15, 45], [17, 45]]
+                        type: 'MultiLineString',
+                        coordinates: [
+                            [[15, 45], [17, 45]],
+                            [[15, 45 + 0.25], [17, 45 + 0.25]],
+                            [[15, 45 - 0.25], [17, 45 - 0.25]],
+                        ]
                     },
                     properties: {center: [16, 45]}
                 }]
@@ -64,16 +83,25 @@ export class MultiLayerScreen extends Component<{}, State> {
                 features: [{
                     type: 'Feature',
                     geometry: {
-                        type: 'Polygon',
-                        coordinates: [[
-                            [14, 45],
-                            [15, 44],
-                            [17, 44],
-                            [18, 45],
-                            [17, 46],
-                            [15, 46],
-                            [14, 45]
-                        ]]
+                        type: 'MultiPolygon',
+                        coordinates: [
+                            [[
+                                [14, 45],
+                                [15, 44],
+                                [17, 44],
+                                [18, 45],
+                                [17, 46],
+                                [15, 46],
+                                [14, 45]
+                            ]],
+                            [[
+                                [15, 46.1],
+                                [17, 46.1],
+                                [17, 46.2],
+                                [15, 46.2],
+                                [15, 46.1]
+                            ]],
+                        ]
                     },
                     properties: {center: [16, 45.5]}
                 }]

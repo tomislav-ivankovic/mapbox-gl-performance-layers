@@ -1,20 +1,21 @@
 import {FeatureCollection} from 'geojson';
 import {Polygon} from 'geojson';
+import {MultiPolygon} from 'geojson';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../shared/styles';
 import {transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';
 import earcut from 'earcut';
 
-export function simplePolygonsToShaderBuffers<P>(
-    data: FeatureCollection<Polygon, P>,
-    styleOption: StyleOption<Polygon, P, PolygonStyle>
+export function simplePolygonsToShaderBuffers<G extends Polygon | MultiPolygon, P>(
+    data: FeatureCollection<G, P>,
+    styleOption: StyleOption<G, P, PolygonStyle>
 ): ShaderBuffers {
     const array: number[] = [];
     const elementArray: number[] = [];
     let indexOffset = 0;
-    for (const feature of data.features) {
-        const style = resolvePolygonStyle(feature, styleOption);
-        const transformedCoordinates = feature.geometry.coordinates.map(c =>
+
+    function processSinglePolygon(coordinates: number[][][], style: PolygonStyle) {
+        const transformedCoordinates = coordinates.map(c =>
             c.map(coords => [transformX(coords[0]), transformY(coords[1])])
         );
         const data = earcut.flatten(transformedCoordinates);
@@ -30,6 +31,20 @@ export function simplePolygonsToShaderBuffers<P>(
         }
         indexOffset += data.vertices.length / 2;
     }
+
+    for (const feature of data.features) {
+        const style = resolvePolygonStyle(feature, styleOption);
+        if (feature.geometry.type === 'Polygon') {
+            const geometry = feature.geometry as Polygon;
+            processSinglePolygon(geometry.coordinates, style);
+        } else if (feature.geometry.type === 'MultiPolygon') {
+            const geometry = feature.geometry as MultiPolygon;
+            for (const coords of geometry.coordinates) {
+                processSinglePolygon(coords, style);
+            }
+        }
+    }
+
     return {
         array: new Float32Array(array),
         elementArray: new Int32Array(elementArray)

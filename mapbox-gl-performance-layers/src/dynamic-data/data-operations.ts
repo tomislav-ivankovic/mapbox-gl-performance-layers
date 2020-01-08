@@ -63,7 +63,7 @@ export class BaseDataOperationsComposer<E> implements BaseDataOperations<E> {
         if (this.sources.length == 0) {
             throw Error('No data sources provided.');
         }
-        return this.sources[this.sources.length - 1].getArray();
+        return this.sources[0].getArray();
     }
 }
 

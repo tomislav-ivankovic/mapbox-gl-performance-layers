@@ -1,85 +1,75 @@
 import {Feature} from 'geojson';
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
 import {DynamicClickProvider} from './dynamic-click-provider';
 import {DataOperations} from '../data-operations';
 import {resolveVisibility, Visibility} from '../../shared/visibility';
-import {pointToPointDistanceSqr} from '../../shared/geometry-functions';
-import RBush, {BBox} from 'rbush';
+import {
+    PackedFeature,
+    packPointFeature,
+    pointToMultiPointDistanceSqr
+} from '../../shared/geometry-functions';
+import RBush from 'rbush';
 
-class PointTree<P> extends RBush<Feature<Point, P>> {
-    toBBox(feature: Feature<Point, P>): BBox {
-        const coords = feature.geometry.coordinates;
-        return {
-            minX: coords[0],
-            minY: coords[1],
-            maxX: coords[0],
-            maxY: coords[1]
-        };
-    }
-
-    compareMinX(a: Feature<Point, P>, b: Feature<Point, P>): number {
-        return a.geometry.coordinates[0] - b.geometry.coordinates[0];
-    }
-
-    compareMinY(a: Feature<Point, P>, b: Feature<Point, P>): number {
-        return a.geometry.coordinates[1] - b.geometry.coordinates[1];
-    }
-}
-
-export interface DynamicPointClickProviderOptions<P> {
-    onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;
+export interface DynamicPointClickProviderOptions<G extends Point | MultiPoint, P> {
+    onClick?: (feature: Feature<G, P>, e: MapMouseEvent & EventData) => void;
     clickSize?: number;
 }
 
-export class DynamicPointClickProvider<P> implements DynamicClickProvider<Point, P> {
-    private readonly features: Feature<Point, P>[] = [];
-    private readonly tree = new PointTree<P>();
+export class DynamicPointClickProvider<G extends Point | MultiPoint, P> implements DynamicClickProvider<G, P> {
+    private readonly packedFeatures: PackedFeature<G, P>[] = [];
+    private readonly tree = new RBush<PackedFeature<G, P>>();
     private map: mapboxgl.Map | null = null;
     private visibility: Visibility = true;
+    private currentIndex = 0;
 
     constructor(
-        private options: DynamicPointClickProviderOptions<P>
+        private options: DynamicPointClickProviderOptions<G, P>
     ) {
     }
 
-    dataOperations: DataOperations<Feature<Point, P>> = {
-        add: (feature: Feature<Point, P>) => {
-            this.features.push(feature);
+    dataOperations: DataOperations<Feature<G, P>> = {
+        add: (feature: Feature<G, P>) => {
+            const packed = packPointFeature(feature, this.currentIndex);
+            this.currentIndex++;
+            this.packedFeatures.push(packed);
             if (this.options.onClick != null) {
-                this.tree.insert(feature);
+                this.tree.insert(packed);
             }
         },
         removeFirst: () => {
-            const feature = this.features.shift();
-            if (this.options.onClick != null && feature != null) {
-                this.tree.remove(feature);
+            const packed = this.packedFeatures.shift();
+            if (this.options.onClick != null && packed != null) {
+                this.tree.remove(packed);
             }
-            return feature != null ? feature : null;
+            return packed != null ? packed.feature : null;
         },
         removeLast: () => {
-            const feature = this.features.pop();
-            if (this.options.onClick != null && feature != null) {
-                this.tree.remove(feature);
+            const packed = this.packedFeatures.pop();
+            if (this.options.onClick != null && packed != null) {
+                this.tree.remove(packed);
             }
-            return feature != null ? feature : null;
+            return packed != null ? packed.feature : null;
         },
         clear: () => {
-            this.features.length = 0;
+            this.packedFeatures.length = 0;
             this.tree.clear();
         },
         getArray: () => {
-            return this.features;
+            return this.packedFeatures.map(p => p.feature);
         },
-        addAll: (features: Feature<Point, P>[]) => {
-            this.features.push(...features);
+        addAll: (features: Feature<G, P>[]) => {
+            const packed = features.map((f, index) => packPointFeature(f, this.currentIndex + index));
+            this.currentIndex += features.length;
+            this.packedFeatures.push(...packed);
             if (this.options.onClick != null) {
-                this.tree.load(features);
+                this.tree.load(packed);
             }
         },
         removeNFirst: (n: number) => {
-            let removed: Feature<Point, P>[] = [];
+            let removed: Feature<G, P>[] = [];
             for (let i = 0; i < n; i++) {
                 const r = this.dataOperations.removeFirst();
                 if (r != null) {
@@ -89,7 +79,7 @@ export class DynamicPointClickProvider<P> implements DynamicClickProvider<Point,
             return removed;
         },
         removeNLast: (n: number) => {
-            let removed: Feature<Point, P>[] = [];
+            let removed: Feature<G, P>[] = [];
             for (let i = 0; i < n; i++) {
                 const r = this.dataOperations.removeLast();
                 if (r != null) {
@@ -146,8 +136,7 @@ export class DynamicPointClickProvider<P> implements DynamicClickProvider<Point,
         let closestResult = results[0];
         let minDistanceSqr = Infinity;
         for (const result of results) {
-            const coords = result.geometry.coordinates;
-            const distanceSqr = pointToPointDistanceSqr(x, y, coords[0], coords[1]);
+            const distanceSqr = pointToMultiPointDistanceSqr(x, y, result.feature.geometry);
             if (distanceSqr < minDistanceSqr) {
                 closestResult = result;
                 minDistanceSqr = distanceSqr;
@@ -155,7 +144,7 @@ export class DynamicPointClickProvider<P> implements DynamicClickProvider<Point,
         }
         const clickDistanceSqr = 0.25 * Math.max(w * w, h * h);
         if (minDistanceSqr <= clickDistanceSqr) {
-            this.options.onClick(closestResult, e);
+            this.options.onClick(closestResult.feature, e);
             e.originalEvent.stopPropagation();
         }
     }

@@ -1,6 +1,7 @@
 import {Feature} from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {Polygon} from 'geojson';
+import {MultiPolygon} from 'geojson';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
 import {ClickProvider} from './click-provider';
@@ -8,21 +9,21 @@ import {PackedFeature, isPointInPolygon, packPolygonFeature} from '../../shared/
 import {Visibility, resolveVisibility} from '../../shared/visibility';
 import RBush from 'rbush';
 
-export interface PolygonClickProviderOptions<P> {
-    onClick?: (feature: Feature<Polygon, P>, e: MapMouseEvent & EventData) => void;
+export interface PolygonClickProviderOptions<G extends Polygon | MultiPolygon, P> {
+    onClick?: (feature: Feature<G, P>, e: MapMouseEvent & EventData) => void;
 }
 
-export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
+export class PolygonClickProvider<G extends Polygon | MultiPolygon, P> implements ClickProvider<G, P> {
     private map: mapboxgl.Map | null = null;
-    private tree: RBush<PackedFeature<Polygon, P>> | null = null;
+    private tree: RBush<PackedFeature<G, P>> | null = null;
     private visibility: Visibility = true;
 
     constructor(
-        private options: PolygonClickProviderOptions<P>
+        private options: PolygonClickProviderOptions<G, P>
     ) {
     }
 
-    setData(data: FeatureCollection<Polygon, P>): void {
+    setData(data: FeatureCollection<G, P>): void {
         if (this.options.onClick == null) {
             return;
         }
@@ -65,7 +66,7 @@ export class PolygonClickProvider<P> implements ClickProvider<Polygon, P> {
         const x = e.lngLat.lng;
         const y = e.lngLat.lat;
         const results = this.tree.search({minX: x, minY: y, maxX: x, maxY: y});
-        let closestResult : PackedFeature<Polygon, P> | null = null;
+        let closestResult : PackedFeature<G, P> | null = null;
         let closestIndex = -1;
         for (const result of results) {
             if (result.index > closestIndex && isPointInPolygon(x, y, result.feature.geometry)) {

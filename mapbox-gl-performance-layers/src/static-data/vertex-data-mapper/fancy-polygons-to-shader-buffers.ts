@@ -1,21 +1,22 @@
 import {FeatureCollection} from 'geojson';
 import {Polygon} from 'geojson';
+import {MultiPolygon} from 'geojson';
 import {PolygonStyle, resolvePolygonStyle, StyleOption} from '../../shared/styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../shared/geometry-functions';
 import {ShaderBuffers} from './vertex-data-mapper';
 import earcut from 'earcut';
 
-export function fancyPolygonsToShaderBuffers<P>(
-    data: FeatureCollection<Polygon, P>,
-    styleOption: StyleOption<Polygon, P, PolygonStyle>
+export function fancyPolygonsToShaderBuffers<G extends Polygon | MultiPolygon,P>(
+    data: FeatureCollection<G, P>,
+    styleOption: StyleOption<G, P, PolygonStyle>
 ): ShaderBuffers {
     const array: number[] = [];
     const elementArray: number[] = [];
     const indexMapper: number[] = [];
     let currentIndex = 0;
-    for (const feature of data.features) {
-        const style = resolvePolygonStyle(feature, styleOption);
-        const transformedCoords = feature.geometry.coordinates.map(c =>
+
+    function processSinglePolygon(coordinates: number[][][], style: PolygonStyle) {
+        const transformedCoords = coordinates.map(c =>
             c.map(coords => [transformX(coords[0]), transformY(coords[1])])
         );
         indexMapper.length = 0;
@@ -56,8 +57,7 @@ export function fancyPolygonsToShaderBuffers<P>(
                     }
                     indexMapper.push(currentIndex);
                     currentIndex += 2;
-                }
-                else {
+                } else {
                     const fakePreviousX = 2 * currentX - nextX;
                     const fakePreviousY = 2 * currentY - nextY;
                     const fakeNextX = 2 * currentX - previousX;
@@ -105,6 +105,20 @@ export function fancyPolygonsToShaderBuffers<P>(
             elementArray.push(indexMapper[index]);
         }
     }
+
+    for (const feature of data.features) {
+        const style = resolvePolygonStyle(feature, styleOption);
+        if (feature.geometry.type === 'Polygon') {
+            const geometry = feature.geometry as Polygon;
+            processSinglePolygon(geometry.coordinates, style);
+        } else if (feature.geometry.type === 'MultiPolygon') {
+            const geometry = feature.geometry as MultiPolygon;
+            for (const coords of geometry.coordinates) {
+                processSinglePolygon(coords, style);
+            }
+        }
+    }
+
     return {
         array: new Float32Array(array),
         elementArray: new Int32Array(elementArray)

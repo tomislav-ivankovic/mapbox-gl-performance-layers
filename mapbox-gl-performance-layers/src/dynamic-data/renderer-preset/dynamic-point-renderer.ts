@@ -1,4 +1,5 @@
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import {DynamicRenderer} from '../renderer/dynamic-renderer';
 import {PointStyle} from '../../shared/styles';
 import {SimplePointShader} from '../../shared/shader/point/simple-point-shader';
@@ -17,11 +18,11 @@ export interface DynamicPointRendererOptions<P> extends TileRendererOptions {
     tileThreshold?: number;
 }
 
-export function dynamicPointRenderer<P>(
+export function dynamicPointRenderer<G extends Point | MultiPoint, P>(
     options: DynamicPointRendererOptions<P>
-): DynamicRenderer<Point, P, PointStyle> {
+): DynamicRenderer<G, P, PointStyle> {
     const isSimple = options.simpleRendering != null && options.simpleRendering;
-    const shaderRenderer: DynamicRenderer<Point, P, PointStyle> = isSimple ?
+    const shaderRenderer: DynamicRenderer<G, P, PointStyle> = isSimple ?
         new DynamicShaderRenderer(new SimplePointShader(options.interpolation), simplePointToVertexArray) :
         new DynamicShaderRenderer(new FancyPointShader(options.interpolation), fancyPointToVertexArray);
     const threshold = options.tileThreshold != null ? options.tileThreshold : 100000;

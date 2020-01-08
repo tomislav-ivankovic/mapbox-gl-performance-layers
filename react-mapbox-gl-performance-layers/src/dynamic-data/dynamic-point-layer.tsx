@@ -1,5 +1,6 @@
 import {Feature} from 'geojson';
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import React from 'react';
 import {generateID} from 'react-mapbox-gl/lib/util/uid';
 import {DataOperations} from 'mapbox-gl-performance-layers';
@@ -10,16 +11,16 @@ import {StyleOption} from 'mapbox-gl-performance-layers';
 import {Visibility} from 'mapbox-gl-performance-layers';
 import {DynamicDataLayerComponent} from './dynamic-data-layer-component';
 
-export interface DynamicPointLayerProps<P> extends Omit<DynamicPointLayerOptions<P>, 'id'> {
+export interface DynamicPointLayerProps<G extends Point | MultiPoint, P> extends Omit<DynamicPointLayerOptions<G, P>, 'id'> {
     id?: string;
-    data: (dataOperations: DataOperations<Feature<Point, P>>) => void;
-    style?: StyleOption<Point, P, PointStyle>;
+    data: (dataOperations: DataOperations<Feature<G, P>>) => void;
+    style?: StyleOption<G, P, PointStyle>;
     visibility?: Visibility;
     before?: string;
 }
 
-export function DynamicPointLayer<P>(props: DynamicPointLayerProps<P>) {
-    const layerOptions: DynamicPointLayerOptions<P> = {
+export function DynamicPointLayer<G extends Point | MultiPoint, P>(props: DynamicPointLayerProps<G, P>) {
+    const layerOptions: DynamicPointLayerOptions<G, P> = {
         id: `dynamic-data-point-${generateID()}`,
         ...props
     };

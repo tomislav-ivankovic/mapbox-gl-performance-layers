@@ -1,22 +1,22 @@
 import {FeatureCollection} from 'geojson';
 import {LineString} from 'geojson';
+import {MultiLineString} from 'geojson';
 import {LineStyle, resolveLineStyle, StyleOption} from '../../shared/styles';
 import {cosOfPointsAngle, transformX, transformY} from '../../shared/geometry-functions';
-import { ShaderBuffers } from './vertex-data-mapper';
+import {ShaderBuffers} from './vertex-data-mapper';
 
-export function fancyLinesToShaderBuffers<P>(
-    data: FeatureCollection<LineString, P>,
-    styleOption: StyleOption<LineString, P, LineStyle>
+export function fancyLinesToShaderBuffers<G extends LineString | MultiLineString, P>(
+    data: FeatureCollection<G, P>,
+    styleOption: StyleOption<G, P, LineStyle>
 ): ShaderBuffers {
     const array: number[] = [];
     const elementArray: number[] = [];
     let currentIndex = 0;
-    for (const feature of data.features) {
-        if (feature.geometry.coordinates.length < 2) {
-            continue;
+
+    function processSingleLine(coords: number[][], style: LineStyle) {
+        if (coords.length < 2) {
+            return;
         }
-        const style = resolveLineStyle(feature, styleOption);
-        const coords = feature.geometry.coordinates;
         for (let i = 0; i < coords.length; i++) {
             const currentX = transformX(coords[i][0]);
             const currentY = transformY(coords[i][1]);
@@ -26,7 +26,7 @@ export function fancyLinesToShaderBuffers<P>(
                 nextY = transformY(coords[i + 1][1]);
                 previousX = 2 * currentX - nextX;
                 previousY = 2 * currentY - nextY;
-            } else if (i === feature.geometry.coordinates.length - 1) {
+            } else if (i === coords.length - 1) {
                 previousX = transformX(coords[i - 1][0]);
                 previousY = transformY(coords[i - 1][1]);
                 nextX = 2 * currentX - previousX;
@@ -111,6 +111,20 @@ export function fancyLinesToShaderBuffers<P>(
             }
         }
     }
+
+    for (const feature of data.features) {
+        const style = resolveLineStyle(feature, styleOption);
+        if (feature.geometry.type === 'LineString') {
+            const geometry = feature.geometry as LineString;
+            processSingleLine(geometry.coordinates, style);
+        } else if (feature.geometry.type === 'MultiLineString') {
+            const geometry = feature.geometry as MultiLineString;
+            for (const coords of geometry.coordinates) {
+                processSingleLine(coords, style);
+            }
+        }
+    }
+
     return {
         array: new Float32Array(array),
         elementArray: new Int32Array(elementArray)

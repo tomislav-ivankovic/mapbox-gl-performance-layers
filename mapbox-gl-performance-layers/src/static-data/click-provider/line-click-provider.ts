@@ -1,40 +1,41 @@
 import {Feature} from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {LineString} from 'geojson';
+import {MultiLineString} from 'geojson';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
 import {ClickProvider} from './click-provider';
 import {
-    closestPointOnLine, PackedFeature, packLineStringFeature,
+    closestPointOnLine, PackedFeature, packLineFeature,
     pointToPointDistanceSqr
 } from '../../shared/geometry-functions';
-import RBush from 'rbush';
 import {Visibility, resolveVisibility} from '../../shared/visibility';
+import RBush from 'rbush';
 
-export interface LineClickProviderOptions<P> {
+export interface LineClickProviderOptions<G extends LineString | MultiLineString, P> {
     onClick?: (
-        feature: Feature<LineString, P>,
+        feature: Feature<G, P>,
         e: MapMouseEvent & EventData,
         closestPointOnLine: { x: number, y: number }
     ) => void;
     clickSize?: number;
 }
 
-export class LineClickProvider<P> implements ClickProvider<LineString, P> {
+export class LineClickProvider<G extends LineString | MultiLineString, P> implements ClickProvider<G, P> {
     private map: mapboxgl.Map | null = null;
-    private tree: RBush<PackedFeature<LineString, P>> | null = null;
+    private tree: RBush<PackedFeature<G, P>> | null = null;
     private visibility: Visibility = true;
 
     constructor(
-        private options: LineClickProviderOptions<P>
+        private options: LineClickProviderOptions<G, P>
     ) {
     }
 
-    setData(data: FeatureCollection<LineString, P>): void {
+    setData(data: FeatureCollection<G, P>): void {
         if (this.options.onClick == null) {
             return;
         }
-        const packedData = data.features.map((feature, index) => packLineStringFeature(feature, index));
+        const packedData = data.features.map((feature, index) => packLineFeature(feature, index));
         this.tree = new RBush();
         this.tree.load(packedData);
     }

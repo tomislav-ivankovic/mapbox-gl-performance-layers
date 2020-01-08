@@ -1,46 +1,44 @@
 import {Feature} from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {Point} from 'geojson';
+import {MultiPoint} from 'geojson';
 import {ClickProvider} from './click-provider';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
-import {pointToPointDistanceSqr} from '../../shared/geometry-functions';
+import {
+    PackedFeature,
+    packPointFeature,
+    pointToMultiPointDistanceSqr,
+} from '../../shared/geometry-functions';
 import {Visibility, resolveVisibility} from '../../shared/visibility';
-import KDBush from 'kdbush';
+import RBush from 'rbush';
 
-export interface PointClickProviderOptions<P> {
-    onClick?: (feature: Feature<Point, P>, e: MapMouseEvent & EventData) => void;
+export interface PointClickProviderOptions<G extends Point | MultiPoint, P> {
+    onClick?: (feature: Feature<G, P>, e: MapMouseEvent & EventData) => void;
     clickSize?: number;
 }
 
-export class PointClickProvider<P> implements ClickProvider<Point, P> {
+export class PointClickProvider<G extends Point | MultiPoint, P> implements ClickProvider<G, P> {
     private map: mapboxgl.Map | null = null;
-    private data: FeatureCollection<Point, P> | null = null;
-    private index: KDBush<Feature<Point, P>> | null = null;
+    private tree: RBush<PackedFeature<G, P>> | null = null;
     private visibility: Visibility = true;
 
     constructor(
-        private options: PointClickProviderOptions<P>
+        private options: PointClickProviderOptions<G, P>
     ) {
     }
 
-    setData(data: FeatureCollection<Point, P>): void {
+    setData(data: FeatureCollection<G, P>): void {
         if (this.options.onClick == null) {
             return;
         }
-        this.data = data;
-        this.index = new KDBush(
-            data.features,
-            p => p.geometry.coordinates[0],
-            p => p.geometry.coordinates[1],
-            64,
-            Float32Array
-        );
+        const packedData = data.features.map((feature, index) => packPointFeature(feature, index));
+        this.tree = new RBush();
+        this.tree.load(packedData);
     }
 
     clearData(): void {
-        this.index = null;
-        this.data = null;
+        this.tree = null;
     }
 
     initialise(map: mapboxgl.Map): void {
@@ -64,7 +62,7 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
     }
 
     private clickHandler = (e: MapMouseEvent & EventData) => {
-        if (this.options.onClick == null || this.map == null || this.data == null || this.index == null) {
+        if (this.options.onClick == null || this.map == null || this.tree == null) {
             return;
         }
         if (!resolveVisibility(this.visibility, this.map)) {
@@ -77,23 +75,28 @@ export class PointClickProvider<P> implements ClickProvider<Point, P> {
         const y = e.lngLat.lat;
         const w = clickSize * (bounds.getEast() - bounds.getWest()) / canvas.width;
         const h = clickSize * (bounds.getNorth() - bounds.getSouth()) / canvas.height;
-        const results = this.index.range(x - 0.5 * w, y - 0.5 * h, x + 0.5 * w, y + 0.5 * h);
+        const results = this.tree.search({
+            minX: x - 0.5 * w,
+            minY: y - 0.5 * h,
+            maxX: x + 0.5 * w,
+            maxY: y + 0.5 * h
+        });
         if (results.length === 0) {
             return;
         }
-        const features = this.data.features;
-        let closestIndex = results[0];
+        let closestResult = results[0];
         let minDistanceSqr = Infinity;
-        for (const index of results) {
-            const coords = features[index].geometry.coordinates;
-            const distSqr = pointToPointDistanceSqr(coords[0], coords[1], x, y);
-            if (distSqr < minDistanceSqr) {
-                closestIndex = index;
-                minDistanceSqr = distSqr;
+        for (const result of results) {
+            const distanceSqr = pointToMultiPointDistanceSqr(x, y, result.feature.geometry);
+            if (distanceSqr < minDistanceSqr) {
+                closestResult = result;
+                minDistanceSqr = distanceSqr;
             }
         }
-        const closestFeature = features[closestIndex];
-        this.options.onClick(closestFeature, e);
-        e.originalEvent.stopPropagation();
+        const clickDistanceSqr = 0.25 * Math.max(w * w, h * h);
+        if (minDistanceSqr <= clickDistanceSqr) {
+            this.options.onClick(closestResult.feature, e);
+            e.originalEvent.stopPropagation();
+        }
     }
 }

@@ -1,4 +1,5 @@
 import {LineString} from 'geojson';
+import {MultiLineString} from 'geojson';
 import {LineStyle} from '../../shared/styles';
 import {Renderer} from '../renderer/renderer';
 import {FancyLineShader} from '../../shared/shader/line/fancy-line-shader';
@@ -17,7 +18,9 @@ export interface LineRendererOptions<P> extends TileRendererOptions {
     tileThreshold?: number;
 }
 
-export function lineRenderer<P>(options: LineRendererOptions<P>): Renderer<LineString, P, LineStyle> {
+export function lineRenderer<G extends LineString | MultiLineString, P>(
+    options: LineRendererOptions<P>
+): Renderer<G, P, LineStyle> {
     const isSimple = options.simpleRendering != null && options.simpleRendering;
     const shader = isSimple ? new SimpleLineShader() : new FancyLineShader(options.interpolation);
     const dataMapper = isSimple ? simpleLinesToShaderBuffers : fancyLinesToShaderBuffers;
