@@ -2,11 +2,11 @@ import React from 'react';
 import {ComponentType} from 'react';
 import {MapContext} from 'react-mapbox-gl';
 
-export interface MapComponentProps {
+export interface MapProp {
     map: mapboxgl.Map;
 }
 
-export function mapComponent<P extends MapComponentProps>(
+export function withMap<P extends MapProp>(
     WrappedComponent: ComponentType<P>
 ): ComponentType<Omit<P, 'map'>> {
     return props => (

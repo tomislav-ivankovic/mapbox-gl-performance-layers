@@ -1,10 +1,10 @@
 import {FeatureCollection} from 'geojson';
 import {Geometry} from 'geojson';
 import {CustomLayerInterface} from 'mapbox-gl';
-import {Renderer} from '../renderer/renderer';
-import {ClickProvider} from '../click-provider/click-provider';
-import {StyleOption} from '../../shared/styles';
-import {resolveVisibility, Visibility} from '../../shared/visibility';
+import {Renderer} from './renderer/renderer';
+import {ClickProvider} from './click-provider/click-provider';
+import {StyleOption} from '../shared/styles';
+import {resolveVisibility, Visibility} from '../shared/visibility';
 
 export interface StaticDataLayerOptions<G extends Geometry, P, S extends {}> {
     id: string;

@@ -4,10 +4,10 @@ import {Component} from 'react';
 import {StaticDataLayer} from 'mapbox-gl-performance-layers';
 import {StyleOption} from 'mapbox-gl-performance-layers';
 import {Visibility} from 'mapbox-gl-performance-layers';
-import {mapComponent, MapComponentProps} from '../map-component';
+import {MapProp, withMap} from '../with-map';
 import {compareStyles} from '../compare-styles';
 
-export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {
+export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> {
     layerConstructor: () => StaticDataLayer<G, P, S>;
     data: FeatureCollection<G, P>;
     style?: StyleOption<G, P, S>;
@@ -15,10 +15,10 @@ export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends 
     before?: string;
 }
 
-class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLayerComponentProps<G, P, S>, {}> {
+class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLayerComponentProps<G, P, S> & MapProp, {}> {
     private readonly layer: StaticDataLayer<G, P, S>;
 
-    constructor(props: StaticDataLayerComponentProps<G, P, S>) {
+    constructor(props: StaticDataLayerComponentProps<G, P, S> & MapProp) {
         super(props);
         this.layer = this.props.layerConstructor();
         this.layer.setDataAndStyle(props.data, props.style);
@@ -68,4 +68,4 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
     }
 }
 
-export const StaticDataLayerComponent = mapComponent(Layer);
+export const StaticDataLayerComponent = withMap(Layer);

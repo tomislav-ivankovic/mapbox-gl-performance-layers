@@ -1,10 +1,10 @@
 import {Geometry} from 'geojson';
-import {DynamicRenderer} from '../renderer/dynamic-renderer';
+import {DynamicRenderer} from './renderer/dynamic-renderer';
 import {CustomLayerInterface} from 'mapbox-gl';
-import {StyleOption} from '../../shared/styles';
-import {resolveVisibility, Visibility} from '../../shared/visibility';
-import {DataOperationsComposer} from '../data-operations';
-import {DynamicClickProvider} from '../click-provider/dynamic-click-provider';
+import {StyleOption} from '../shared/styles';
+import {resolveVisibility, Visibility} from '../shared/visibility';
+import {DataOperationsComposer} from './data-operations';
+import {DynamicClickProvider} from './click-provider/dynamic-click-provider';
 
 export interface DynamicDataLayerOptions<G extends Geometry, P, S extends {}> {
     id: string;

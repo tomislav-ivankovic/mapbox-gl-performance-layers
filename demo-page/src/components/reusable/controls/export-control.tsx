@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {mapComponent, MapComponentProps} from '../map-component';
+import {MapProp, withMap} from '../with-map';
 import {MapControlPosition} from './map-control';
 import {MapControlDiv} from './map-control-div';
 import html2canvas from 'html2canvas';
 import icon from './export-icon.svg';
 
-interface ExportControlProps extends MapComponentProps {
+interface ExportControlProps {
     position?: MapControlPosition;
     imageType?: string;
     imageQuality?: number;
@@ -20,8 +20,8 @@ interface State {
     isLoading: boolean;
 }
 
-class Control extends Component<ExportControlProps, State> {
-    constructor(props: MapComponentProps) {
+class Control extends Component<ExportControlProps & MapProp, State> {
+    constructor(props: ExportControlProps & MapProp) {
         super(props);
         this.state = {
             isLoading: false
@@ -98,4 +98,4 @@ class Control extends Component<ExportControlProps, State> {
     }
 }
 
-export const ExportControl = mapComponent(Control);
+export const ExportControl = withMap(Control);

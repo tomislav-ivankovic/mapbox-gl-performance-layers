@@ -1,15 +1,15 @@
 import {Component} from 'react';
-import {mapComponent, MapComponentProps} from '../map-component';
+import {withMap, MapProp} from '../with-map';
 import {Control, IControl} from 'mapbox-gl';
 
 export type MapControlPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
 
-export interface MapControlProps extends MapComponentProps {
+export interface MapControlProps {
     position?: MapControlPosition;
     controlConstructor: () => (Control | IControl);
 }
 
-class ControlComponent extends Component<MapControlProps, {}> {
+class ControlComponent extends Component<MapControlProps & MapProp, {}> {
     private readonly control = this.props.controlConstructor();
 
     componentDidMount(): void {
@@ -43,4 +43,4 @@ class ControlComponent extends Component<MapControlProps, {}> {
     }
 }
 
-export const MapControl = mapComponent(ControlComponent);
+export const MapControl = withMap(ControlComponent);

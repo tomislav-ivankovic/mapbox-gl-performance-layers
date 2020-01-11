@@ -5,10 +5,10 @@ import {DataOperations} from 'mapbox-gl-performance-layers';
 import {DynamicDataLayer} from 'mapbox-gl-performance-layers';
 import {StyleOption} from 'mapbox-gl-performance-layers';
 import {Visibility} from 'mapbox-gl-performance-layers';
-import {mapComponent, MapComponentProps} from '../map-component';
+import {MapProp, withMap} from '../with-map';
 import {compareStyles} from '../compare-styles';
 
-export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends {}> extends MapComponentProps {
+export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends {}> {
     layerConstructor: () => DynamicDataLayer<G, P, S>;
     data: (dataOperations: DataOperations<Feature<G, P>>) => void;
     style?: StyleOption<G, P, S>;
@@ -16,10 +16,10 @@ export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends
     before?: string;
 }
 
-class Layer<G extends Geometry, P, S extends {}> extends Component<DynamicDataLayerComponentProps<G, P, S>, {}> {
+class Layer<G extends Geometry, P, S extends {}> extends Component<DynamicDataLayerComponentProps<G, P, S> & MapProp, {}> {
     private readonly layer: DynamicDataLayer<G, P, S>;
 
-    constructor(props: DynamicDataLayerComponentProps<G, P, S>) {
+    constructor(props: DynamicDataLayerComponentProps<G, P, S> & MapProp) {
         super(props);
         this.layer = this.props.layerConstructor();
         this.layer.setStyle(props.style);
@@ -64,4 +64,4 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<DynamicDataLa
     }
 }
 
-export const DynamicDataLayerComponent = mapComponent(Layer);
+export const DynamicDataLayerComponent = withMap(Layer);
