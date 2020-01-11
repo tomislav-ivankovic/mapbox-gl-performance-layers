@@ -24,14 +24,16 @@ export function lineToResultsClickHandler<G extends LineString | MultiLineString
     ) {
         let closestResult = results[0];
         let minDistanceSqr = Infinity;
-        let closestPoint = {x: 0, y: 0};
+        const closestPoint = {x: 0, y: 0};
+        const point = {x: 0, y: 0};
         for (const result of results) {
-            const point = closestPointOnLine(x, y, result.feature.geometry);
+            closestPointOnLine(point, x, y, result.feature.geometry);
             const distanceSqr = pointToPointDistanceSqr(x, y, point.x, point.y);
             if (distanceSqr < minDistanceSqr) {
                 closestResult = result;
                 minDistanceSqr = distanceSqr;
-                closestPoint = point;
+                closestPoint.x = x;
+                closestPoint.y = y;
             }
         }
         const clickDistanceSqr = 0.25 * (size * size);

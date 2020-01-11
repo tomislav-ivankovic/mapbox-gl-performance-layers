@@ -19,8 +19,9 @@ export function simplePointsToShaderBuffers<G extends Point | MultiPoint, P>(
         );
     }
 
+    const style: PointStyle = {} as any;
     for (const feature of data.features) {
-        const style = resolvePointStyle(feature, styleOption);
+        resolvePointStyle(style, feature, styleOption);
         if (feature.geometry.type === 'Point') {
             const geometry = feature.geometry as Point;
             processSinglePoint(geometry.coordinates, style);

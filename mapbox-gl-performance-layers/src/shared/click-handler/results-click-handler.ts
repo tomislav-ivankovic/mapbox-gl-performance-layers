@@ -1,6 +1,7 @@
 import {Geometry} from 'geojson';
 import {PackedFeature} from '../geometry-functions';
-import {EventData, MapMouseEvent} from 'mapbox-gl';
+import {EventData} from 'mapbox-gl';
+import {MapMouseEvent} from 'mapbox-gl';
 
 export type ResultsClickHandler<G extends Geometry, P> = (
     x: number,

@@ -1,3 +1,4 @@
+import {FeatureCollection} from 'geojson';
 import {Feature} from 'geojson';
 import {Geometry} from 'geojson';
 import {LineString} from 'geojson';
@@ -7,11 +8,11 @@ import {MultiPoint} from 'geojson';
 import {Polygon} from 'geojson';
 import {MultiPolygon} from 'geojson';
 
-export function transformX(lng: number) {
+export function transformX(lng: number): number {
     return (180 + lng) / 360;
 }
 
-export function transformY(lat: number) {
+export function transformY(lat: number): number {
     return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
 }
 
@@ -35,25 +36,41 @@ export function pointToMultiPointDistanceSqr(x: number, y: number, point: Point 
     }
 }
 
-export function closestPointOnLine(x: number, y: number, line: LineString | MultiLineString): { x: number, y: number } {
+const tempPoint = {x: 0, y: 0};
+
+export function closestPointOnLine(
+    output: { x: number, y: number },
+    x: number,
+    y: number,
+    line: LineString | MultiLineString
+): void {
     if (line.type === 'LineString') {
-        return closestPointOnSingleLine(x, y, line.coordinates);
+        closestPointOnSingleLine(output, x, y, line.coordinates);
     } else {
         let minDistanceSqr = Infinity;
-        let closestPoint = {x: 0, y: 0};
+        let closestX = 0;
+        let closestY = 0;
         for (const coords of line.coordinates) {
-            const point = closestPointOnSingleLine(x, y, coords);
+            const point = tempPoint;
+            closestPointOnSingleLine(point, x, y, coords);
             const distanceSqr = pointToPointDistanceSqr(x, y, point.x, point.y);
             if (distanceSqr < minDistanceSqr) {
                 minDistanceSqr = distanceSqr;
-                closestPoint = point;
+                closestX = point.x;
+                closestY = point.y;
             }
         }
-        return closestPoint;
+        output.x = closestX;
+        output.y = closestY;
     }
 }
 
-function closestPointOnSingleLine(x: number, y: number, coordinates: number[][]): { x: number, y: number } {
+function closestPointOnSingleLine(
+    output: { x: number, y: number },
+    x: number,
+    y: number,
+    coordinates: number[][]
+): void {
     let minDistanceSqr = Infinity;
     let closestX = x;
     let closestY = y;
@@ -76,10 +93,8 @@ function closestPointOnSingleLine(x: number, y: number, coordinates: number[][])
             closestY = projectionY;
         }
     }
-    return {
-        x: closestX,
-        y: closestY
-    };
+    output.x = closestX;
+    output.y = closestY;
 }
 
 export function isPointInPolygon(x: number, y: number, polygon: Polygon | MultiPolygon): boolean {
@@ -121,7 +136,7 @@ function isPointInPolygonNoHoles(x: number, y: number, coords: number[][]): bool
     return isInside;
 }
 
-export function cosOfPointsAngle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) {
+export function cosOfPointsAngle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): number {
     return cosOfAngleBetweenVectors(x2 - x1, y2 - y1, x2 - x3, y2 - y3);
 }
 
@@ -139,128 +154,72 @@ export interface Bounds {
     maxY: number
 }
 
-export function findViewBounds(map: mapboxgl.Map): Bounds {
+export function findViewBounds(output: Bounds, map: mapboxgl.Map): void {
     const bounds = map.getBounds();
-    return {
-        minX: transformX(bounds.getWest()),
-        minY: transformY(bounds.getNorth()),
-        maxX: transformX(bounds.getEast()),
-        maxY: transformY(bounds.getSouth())
-    };
+    output.minX = transformX(bounds.getWest());
+    output.minY = transformY(bounds.getNorth());
+    output.maxX = transformX(bounds.getEast());
+    output.maxY = transformY(bounds.getSouth());
 }
 
-export function findPointBounds(feature: Feature<Point | MultiPoint, any>): Bounds {
-    if (feature.geometry.type === 'Point') {
-        const coords = feature.geometry.coordinates;
-        return {
-            minX: coords[0],
-            minY: coords[1],
-            maxX: coords[0],
-            maxY: coords[1]
-        };
+interface Coordinates {
+    [index: number]: (Coordinates | number);
+    length: number;
+}
+
+export function findFeatureCollectionBounds(output: Bounds, featureCollection: FeatureCollection<Geometry, any>): void {
+    output.minX = Infinity;
+    output.minY = Infinity;
+    output.maxX = -Infinity;
+    output.maxY = -Infinity;
+    for (const feature of featureCollection.features) {
+        findGeometryBounds(output, feature.geometry);
+    }
+}
+
+export function findFeaturesBounds(output: Bounds, features: ReadonlyArray<Feature<Geometry, any>>): void {
+    output.minX = Infinity;
+    output.minY = Infinity;
+    output.maxX = -Infinity;
+    output.maxY = -Infinity;
+    for (const feature of features) {
+        findGeometryBounds(output, feature.geometry);
+    }
+}
+
+export function findFeatureBounds(output: Bounds, feature: Feature<Geometry, any>): void {
+    output.minX = Infinity;
+    output.minY = Infinity;
+    output.maxX = -Infinity;
+    output.maxY = -Infinity;
+    findGeometryBounds(output, feature.geometry);
+}
+
+function findGeometryBounds(output: Bounds, geometry: Geometry): void {
+    if (geometry.type === 'GeometryCollection') {
+        for (const g of geometry.geometries) {
+            findGeometryBounds(output, g);
+        }
     } else {
-        const bounds: Bounds = {
-            minX: Infinity,
-            minY: Infinity,
-            maxX: -Infinity,
-            maxY: -Infinity
-        };
-        for (const coords of feature.geometry.coordinates) {
-            if (coords[0] < bounds.minX) bounds.minX = coords[0];
-            if (coords[1] < bounds.minY) bounds.minY = coords[1];
-            if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-            if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-        }
-        return bounds;
+        findCoordinatesBounds(output, geometry.coordinates);
     }
 }
 
-export function findPointsBounds(features: ReadonlyArray<Feature<Point | MultiPoint, any>>): Bounds {
-    const bounds: Bounds = {
-        minX: Infinity,
-        minY: Infinity,
-        maxX: -Infinity,
-        maxY: -Infinity
-    };
-    for (const feature of features) {
-        if (feature.geometry.type === 'Point') {
-            const coords = feature.geometry.coordinates;
-            if (coords[0] < bounds.minX) bounds.minX = coords[0];
-            if (coords[1] < bounds.minY) bounds.minY = coords[1];
-            if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-            if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-        } else if (feature.geometry.type === 'MultiPoint') {
-            for (const coords of feature.geometry.coordinates) {
-                if (coords[0] < bounds.minX) bounds.minX = coords[0];
-                if (coords[1] < bounds.minY) bounds.minY = coords[1];
-                if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-                if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
+function findCoordinatesBounds(output: Bounds, coords: Coordinates): void {
+    for (let i = 0; i < coords.length; i++) {
+        const c = coords[i];
+        if (typeof c === 'number') {
+            if (i === 0) {
+                if (c < output.minX) output.minX = c;
+                if (c > output.maxX) output.maxX = c;
+            } else if (i === 1) {
+                if (c < output.minY) output.minY = c;
+                if (c > output.maxY) output.maxY = c;
             }
+        } else {
+            findCoordinatesBounds(output, c);
         }
     }
-    return bounds;
-}
-
-export function findLinesBounds(features: ReadonlyArray<Feature<LineString | MultiLineString, any>>): Bounds {
-    const bounds: Bounds = {
-        minX: Infinity,
-        minY: Infinity,
-        maxX: -Infinity,
-        maxY: -Infinity
-    };
-    for (const feature of features) {
-        if (feature.geometry.type === 'LineString') {
-            for (const coords of feature.geometry.coordinates) {
-                if (coords[0] < bounds.minX) bounds.minX = coords[0];
-                if (coords[1] < bounds.minY) bounds.minY = coords[1];
-                if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-                if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-            }
-        } else if (feature.geometry.type === 'MultiLineString') {
-            for (const coordinates of feature.geometry.coordinates) {
-                for (const coords of coordinates) {
-                    if (coords[0] < bounds.minX) bounds.minX = coords[0];
-                    if (coords[1] < bounds.minY) bounds.minY = coords[1];
-                    if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-                    if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-                }
-            }
-        }
-    }
-    return bounds;
-}
-
-export function findPolygonsBounds(features: ReadonlyArray<Feature<Polygon | MultiPolygon, any>>): Bounds {
-    const bounds: Bounds = {
-        minX: Infinity,
-        minY: Infinity,
-        maxX: -Infinity,
-        maxY: -Infinity
-    };
-    for (const feature of features) {
-        if (feature.geometry.type === 'Polygon') {
-            for (const coordinates of feature.geometry.coordinates) {
-                for (const coords of coordinates) {
-                    if (coords[0] < bounds.minX) bounds.minX = coords[0];
-                    if (coords[1] < bounds.minY) bounds.minY = coords[1];
-                    if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-                    if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-                }
-            }
-        } else if (feature.geometry.type === 'MultiPolygon') {
-            for (const coordinates1 of feature.geometry.coordinates) {
-                for (const coordinates2 of coordinates1) {
-                    for (const coords of coordinates2) {
-                        if (coords[0] < bounds.minX) bounds.minX = coords[0];
-                        if (coords[1] < bounds.minY) bounds.minY = coords[1];
-                        if (coords[0] > bounds.maxX) bounds.maxX = coords[0];
-                        if (coords[1] > bounds.maxY) bounds.maxY = coords[1];
-                    }
-                }
-            }
-        }
-    }
-    return bounds;
 }
 
 export interface PackedFeature<G extends Geometry, P> extends Bounds {
@@ -268,10 +227,7 @@ export interface PackedFeature<G extends Geometry, P> extends Bounds {
     index: number;
 }
 
-export function packPointFeature<G extends Point | MultiPoint, P>(
-    feature: Feature<G, P>,
-    index: number
-): PackedFeature<G, P> {
+export function packFeature<G extends Geometry, P>(feature: Feature<G, P>, index: number) {
     const packed: PackedFeature<G, P> = {
         feature: feature,
         index: index,
@@ -280,93 +236,6 @@ export function packPointFeature<G extends Point | MultiPoint, P>(
         maxX: -Infinity,
         maxY: -Infinity
     };
-    if (feature.geometry.type === 'Point') {
-        const geometry = feature.geometry as Point;
-        const coords = geometry.coordinates;
-        if (coords[0] < packed.minX) packed.minX = coords[0];
-        if (coords[1] < packed.minY) packed.minY = coords[1];
-        if (coords[0] > packed.maxX) packed.maxX = coords[0];
-        if (coords[1] > packed.maxY) packed.maxY = coords[1];
-    } else if (feature.geometry.type === 'MultiPoint') {
-        const geometry = feature.geometry as MultiPoint;
-        for (const coords of geometry.coordinates) {
-            if (coords[0] < packed.minX) packed.minX = coords[0];
-            if (coords[1] < packed.minY) packed.minY = coords[1];
-            if (coords[0] > packed.maxX) packed.maxX = coords[0];
-            if (coords[1] > packed.maxY) packed.maxY = coords[1];
-        }
-    }
-    return packed;
-}
-
-export function packLineFeature<G extends LineString | MultiLineString, P>(
-    feature: Feature<G, P>,
-    index: number
-): PackedFeature<G, P> {
-    const packed: PackedFeature<G, P> = {
-        feature: feature,
-        index: index,
-        minX: Infinity,
-        minY: Infinity,
-        maxX: -Infinity,
-        maxY: -Infinity
-    };
-    if (feature.geometry.type === 'LineString') {
-        const geometry = feature.geometry as LineString;
-        for (const coords of geometry.coordinates) {
-            if (coords[0] < packed.minX) packed.minX = coords[0];
-            if (coords[1] < packed.minY) packed.minY = coords[1];
-            if (coords[0] > packed.maxX) packed.maxX = coords[0];
-            if (coords[1] > packed.maxY) packed.maxY = coords[1];
-        }
-    } else if (feature.geometry.type === 'MultiLineString') {
-        const geometry = feature.geometry as MultiLineString;
-        for (const coordinates of geometry.coordinates) {
-            for (const coords of coordinates) {
-                if (coords[0] < packed.minX) packed.minX = coords[0];
-                if (coords[1] < packed.minY) packed.minY = coords[1];
-                if (coords[0] > packed.maxX) packed.maxX = coords[0];
-                if (coords[1] > packed.maxY) packed.maxY = coords[1];
-            }
-        }
-    }
-    return packed;
-}
-
-export function packPolygonFeature<G extends Polygon | MultiPolygon, P>(
-    feature: Feature<G, P>,
-    index: number
-): PackedFeature<G, P> {
-    const packed: PackedFeature<G, P> = {
-        feature: feature,
-        index: index,
-        minX: Infinity,
-        minY: Infinity,
-        maxX: -Infinity,
-        maxY: -Infinity
-    };
-    if (feature.geometry.type === 'Polygon') {
-        const geometry = feature.geometry as Polygon;
-        for (const coordinates of geometry.coordinates) {
-            for (const coords of coordinates) {
-                if (coords[0] < packed.minX) packed.minX = coords[0];
-                if (coords[1] < packed.minY) packed.minY = coords[1];
-                if (coords[0] > packed.maxX) packed.maxX = coords[0];
-                if (coords[1] > packed.maxY) packed.maxY = coords[1];
-            }
-        }
-    } else if (feature.geometry.type === 'MultiPolygon') {
-        const geometry = feature.geometry as MultiPolygon;
-        for (const coordinates1 of geometry.coordinates) {
-            for (const coordinates2 of coordinates1) {
-                for (const coords of coordinates2) {
-                    if (coords[0] < packed.minX) packed.minX = coords[0];
-                    if (coords[1] < packed.minY) packed.minY = coords[1];
-                    if (coords[0] > packed.maxX) packed.maxX = coords[0];
-                    if (coords[1] > packed.maxY) packed.maxY = coords[1];
-                }
-            }
-        }
-    }
+    findFeatureBounds(packed, feature);
     return packed;
 }

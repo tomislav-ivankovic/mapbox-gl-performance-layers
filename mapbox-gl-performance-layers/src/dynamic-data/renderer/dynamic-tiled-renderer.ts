@@ -4,17 +4,26 @@ import {DynamicRenderer} from './dynamic-renderer';
 import {DataOperations} from '../data-operations';
 import {StyleOption} from '../../shared/styles';
 import {TileRenderer, TileRendererOptions} from '../../shared/tile/tile-renderer';
-import {Bounds} from '../../shared/geometry-functions';
+import {Bounds, findFeatureBounds, findFeaturesBounds} from '../../shared/geometry-functions';
 import * as glMatrix from 'gl-matrix';
 
 export class DynamicTiledRenderer<G extends Geometry, P, S extends {}> implements DynamicRenderer<G, P, S> {
     private tileRenderer: TileRenderer;
-    private dataBounds: Bounds | null = null;
+    private readonly dataBounds: Bounds = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
+    private readonly tempBounds: Bounds = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
 
     constructor(
         private renderer: DynamicRenderer<G, P, S>,
-        private findDataBounds: (data: ReadonlyArray<Feature<G, P>>) => Bounds,
-        private findFeatureBounds: (feature: Feature<G, P>) => Bounds,
         options: TileRendererOptions
     ){
         this.tileRenderer = new TileRenderer(renderer, options);
@@ -89,17 +98,17 @@ export class DynamicTiledRenderer<G extends Geometry, P, S extends {}> implement
     }
 
     private handleDataChange(feature: Feature<G, P>) {
-        const bounds = this.findFeatureBounds(feature);
+        const bounds = this.tempBounds;
+        findFeatureBounds(bounds, feature);
         this.tileRenderer.markOutdatedTiles(bounds);
         const dataBoundsChanged = this.dataBounds == null ||
             bounds.minX <= this.dataBounds.minX ||
             bounds.minY <= this.dataBounds.minY ||
             bounds.maxX >= this.dataBounds.maxX ||
             bounds.maxY >= this.dataBounds.maxY;
-        if (!dataBoundsChanged) {
-            return;
+        if (dataBoundsChanged) {
+            findFeaturesBounds(this.dataBounds, this.dataOperations.getArray());
         }
-        this.dataBounds = this.findDataBounds(this.dataOperations.getArray());
     }
 }
 

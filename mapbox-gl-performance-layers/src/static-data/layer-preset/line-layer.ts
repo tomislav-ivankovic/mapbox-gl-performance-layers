@@ -5,7 +5,6 @@ import {StaticDataLayer} from '../static-data-layer';
 import {LineStyle} from '../../shared/styles';
 import {LineClickHandler, lineToResultsClickHandler} from '../../shared/click-handler/line-click-handler';
 import {RBushClickProvider} from '../click-provider/r-bush-click-provider';
-import {packLineFeature} from '../../shared/geometry-functions';
 
 export interface LineLayerOptions<G extends LineString | MultiLineString, P> extends LineRendererOptions<P> {
     id: string;
@@ -21,7 +20,6 @@ export function lineLayer<G extends LineString | MultiLineString, P>(
         renderer: lineRenderer(options),
         clickProvider: options.onClick != null ?
             new RBushClickProvider(
-                packLineFeature,
                 lineToResultsClickHandler(options.onClick),
                 options.clickSize
             ) : undefined

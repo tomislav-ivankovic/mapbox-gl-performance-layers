@@ -9,7 +9,7 @@ import {compareStyles} from '../compare-styles';
 
 export interface StaticDataLayerComponentProps<G extends Geometry, P, S extends {}> {
     layerConstructor: () => StaticDataLayer<G, P, S>;
-    data: FeatureCollection<G, P>;
+    data: FeatureCollection<G, P> | null | undefined;
     style?: StyleOption<G, P, S>;
     visibility?: Visibility;
     before?: string;
@@ -21,7 +21,11 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
     constructor(props: StaticDataLayerComponentProps<G, P, S> & MapProp) {
         super(props);
         this.layer = this.props.layerConstructor();
-        this.layer.setDataAndStyle(props.data, props.style);
+        if (props.data != null) {
+            this.layer.setDataAndStyle(props.data, props.style);
+        } else {
+            this.layer.setStyle(props.style);
+        }
         this.layer.setVisibility(props.visibility);
     }
 
@@ -38,9 +42,18 @@ class Layer<G extends Geometry, P, S extends {}> extends Component<StaticDataLay
         const didDataChange = this.props.data !== prevProps.data;
         const didStyleChange = !compareStyles(this.props.style, prevProps.style);
         if (didDataChange && didStyleChange) {
-            this.layer.setDataAndStyle(props.data, props.style);
+            if (props.data != null) {
+                this.layer.setDataAndStyle(props.data, props.style);
+            } else {
+                this.layer.clearData();
+                this.layer.setStyle(props.style);
+            }
         } else if (didDataChange) {
-            this.layer.setData(props.data);
+            if (props.data != null) {
+                this.layer.setData(props.data);
+            } else {
+                this.layer.clearData();
+            }
         } else if (didStyleChange) {
             this.layer.setStyle(props.style);
         }

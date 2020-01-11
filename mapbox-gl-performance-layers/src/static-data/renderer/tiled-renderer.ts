@@ -1,27 +1,30 @@
-import {Feature} from 'geojson';
 import {FeatureCollection} from 'geojson';
 import {Geometry} from 'geojson';
 import {Renderer} from './renderer';
-import {Bounds} from '../../shared/geometry-functions';
+import {Bounds, findFeatureCollectionBounds} from '../../shared/geometry-functions';
 import {StyleOption} from '../../shared/styles';
 import {TileRenderer, TileRendererOptions} from '../../shared/tile/tile-renderer';
 import * as glMatrix from 'gl-matrix';
 
 export class TiledRenderer<G extends Geometry, P, S extends {}> implements Renderer<G, P, S> {
     private tileRenderer: TileRenderer;
-    private dataBounds: Bounds | null = null;
+    private readonly dataBounds: Bounds = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
 
     constructor(
         private renderer: Renderer<G, P, S>,
-        private findDataBounds: (data: ReadonlyArray<Feature<G, P>>) => Bounds,
         options: TileRendererOptions
     ) {
         this.tileRenderer = new TileRenderer(renderer, options);
     }
 
     setDataAndStyle(data: FeatureCollection<G, P>, styleOption: StyleOption<G, P, S>): void {
+        findFeatureCollectionBounds(this.dataBounds, data);
         this.renderer.setDataAndStyle(data, styleOption);
-        this.dataBounds = this.findDataBounds(data.features);
         this.tileRenderer.markAllTilesOutdated();
     }
 

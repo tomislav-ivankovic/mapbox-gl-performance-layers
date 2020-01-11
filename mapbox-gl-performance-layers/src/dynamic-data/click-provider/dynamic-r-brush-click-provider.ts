@@ -4,7 +4,7 @@ import {DynamicClickProvider} from './dynamic-click-provider';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
 import RBush from 'rbush';
-import {PackedFeature} from '../../shared/geometry-functions';
+import {PackedFeature, packFeature} from '../../shared/geometry-functions';
 import {resolveVisibility, Visibility} from '../../shared/visibility';
 import {ResultsClickHandler} from '../../shared/click-handler/results-click-handler';
 import {DataOperations} from '../data-operations';
@@ -17,7 +17,6 @@ export class DynamicRBrushClickProvider<G extends Geometry, P> implements Dynami
     private currentIndex = 0;
 
     constructor(
-        private featurePacker: (feature: Feature<G, P>, index: number) => PackedFeature<G, P>,
         private resultsHandler: ResultsClickHandler<G, P>,
         private clickSize?: number
     ) {
@@ -25,7 +24,7 @@ export class DynamicRBrushClickProvider<G extends Geometry, P> implements Dynami
 
     dataOperations: DataOperations<Feature<G, P>> = {
         add: (feature: Feature<G, P>) => {
-            const packed = this.featurePacker(feature, this.currentIndex);
+            const packed = packFeature(feature, this.currentIndex);
             this.currentIndex++;
             this.packedFeatures.push(packed);
             this.tree.insert(packed);
@@ -52,7 +51,7 @@ export class DynamicRBrushClickProvider<G extends Geometry, P> implements Dynami
             return this.packedFeatures.map(p => p.feature);
         },
         addAll: (features: Feature<G, P>[]) => {
-            const packed = features.map((f, index) => this.featurePacker(f, this.currentIndex + index));
+            const packed = features.map((f, index) => packFeature(f, this.currentIndex + index));
             this.currentIndex += features.length;
             this.packedFeatures.push(...packed);
             this.tree.load(packed);

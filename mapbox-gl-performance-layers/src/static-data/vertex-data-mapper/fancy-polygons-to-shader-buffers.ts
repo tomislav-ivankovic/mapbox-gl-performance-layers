@@ -106,8 +106,9 @@ export function fancyPolygonsToShaderBuffers<G extends Polygon | MultiPolygon,P>
         }
     }
 
+    const style: PolygonStyle = {} as PolygonStyle;
     for (const feature of data.features) {
-        const style = resolvePolygonStyle(feature, styleOption);
+        resolvePolygonStyle(style, feature, styleOption);
         if (feature.geometry.type === 'Polygon') {
             const geometry = feature.geometry as Polygon;
             processSinglePolygon(geometry.coordinates, style);

@@ -17,6 +17,12 @@ export class TileRenderer {
     private map: mapboxgl.Map | null = null;
     private readonly tileWidth: number;
     private readonly tileHeight: number;
+    private readonly viewBounds: Bounds = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
 
     constructor(
         private renderer: BasicRenderer,
@@ -65,7 +71,8 @@ export class TileRenderer {
             w: viewportArray[2],
             h: viewportArray[3]
         };
-        const bounds = findViewBounds(this.map);
+        const bounds = this.viewBounds;
+        findViewBounds(bounds, this.map);
         const equationFactor = Math.min(
             this.tileWidth * (bounds.maxX - bounds.minX) / viewport.w,
             this.tileHeight * (bounds.maxY - bounds.minY) / viewport.h

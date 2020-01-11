@@ -8,7 +8,6 @@ import {simplePointToVertexArray} from '../vertex-data-mapper/simple-point-to-ve
 import {fancyPointToVertexArray} from '../vertex-data-mapper/fancy-point-to-vertex-array';
 import {DynamicShaderRenderer} from '../renderer/dynamic-shader-renderer';
 import {DynamicSwitchRenderer} from '../renderer/dynamic-switch-renderer';
-import {findPointBounds, findPointsBounds} from '../../shared/geometry-functions';
 import {DynamicTiledRenderer} from '../renderer/dynamic-tiled-renderer';
 import {TileRendererOptions} from '../../shared/tile/tile-renderer';
 
@@ -32,12 +31,7 @@ export function dynamicPointRenderer<G extends Point | MultiPoint, P>(
             condition: o => o.getArray().length < threshold
         },
         {
-            renderer: new DynamicTiledRenderer(
-                shaderRenderer,
-                findPointsBounds,
-                findPointBounds,
-                options
-            ),
+            renderer: new DynamicTiledRenderer(shaderRenderer, options),
             condition: o => o.getArray().length >= threshold
         }
     ]);

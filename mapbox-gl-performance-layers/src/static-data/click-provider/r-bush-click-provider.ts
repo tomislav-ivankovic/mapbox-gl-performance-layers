@@ -1,11 +1,10 @@
 import {FeatureCollection} from 'geojson';
-import {Feature} from 'geojson';
 import {Geometry} from 'geojson';
 import {EventData} from 'mapbox-gl';
 import {MapMouseEvent} from 'mapbox-gl';
 import RBush from 'rbush';
 import {ClickProvider} from './click-provider';
-import {PackedFeature} from '../../shared/geometry-functions';
+import {PackedFeature, packFeature} from '../../shared/geometry-functions';
 import {resolveVisibility, Visibility} from '../../shared/visibility';
 import {ResultsClickHandler} from '../../shared/click-handler/results-click-handler';
 
@@ -15,14 +14,13 @@ export class RBushClickProvider<G extends Geometry, P> implements ClickProvider<
     private visibility: Visibility = true;
 
     constructor(
-        private featurePacker: (feature: Feature<G, P>, index: number) => PackedFeature<G, P>,
         private resultsHandler: ResultsClickHandler<G, P>,
         private clickSize?: number
     ){
     }
 
     setData(data: FeatureCollection<G, P>): void {
-        const packedData = data.features.map((feature, index) => this.featurePacker(feature, index));
+        const packedData = data.features.map((feature, index) => packFeature(feature, index));
         this.tree = new RBush();
         this.tree.load(packedData);
     }

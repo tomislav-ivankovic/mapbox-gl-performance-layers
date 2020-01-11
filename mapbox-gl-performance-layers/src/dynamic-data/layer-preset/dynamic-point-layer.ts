@@ -4,7 +4,6 @@ import {dynamicPointRenderer, DynamicPointRendererOptions} from '../renderer-pre
 import {PointStyle} from '../../shared/styles';
 import {DynamicDataLayer} from '../dynamic-data-layer';
 import {PointClickHandler, pointToResultsClickHandler} from '../../shared/click-handler/point-click-handler';
-import {packPointFeature} from '../../shared/geometry-functions';
 import {DynamicRBrushClickProvider} from '../click-provider/dynamic-r-brush-click-provider';
 
 export interface DynamicPointLayerOptions<G extends Point | MultiPoint, P> extends DynamicPointRendererOptions<P> {
@@ -21,7 +20,6 @@ export function dynamicPointLayer<G extends Point | MultiPoint, P>(
         renderer: dynamicPointRenderer(options),
         clickProvider: options.onClick != null ?
             new DynamicRBrushClickProvider(
-                packPointFeature,
                 pointToResultsClickHandler(options.onClick),
                 options.clickSize
             ) : undefined

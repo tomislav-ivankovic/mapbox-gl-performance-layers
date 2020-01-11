@@ -33,7 +33,7 @@ export interface PolygonStyle {
     outlineOpacity: number;
 }
 
-export const defaultPointStyle: PointStyle = {
+export const defaultPointStyle: Readonly<PointStyle> = {
     size: 10,
     color: {r: 0, g: 0, b: 1},
     opacity: 0.8,
@@ -42,7 +42,7 @@ export const defaultPointStyle: PointStyle = {
     outlineOpacity: 0.8
 };
 
-export const defaultLineStyle: LineStyle = {
+export const defaultLineStyle: Readonly<LineStyle> = {
     size: 5,
     color: {r: 0, g: 0, b: 1},
     opacity: 0.8,
@@ -51,7 +51,7 @@ export const defaultLineStyle: LineStyle = {
     outlineOpacity: 0.8
 };
 
-export const defaultPolygonStyle: PolygonStyle = {
+export const defaultPolygonStyle: Readonly<PolygonStyle> = {
     color: {r: 0, g: 0, b: 1},
     opacity: 0.5,
     outlineSize: 0,
@@ -64,59 +64,53 @@ export type StyleOption<G extends Geometry, P, S extends {}> =
     Partial<S> |
     undefined;
 
-let singleAllocationObject: object = {};
-
 export function resolveStyle<G extends Geometry, P, S extends {}>(
+    output: S,
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, S>,
-    defaultStyle: S
-): S {
-    if (styleOption == null) {
-        return defaultStyle;
+    defaultStyle: Readonly<S>
+) {
+    // @ts-ignore
+    Object.keys(defaultStyle).forEach(key => output[key] = defaultStyle[key]);
+    if (styleOption != null) {
+        const partialStyle = typeof styleOption === 'object' ? styleOption : styleOption(feature);
+        // @ts-ignore
+        Object.keys(partialStyle).forEach(key => output[key] = partialStyle[key]);
     }
-    const partialStyle = typeof styleOption === 'object' ? styleOption : styleOption(feature);
-    // @ts-ignore
-    Object.keys(singleAllocationObject).forEach(key => delete singleAllocationObject[key]);
-    // @ts-ignore
-    Object.keys(defaultStyle).forEach(key => singleAllocationObject[key] = defaultStyle[key]);
-    // @ts-ignore
-    Object.keys(partialStyle).forEach(key => singleAllocationObject[key] = partialStyle[key]);
-    // @ts-ignore
-    return singleAllocationObject;
 }
 
 export function resolvePointStyle<G extends Geometry, P>(
+    output: PointStyle,
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, PointStyle>
-): PointStyle {
-    const style = resolveStyle(feature, styleOption, defaultPointStyle);
-    if (style.outlineSize <= 0) {
-        style.outlineColor = style.color;
-        style.outlineOpacity = style.opacity;
+): void {
+    resolveStyle(output, feature, styleOption, defaultPointStyle);
+    if (output.outlineSize <= 0) {
+        output.outlineColor = output.color;
+        output.outlineOpacity = output.opacity;
     }
-    return style;
 }
 
 export function resolveLineStyle<G extends Geometry, P>(
+    output: LineStyle,
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, LineStyle>
-): LineStyle {
-    const style = resolveStyle(feature, styleOption, defaultLineStyle);
-    if (style.outlineSize <= 0) {
-        style.outlineColor = style.color;
-        style.outlineOpacity = style.opacity;
+): void {
+    resolveStyle(output, feature, styleOption, defaultLineStyle);
+    if (output.outlineSize <= 0) {
+        output.outlineColor = output.color;
+        output.outlineOpacity = output.opacity;
     }
-    return style;
 }
 
 export function resolvePolygonStyle<G extends Geometry, P, S extends {}>(
+    output: PolygonStyle,
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, PolygonStyle>
-): PolygonStyle {
-    const style = resolveStyle(feature, styleOption, defaultPolygonStyle);
-    if (style.outlineSize <= 0) {
-        style.outlineColor = style.color;
-        style.outlineOpacity = style.opacity;
+): void {
+    resolveStyle(output, feature, styleOption, defaultPolygonStyle);
+    if (output.outlineSize <= 0) {
+        output.outlineColor = output.color;
+        output.outlineOpacity = output.opacity;
     }
-    return style;
 }

@@ -5,7 +5,6 @@ import {StaticDataLayer} from '../static-data-layer';
 import {PolygonStyle} from '../../shared/styles';
 import {PolygonClickHandler, polygonToResultsClickHandler} from '../../shared/click-handler/polygon-click-handler';
 import {RBushClickProvider} from '../click-provider/r-bush-click-provider';
-import {packPolygonFeature} from '../../shared/geometry-functions';
 
 export interface PolygonLayerOptions<G extends Polygon | MultiPolygon, P> extends PolygonRendererOptions<P> {
     id: string;
@@ -20,7 +19,6 @@ export function polygonLayer<G extends Polygon | MultiPolygon, P>(
         renderer: polygonRenderer(options),
         clickProvider: options.onClick != null ?
             new RBushClickProvider(
-                packPolygonFeature,
                 polygonToResultsClickHandler(options.onClick),
                 0
             ) : undefined

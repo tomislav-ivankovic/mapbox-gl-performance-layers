@@ -29,8 +29,9 @@ export function simpleLinesToShaderBuffers<G extends LineString | MultiLineStrin
         }
     }
 
+    const style: LineStyle = {} as any;
     for (const feature of data.features) {
-        const style = resolveLineStyle(feature, styleOption);
+        resolveLineStyle(style, feature, styleOption);
         if (feature.geometry.type === 'LineString') {
             const geometry = feature.geometry as LineString;
             processSingleLine(geometry.coordinates, style);

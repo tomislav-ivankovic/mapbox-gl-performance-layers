@@ -4,12 +4,14 @@ import {MultiPoint} from 'geojson';
 import {PointStyle, resolvePointStyle, StyleOption} from '../../shared/styles';
 import {transformX, transformY} from '../../shared/geometry-functions';
 
+const style: PointStyle = {} as any;
+
 export function simplePointToVertexArray<G extends Point | MultiPoint, P>(
     feature: Feature<G, P>,
     styleOption: StyleOption<G, P, PointStyle>
 ): number[] {
     const array: number[] = [];
-    const style = resolvePointStyle(feature, styleOption);
+    resolvePointStyle(style, feature, styleOption);
 
     function processSinglePoint(coords: number[]) {
         array.push(

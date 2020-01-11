@@ -5,7 +5,6 @@ import {StaticDataLayer} from '../static-data-layer';
 import {PointStyle} from '../../shared/styles';
 import {PointClickHandler, pointToResultsClickHandler} from '../../shared/click-handler/point-click-handler';
 import {RBushClickProvider} from '../click-provider/r-bush-click-provider';
-import {packPointFeature} from '../../shared/geometry-functions';
 
 export interface PointLayerOptions<G extends Point | MultiPoint, P> extends PointRendererOptions<P> {
     id: string;
@@ -21,7 +20,6 @@ export function pointLayer<G extends Point | MultiPoint, P>(
         renderer: pointRenderer(options),
         clickProvider: options.onClick != null ?
             new RBushClickProvider(
-                packPointFeature,
                 pointToResultsClickHandler(options.onClick),
                 options.clickSize
             ) : undefined

@@ -7,7 +7,6 @@ import {SimplePointShader} from '../../shared/shader/point/simple-point-shader';
 import {SwitchRenderer} from '../renderer/switch-renderer';
 import {ShaderRenderer} from '../renderer/shader-renderer';
 import {TiledRenderer} from '../renderer/tiled-renderer';
-import {findPointsBounds} from '../../shared/geometry-functions';
 import {simplePointsToShaderBuffers} from '../vertex-data-mapper/simple-points-to-shader-buffers';
 import {fancyPointsToShaderBuffers} from '../vertex-data-mapper/fancy-points-to-shader-buffers';
 import {TileRendererOptions} from '../../shared/tile/tile-renderer';
@@ -33,7 +32,6 @@ export function pointRenderer<G extends Point | MultiPoint, P>(
         {
             renderer: new TiledRenderer(
                 new ShaderRenderer(shader, dataMapper),
-                findPointsBounds,
                 options
             ),
             condition: data => data.features.length >= threshold
