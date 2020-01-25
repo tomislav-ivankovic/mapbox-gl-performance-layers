@@ -6,6 +6,7 @@ import {pointLayer} from 'mapbox-gl-performance-layers';
 import {PointLayerOptions} from 'mapbox-gl-performance-layers';
 import {PointStyle} from 'mapbox-gl-performance-layers';
 import {StaticDataLayerComponent, StaticDataLayerComponentProps} from './static-data-layer-component';
+import {useClickProxy} from '../shared/use-click-proxy';
 
 export type PointLayerProps<G extends Point | MultiPoint, P> =
     Omit<PointLayerOptions<G, P>, 'id'> &
@@ -13,9 +14,11 @@ export type PointLayerProps<G extends Point | MultiPoint, P> =
     { id?: string };
 
 export function PointLayer<G extends Point | MultiPoint, P>(props: PointLayerProps<G, P>) {
+    const clickProxy = useClickProxy(props.onClick);
     const layerOptions: PointLayerOptions<G, P> = {
         id: `static-data-point-${generateID()}`,
-        ...props
+        ...props,
+        onClick: clickProxy
     };
     return (
         <StaticDataLayerComponent

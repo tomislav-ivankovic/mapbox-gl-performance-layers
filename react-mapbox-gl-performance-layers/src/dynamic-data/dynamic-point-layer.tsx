@@ -6,6 +6,7 @@ import {dynamicPointLayer} from 'mapbox-gl-performance-layers';
 import {DynamicPointLayerOptions} from 'mapbox-gl-performance-layers';
 import {PointStyle} from 'mapbox-gl-performance-layers';
 import {DynamicDataLayerComponent, DynamicDataLayerComponentProps} from './dynamic-data-layer-component';
+import {useClickProxy} from '../shared/use-click-proxy';
 
 export type DynamicPointLayerProps<G extends Point | MultiPoint, P> =
     Omit<DynamicPointLayerOptions<G, P>, 'id'> &
@@ -13,9 +14,11 @@ export type DynamicPointLayerProps<G extends Point | MultiPoint, P> =
     { id?: string };
 
 export function DynamicPointLayer<G extends Point | MultiPoint, P>(props: DynamicPointLayerProps<G, P>) {
+    const clickProxy = useClickProxy(props.onClick);
     const layerOptions: DynamicPointLayerOptions<G, P> = {
         id: `dynamic-data-point-${generateID()}`,
-        ...props
+        ...props,
+        onClick: clickProxy
     };
     return (
         <DynamicDataLayerComponent

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Map} from '../reusable/map';
 import {Feature, Point} from 'geojson';
 import {Popup} from 'react-mapbox-gl';
@@ -9,98 +9,72 @@ interface Properties {
     color: Color;
 }
 
-interface State {
-    center: [number, number];
-    zoom: [number];
-    selection: Feature<Point, Properties> | null;
-}
+export function DynamicPointsScreen() {
+    const dataOperationsRef = useRef<DataOperations<Feature<Point, Properties>> | null>(null);
 
-export class DynamicPointsScreen extends Component<{}, State> {
-    private intervalId: any = null;
-    private dataOperations: DataOperations<Feature<Point, Properties>> | null = null;
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const data = dataOperationsRef.current;
+            if (data == null) {
+                return;
+            }
 
-    constructor(props: {}) {
-        super(props);
-        this.state = {
-            center: [16, 44.5],
-            zoom: [6.5],
-            selection: null
-        };
-    }
+            const maxNumberOfPoints = 100000;
+            const numberOfPointsPerInterval = 1000;
+            const centerX = 15.9819;
+            const centerY = 45.8150;
+            const spread = 10;
 
-    componentDidMount(): void {
-        this.intervalId = setInterval(this.onInterval, 250);
-    }
+            if (data.getArray().length + numberOfPointsPerInterval > maxNumberOfPoints) {
+                data.removeNFirst(numberOfPointsPerInterval);
+            }
 
-    componentWillUnmount(): void {
-        clearInterval(this.intervalId);
-    }
-
-    onInterval = () => {
-        const data = this.dataOperations;
-        if (data == null) {
-            return;
-        }
-
-        const maxNumberOfPoints = 100000;
-        const numberOfPointsPerInterval = 1000;
-        const centerX = 15.9819;
-        const centerY = 45.8150;
-        const spread = 10;
-
-        if (data.getArray().length + numberOfPointsPerInterval > maxNumberOfPoints) {
-            data.removeNFirst(numberOfPointsPerInterval);
-        }
-
-        const features: Feature<Point, Properties>[] = [];
-        for (let i = 0; i < numberOfPointsPerInterval; i++) {
-            const x = centerX + (Math.random() - 0.5) * spread;
-            const y = centerY + (Math.random() - 0.5) * spread;
-            features.push({
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [x, y]
-                },
-                properties: {
-                    color: {
-                        r: Math.random(),
-                        g: Math.random(),
-                        b: Math.random()
+            const features: Feature<Point, Properties>[] = [];
+            for (let i = 0; i < numberOfPointsPerInterval; i++) {
+                const x = centerX + (Math.random() - 0.5) * spread;
+                const y = centerY + (Math.random() - 0.5) * spread;
+                features.push({
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [x, y]
+                    },
+                    properties: {
+                        color: {
+                            r: Math.random(),
+                            g: Math.random(),
+                            b: Math.random()
+                        }
                     }
-                }
-            });
-        }
-        data.addAll(features);
+                });
+            }
+            data.addAll(features);
+        }, 250);
+        return () => clearInterval(intervalId);
+    });
+
+    const [selection, setSelection] = useState<Feature<Point, Properties> | null>(null);
+
+    const handleClick = (feature: Feature<Point, Properties>) => {
+        const newSelected = feature !== selection ? feature : null;
+        setSelection(newSelected);
     };
 
-    handleClick = (feature: Feature<Point, Properties>) => {
-        const newSelected = feature !== this.state.selection ? feature : null;
-        this.setState({selection: newSelected});
-    };
-
-    render() {
-        const state = this.state;
-        return (
-            <Map
-                style={'mapbox://styles/mapbox/outdoors-v11'}
-                center={state.center}
-                zoom={state.zoom}
-            >
-                <DynamicPointLayer
-                    data={dataOperations => this.dataOperations = dataOperations}
-                    style={getStyle}
-                    onClick={this.handleClick}
-                    simpleRendering
-                />
-                {state.selection != null &&
-                <Popup coordinates={state.selection.geometry.coordinates}>
-                    <p>{JSON.stringify(state.selection, null, 2)}</p>
-                </Popup>
-                }
-            </Map>
-        );
-    }
+    return (
+        <Map>
+            <DynamicPointLayer
+                data={dataOperations => dataOperationsRef.current = dataOperations}
+                style={getStyle}
+                onClick={handleClick}
+                simpleRendering
+            />
+            {selection != null &&
+            <Popup coordinates={selection.geometry.coordinates}>
+                <p>{JSON.stringify(selection, null, 1)}</p>
+            </Popup>
+            }
+        </Map>
+    );
 }
 
 function getStyle(feature: Feature<Point, Properties>) {

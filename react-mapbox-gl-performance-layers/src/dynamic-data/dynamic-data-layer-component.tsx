@@ -1,12 +1,12 @@
 import {Feature} from 'geojson';
 import {Geometry} from 'geojson';
-import {Component} from 'react';
+import {useEffect} from 'react';
 import {DataOperations} from 'mapbox-gl-performance-layers';
 import {DynamicDataLayer} from 'mapbox-gl-performance-layers';
 import {StyleOption} from 'mapbox-gl-performance-layers';
 import {Visibility} from 'mapbox-gl-performance-layers';
-import {MapProp, withMap} from '../with-map';
-import {compareStyles} from '../compare-styles';
+import {useLazyRef} from '../shared/custom-hooks';
+import {useMapLayer} from '../shared/use-map-layer';
 
 export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends {}> {
     layerConstructor: () => DynamicDataLayer<G, P, S>;
@@ -16,52 +16,25 @@ export interface DynamicDataLayerComponentProps<G extends Geometry, P, S extends
     before?: string;
 }
 
-class Layer<G extends Geometry, P, S extends {}> extends Component<DynamicDataLayerComponentProps<G, P, S> & MapProp, {}> {
-    private readonly layer: DynamicDataLayer<G, P, S>;
+export function DynamicDataLayerComponent<G extends Geometry, P, S extends {}>(
+    props: DynamicDataLayerComponentProps<G, P, S>
+) {
+    const layer = useLazyRef(props.layerConstructor).current;
 
-    constructor(props: DynamicDataLayerComponentProps<G, P, S> & MapProp) {
-        super(props);
-        this.layer = this.props.layerConstructor();
-        this.layer.setStyle(props.style);
-        this.layer.setVisibility(props.visibility);
-        props.data(this.layer.dataOperations);
-    }
+    const data = props.data;
+    useEffect(() => {
+        data(layer.dataOperations);
+    }, [layer, data]);
 
-    componentDidMount(): void {
-        this.addLayer();
-    }
+    useEffect(() => {
+        layer.setStyle(props.style);
+    }, [layer, props.style]);
 
-    componentWillUnmount(): void {
-        this.removeLayer();
-    }
+    useEffect(() => {
+        layer.setVisibility(props.visibility);
+    }, [layer, props.visibility]);
 
-    componentDidUpdate(prevProps: Readonly<DynamicDataLayerComponentProps<G, P, S>>): void {
-        const props = this.props;
-        if (!compareStyles(this.props.style, prevProps.style)) {
-            this.layer.setStyle(props.style);
-        }
-        if (props.visibility !== prevProps.visibility) {
-            this.layer.setVisibility(props.visibility);
-        }
-        if (props.before !== prevProps.before) {
-            this.removeLayer();
-            this.addLayer();
-        }
-    }
+    useMapLayer(layer, props.before);
 
-    private addLayer() {
-        this.props.map.addLayer(this.layer, this.props.before);
-    }
-
-    private removeLayer() {
-        if (this.props.map.getStyle() != null) {
-            this.props.map.removeLayer(this.layer.id);
-        }
-    }
-
-    render() {
-        return null;
-    }
+    return null;
 }
-
-export const DynamicDataLayerComponent = withMap(Layer);

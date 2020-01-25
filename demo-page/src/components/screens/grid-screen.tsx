@@ -1,10 +1,10 @@
 import {Feature, FeatureCollection, Point, Polygon} from 'geojson';
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
 import {Layer, Popup, Source} from 'react-mapbox-gl';
 import {Map} from '../reusable/map';
 import {Color} from 'mapbox-gl-performance-layers';
-import {MapControlDiv} from '../reusable/controls/map-control-div';
+import {DivControl} from '../reusable/controls/div-control';
 
 interface PolygonProperties {
     center: [number, number];
@@ -15,19 +15,8 @@ interface PointProperties {
     [valueId: string]: string;
 }
 
-interface State {
-    center: [number, number];
-    zoom: [number];
-    polygons: FeatureCollection<Polygon, PolygonProperties>;
-    points: FeatureCollection<Point, PointProperties>;
-    selection: Feature<Polygon, PolygonProperties> | null;
-    selectedIndex: number;
-}
-
-export class GridScreen extends Component<{}, State> {
-    constructor(props: {}) {
-        super(props);
-
+export function GridScreen() {
+    const [{points, polygons}] = useState(() => {
         const cellSize = 0.04;
         const gridSize = 250;
         const centerX = 16;
@@ -78,115 +67,113 @@ export class GridScreen extends Component<{}, State> {
                 });
             }
         }
-
-        this.state = {
-            center: [16, 44.5],
-            zoom: [6.5],
-            polygons: {type: 'FeatureCollection', features: polygons},
-            points: {type: 'FeatureCollection', features: points},
-            selection: null,
-            selectedIndex: 0
+        const polygonCollection: FeatureCollection<Polygon, PolygonProperties> = {
+            type: 'FeatureCollection',
+            features: polygons
         };
-    }
+        const pointCollection: FeatureCollection<Point, PointProperties> = {
+            type: 'FeatureCollection',
+            features: points
+        };
+        return {
+            polygons: polygonCollection,
+            points: pointCollection
+        };
+    });
+    const [selection, setSelection] = useState<Feature<Polygon, PolygonProperties> | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState(0);
 
-    handleClick = (feature: Feature<Polygon, PolygonProperties>) => {
-        const newSelection = feature !== this.state.selection ? feature : null;
-        this.setState({selection: newSelection});
+    const handleClick = (feature: Feature<Polygon, PolygonProperties>) => {
+        const newSelection = feature !== selection ? feature : null;
+        setSelection(newSelection);
     };
 
-    render() {
-        const state = this.state;
-        return (
-            <Map
-                style={'mapbox://styles/mapbox/outdoors-v11'}
-                center={state.center}
-                zoom={state.zoom}
+    return (
+        <Map>
+            <DivControl
+                position={'top-right'}
+                style={{pointerEvents: 'auto'}}
             >
-                <MapControlDiv
-                    position={'top-right'}
-                    style={{pointerEvents: 'auto'}}
-                >
-                    {[0, 1, 2].map(index =>
-                        <button key={index} onClick={() => this.setState({selectedIndex: index})}>
-                            Value {index}
-                        </button>
-                    )}
-                </MapControlDiv>
-                <MapControlDiv
-                    position={'bottom-right'}
-                    style={{textAlign: 'right'}}
-                >
-                    <div style={{
-                        display: 'inline-block',
-                        position: 'relative',
-                        backgroundColor: 'white',
-                        border: '1px solid black',
-                        margin: '10px',
-                        padding: '5px'
-                    }}>
-                        {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map(value =>
-                            <div key={value.toString()} style={{textAlign: 'right'}}>
-                                {valueToString(value)}
-                                &nbsp;
-                                <div style={{
-                                    display: 'inline-block',
-                                    margin: 0,
-                                    width: 12,
-                                    height: 12,
-                                    border: '1px solid black',
-                                    backgroundColor: rgbColorToCss(valueToColor(value)),
-                                }}/>
-                            </div>
-                        )}
-                    </div>
-                </MapControlDiv>
-                <PolygonLayer
-                    id={'grid-color'}
-                    data={state.polygons}
-                    style={polygonStyles[state.selectedIndex]}
-                    onClick={this.handleClick}
-                    before={'grid-text'}
-                    simpleRendering
-                />
-                <Layer/>
-                <Source
-                    id={'points-source'}
-                    geoJsonSource={{type: 'geojson', data: state.points}}
-                />
-                <Layer
-                    id={'grid-text'}
-                    sourceId={'points-source'}
-                    data={state.points}
-                    minZoom={10}
-                    layout={{
-                        'text-field': `{${state.selectedIndex}}`,
-                        'text-anchor': 'center',
-                        'icon-allow-overlap': true
-                    }}
-                    paint={{
-                        'text-opacity': 1,
-                        'text-color': '#000000',
-                        'text-halo-color': '#FFFFFF',
-                        'text-halo-width': 1
-                    }}
-                />
-                {state.selection != null &&
-                <Popup coordinates={state.selection.properties.center}>
-                    {[0, 1, 2].map(index => state.selection != null &&
-                        <div
-                            key={index}
-                            style={{backgroundColor: index === state.selectedIndex ? 'yellow' : 'white'}}
-                        >
-                            <b>Value {index}:</b>
+                {[0, 1, 2].map(index =>
+                    <button key={index} onClick={() => setSelectedIndex(index)}>
+                        Value {index}
+                    </button>
+                )}
+            </DivControl>
+            <DivControl
+                position={'bottom-right'}
+                style={{textAlign: 'right'}}
+            >
+                <div style={{
+                    display: 'inline-block',
+                    position: 'relative',
+                    backgroundColor: 'white',
+                    border: '1px solid black',
+                    margin: '10px',
+                    padding: '5px'
+                }}>
+                    {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map(value =>
+                        <div key={value.toString()} style={{textAlign: 'right'}}>
+                            {valueToString(value)}
                             &nbsp;
-                            {valueToString(state.selection.properties.values[index])}
+                            <div style={{
+                                display: 'inline-block',
+                                margin: 0,
+                                width: 12,
+                                height: 12,
+                                border: '1px solid black',
+                                backgroundColor: rgbColorToCss(valueToColor(value)),
+                            }}/>
                         </div>
                     )}
-                </Popup>
-                }
-            </Map>
-        );
-    }
+                </div>
+            </DivControl>
+            <PolygonLayer
+                id={'grid-color'}
+                data={polygons}
+                style={polygonStyles[selectedIndex]}
+                onClick={handleClick}
+                before={'grid-text'}
+                simpleRendering
+            />
+            <Layer/>
+            <Source
+                id={'points-source'}
+                geoJsonSource={{type: 'geojson', data: points}}
+            />
+            <Layer
+                id={'grid-text'}
+                sourceId={'points-source'}
+                data={points}
+                minZoom={10}
+                layout={{
+                    'text-field': `{${selectedIndex}}`,
+                    'text-anchor': 'center',
+                    'icon-allow-overlap': true
+                }}
+                paint={{
+                    'text-opacity': 1,
+                    'text-color': '#000000',
+                    'text-halo-color': '#FFFFFF',
+                    'text-halo-width': 1
+                }}
+            />
+            {selection != null &&
+            <Popup coordinates={selection.properties.center}>
+                {[0, 1, 2].map(index => selection != null &&
+                    <div
+                        key={index}
+                        style={{backgroundColor: index === selectedIndex ? 'yellow' : 'white'}}
+                    >
+                        <b>Value {index}:</b>
+                        &nbsp;
+                        {valueToString(selection.properties.values[index])}
+                    </div>
+                )}
+            </Popup>
+            }
+        </Map>
+    );
 }
 
 const polygonStyles = [0, 1, 2].map(index =>

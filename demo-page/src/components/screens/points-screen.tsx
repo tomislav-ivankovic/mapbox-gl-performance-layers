@@ -1,20 +1,11 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {Map} from '../reusable/map';
 import {Feature, FeatureCollection, Point} from 'geojson';
 import {PointLayer} from 'react-mapbox-gl-performance-layers';
 import {Popup} from 'react-mapbox-gl';
 
-interface State {
-    center: [number, number];
-    zoom: [number];
-    data: FeatureCollection<Point, null>;
-    selection: Feature<Point, null> | null;
-}
-
-export class PointsScreen extends Component<{}, State> {
-    constructor(props: {}) {
-        super(props);
-
+export function PointsScreen() {
+    const [data] = useState(() => {
         const numberOfPoints = 1000000;
         const centerX = 15.9819;
         const centerY = 45.8150;
@@ -25,52 +16,42 @@ export class PointsScreen extends Component<{}, State> {
             const y = centerY + (Math.random() - 0.5) * spread;
             points.push([x, y]);
         }
-
-        this.state = {
-            center: [16, 44.5],
-            zoom: [6.5],
-            data: {
-                type: 'FeatureCollection',
-                features: points.map(p => ({
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: p
-                    },
-                    properties: null
-                }))
-            },
-            selection: null
+        const featureCollection: FeatureCollection<Point, null> = {
+            type: 'FeatureCollection',
+            features: points.map(p => ({
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: p
+                },
+                properties: null
+            }))
         };
-    }
+        return featureCollection;
+    });
 
-    handleClick = (feature: Feature<Point, null>) => {
-        const newSelected = feature !== this.state.selection ? feature : null;
-        this.setState({selection: newSelected});
+    const [selection, setSelection] = useState<Feature<Point, null> | null>(null);
+
+    const handleClick = (feature: Feature<Point, null>) => {
+        const newSelected = feature !== selection ? feature : null;
+        setSelection(newSelected);
     };
 
-    render() {
-        const state = this.state;
-        return (
-            <Map
-                style={'mapbox://styles/mapbox/outdoors-v11'}
-                center={state.center}
-                zoom={state.zoom}
-            >
-                <PointLayer
-                    data={state.data}
-                    style={getStyle}
-                    onClick={this.handleClick}
-                    simpleRendering
-                />
-                {state.selection != null &&
-                <Popup coordinates={state.selection.geometry.coordinates}>
-                    <p>{JSON.stringify(state.selection, null, 2)}</p>
-                </Popup>
-                }
-            </Map>
-        );
-    }
+    return (
+        <Map>
+            <PointLayer
+                data={data}
+                style={getStyle}
+                onClick={handleClick}
+                simpleRendering
+            />
+            {selection != null &&
+            <Popup coordinates={selection.geometry.coordinates}>
+                <p>{JSON.stringify(selection, null, 1)}</p>
+            </Popup>
+            }
+        </Map>
+    );
 }
 
 function getStyle(feature: Feature<Point, null>) {

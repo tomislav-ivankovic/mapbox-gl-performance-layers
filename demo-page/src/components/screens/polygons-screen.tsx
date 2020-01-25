@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {Feature, FeatureCollection, Polygon} from 'geojson';
 import {Map} from '../reusable/map';
 import {PolygonLayer} from 'react-mapbox-gl-performance-layers';
@@ -8,17 +8,8 @@ interface Properties {
     center: [number, number]
 }
 
-interface State {
-    center: [number, number];
-    zoom: [number];
-    data: FeatureCollection<Polygon, Properties>;
-    selection: Feature<Polygon, Properties> | null;
-}
-
-export class PolygonsScreen extends Component<{}, State> {
-    constructor(props: {}) {
-        super(props);
-
+export function PolygonsScreen() {
+    const [data] = useState(() => {
         const numberOfPolygons = 10000;
         const numberOfPointsInPolygons = 7;
         const centerX = 15.9819;
@@ -54,44 +45,34 @@ export class PolygonsScreen extends Component<{}, State> {
                 }
             });
         }
-
-        this.state = {
-            center: [16, 44.5],
-            zoom: [6.5],
-            data: {
-                type: 'FeatureCollection',
-                features: features
-            },
-            selection: null
+        const featureCollection: FeatureCollection<Polygon, Properties> = {
+            type: 'FeatureCollection',
+            features: features
         };
-    }
+        return featureCollection;
+    });
 
-    handleClick = (feature: Feature<Polygon, Properties>) => {
-        const newSelected = feature !== this.state.selection ? feature : null;
-        this.setState({selection: newSelected});
+    const [selection, setSelection] = useState<Feature<Polygon, Properties> | null>(null);
+
+    const handleClick = (feature: Feature<Polygon, Properties>) => {
+        const newSelected = feature !== selection ? feature : null;
+        setSelection(newSelected);
     };
 
-    render() {
-        const state = this.state;
-        return (
-            <Map
-                style={'mapbox://styles/mapbox/outdoors-v11'}
-                center={state.center}
-                zoom={state.zoom}
-            >
-                <PolygonLayer
-                    data={state.data}
-                    style={getStyle}
-                    onClick={this.handleClick}
-                />
-                {state.selection != null &&
-                <Popup coordinates={state.selection.properties.center}>
-                    <p>{JSON.stringify(state.selection, null, 2)}</p>
-                </Popup>
-                }
-            </Map>
-        );
-    }
+    return (
+        <Map>
+            <PolygonLayer
+                data={data}
+                style={getStyle}
+                onClick={handleClick}
+            />
+            {selection != null &&
+            <Popup coordinates={selection.properties.center}>
+                <p>{JSON.stringify(selection, null, 1)}</p>
+            </Popup>
+            }
+        </Map>
+    );
 }
 
 function getStyle(feature: Feature<Polygon, Properties>) {

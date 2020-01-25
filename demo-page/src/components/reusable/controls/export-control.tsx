@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
-import {MapProp, withMap} from '../with-map';
-import {MapControlPosition} from './map-control';
-import {MapControlDiv} from './map-control-div';
+import React, {useContext, useState} from 'react';
+import {MapContext} from 'react-mapbox-gl';
 import html2canvas from 'html2canvas';
+import {MapControlPosition} from './map-control';
+import {DivControl} from './div-control';
 import icon from './export-icon.svg';
 
 interface ExportControlProps {
@@ -16,20 +16,14 @@ interface ExportControlProps {
     showBottomRightControls?: boolean;
 }
 
-interface State {
-    isLoading: boolean;
-}
+export function ExportControl(props: ExportControlProps) {
+    const map = useContext(MapContext);
+    const [isLoading, setLoading] = useState(false);
 
-class Control extends Component<ExportControlProps & MapProp, State> {
-    constructor(props: ExportControlProps & MapProp) {
-        super(props);
-        this.state = {
-            isLoading: false
-        };
-    }
-
-    handleClick = () => {
-        const props = this.props;
+    const handleClick = () => {
+        if (map == null) {
+            return;
+        }
         const imageType = props.imageType != null ? props.imageType : 'image/png';
         const imageQuality = props.imageQuality != null ? props.imageQuality : 1.0;
         const fileName = props.fileName != null ? props.fileName : 'export.png';
@@ -37,8 +31,7 @@ class Control extends Component<ExportControlProps & MapProp, State> {
         const showTopRight = props.showTopRightControls ? props.showTopRightControls : false;
         const showBottomLeft = props.showBottomLeftControls ? props.showBottomLeftControls : false;
         const showBottomRight = props.showBottomRightControls ? props.showBottomRightControls : false;
-        const map = props.map;
-        this.setState({isLoading: true});
+        setLoading(true);
         map.once('render', () => {
             html2canvas(
                 map.getContainer(),
@@ -66,36 +59,30 @@ class Control extends Component<ExportControlProps & MapProp, State> {
                     a.href = dataUrl;
                     a.download = fileName;
                     a.click();
-                    this.setState({isLoading: false});
+                    setLoading(false);
                 })
-                .catch(() => this.setState({isLoading: false}));
+                .catch(() => setLoading(false));
         });
         map.triggerRepaint();
     };
 
-    render() {
-        const state = this.state;
-        const props = this.props;
-        return (
-            <MapControlDiv
-                position={props.position}
-                className={'mapboxgl-ctrl mapboxgl-ctrl-group'}
-                style={{pointerEvents: 'auto'}}
+    return (
+        <DivControl
+            position={props.position}
+            className={'mapboxgl-ctrl mapboxgl-ctrl-group'}
+            style={{pointerEvents: 'auto'}}
+        >
+            <button
+                disabled={isLoading}
+                onClick={handleClick}
+                className={'mapboxgl-ctrl-group'}
             >
-                <button
-                    disabled={state.isLoading}
-                    onClick={this.handleClick}
-                    className={'mapboxgl-ctrl-group'}
-                >
-                    <span
-                        className={'mapboxgl-ctrl-icon'}
-                        style={{backgroundImage: `url(${icon})`}}
-                        aria-hidden
-                    />
-                </button>
-            </MapControlDiv>
-        );
-    }
+                <span
+                    className={'mapboxgl-ctrl-icon'}
+                    style={{backgroundImage: `url(${icon})`}}
+                    aria-hidden
+                />
+            </button>
+        </DivControl>
+    );
 }
-
-export const ExportControl = withMap(Control);

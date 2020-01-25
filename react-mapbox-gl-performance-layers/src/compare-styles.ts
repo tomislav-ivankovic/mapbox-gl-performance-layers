@@ -1,7 +1,4 @@
-import {Geometry} from 'geojson';
-import {StyleOption} from 'mapbox-gl-performance-layers';
-
-export function compareStyles<G extends Geometry, P, S extends {}>(a: StyleOption<G, P, S>, b: StyleOption<G, P, S>): boolean {
+export function compareStyles(a: any, b: any): boolean {
     if (a === b) {
         return true;
     }
