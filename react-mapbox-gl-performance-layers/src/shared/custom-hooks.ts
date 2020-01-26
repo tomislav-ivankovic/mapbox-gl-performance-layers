@@ -2,7 +2,7 @@ import {MutableRefObject} from 'react';
 import {useRef} from 'react';
 import {useEffect} from 'react';
 
-const notInitialised = Symbol('notInitialised');
+export const notInitialised = Symbol('notInitialised');
 
 export function useLazyRef<T>(constructor: () => T): MutableRefObject<T> {
     const ref = useRef<T | typeof notInitialised>(notInitialised);

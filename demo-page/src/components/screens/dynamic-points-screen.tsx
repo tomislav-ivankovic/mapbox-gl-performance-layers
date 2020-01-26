@@ -51,7 +51,7 @@ export function DynamicPointsScreen() {
             data.addAll(features);
         }, 250);
         return () => clearInterval(intervalId);
-    });
+    }, []);
 
     const [selection, setSelection] = useState<Feature<Point, Properties> | null>(null);
 

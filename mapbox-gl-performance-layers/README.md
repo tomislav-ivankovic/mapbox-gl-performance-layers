@@ -193,7 +193,7 @@ const layer = lineLayer({
     
 ### Line Layer Options
  - `id: string` 
-    - Mapbox GL JS layer id.
+    - Mapbox GL JS layer ID.
  - `onClick?: (feature: Feature<LineString | MultiLineString, P>, e: MapMouseEvent & EventData, closestPointOnLine: {x: number, y: number}) => void` 
     - Function that is called when user clicks on a feature.
     - Keeping this value undefined reduces the memory usage.
@@ -209,7 +209,7 @@ const layer = lineLayer({
     - Defaults to `1.8`.
  - `tileThreshold?: number`
     - Number of features required for the layer to switch from direct rendering mode to tiled rendering mode.
-    - Defaults to `100000`.
+    - Defaults to `10000`.
  - `numberOfTiles?: number`
     - Number of tiles cashed while using tiled rendering mode.
     - Defaults to `16`.
@@ -296,7 +296,7 @@ const layer = polygonLayer({
     - Defaults to `1.8`.
  - `tileThreshold?: number`
     - Number of features required for the layer to switch from direct rendering mode to tiled rendering mode.
-    - Defaults to `100000`.
+    - Defaults to `10000`.
  - `numberOfTiles?: number`
     - Number of tiles cashed while using tiled rendering mode.
     - Defaults to `16`.
