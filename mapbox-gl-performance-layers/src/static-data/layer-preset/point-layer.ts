@@ -3,8 +3,8 @@ import {MultiPoint} from 'geojson';
 import {pointRenderer, PointRendererOptions} from '../renderer-preset/point-renderer';
 import {StaticDataLayer} from '../static-data-layer';
 import {PointStyle} from '../../shared/styles';
-import {PointClickHandler, pointToResultsClickHandler} from '../../shared/click-handler/point-click-handler';
-import {RBushClickProvider} from '../click-provider/r-bush-click-provider';
+import {PointClickHandler} from '../../shared/click-handler/point-click-handler';
+import {KdBushClickProvider} from '../click-provider/kd-bush-click-provider';
 
 export interface PointLayerOptions<G extends Point | MultiPoint, P> extends PointRendererOptions<P> {
     id: string;
@@ -19,8 +19,8 @@ export function pointLayer<G extends Point | MultiPoint, P>(
         id: options.id,
         renderer: pointRenderer(options),
         clickProvider: options.onClick != null ?
-            new RBushClickProvider(
-                pointToResultsClickHandler(options.onClick),
+            new KdBushClickProvider(
+                options.onClick,
                 options.clickSize
             ) : undefined
     });
