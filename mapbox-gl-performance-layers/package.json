@@ -1,10 +1,16 @@
 {
   "name": "mapbox-gl-performance-layers",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Mapbox GL JS plugin with custom layers for rendering massive GeoJSON datasets.",
-  "keywords": ["gis", "mapbox", "webgl", "geojson"],
   "author": "Tomislav Ivanković",
   "license": "MIT",
+  "repository": "github:tomislav-ivankovic/mapbox-gl-performance-layers",
+  "keywords": [
+    "gis",
+    "mapbox",
+    "webgl",
+    "geojson"
+  ],
   "scripts": {
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
