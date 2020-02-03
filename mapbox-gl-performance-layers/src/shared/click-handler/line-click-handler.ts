@@ -32,8 +32,8 @@ export function lineToResultsClickHandler<G extends LineString | MultiLineString
             if (distanceSqr < minDistanceSqr) {
                 closestResult = result;
                 minDistanceSqr = distanceSqr;
-                closestPoint.x = x;
-                closestPoint.y = y;
+                closestPoint.x = point.x;
+                closestPoint.y = point.y;
             }
         }
         const clickDistanceSqr = 0.25 * (size * size);
