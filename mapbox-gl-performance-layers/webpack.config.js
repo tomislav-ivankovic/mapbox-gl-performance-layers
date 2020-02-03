@@ -12,6 +12,10 @@ module.exports = {
         'mapbox-gl-performance-layers': PATHS.src + '/index.ts'
     },
     externals: {
+        'earcut': 'earcut',
+        'gl-matrix': 'gl-matrix',
+        'kdbush': 'kdbush',
+        'rbush': 'rbush',
         'mapbox-gl': 'mapbox-gl'
     },
     output: {
