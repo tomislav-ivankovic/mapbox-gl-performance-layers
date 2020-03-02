@@ -7,11 +7,19 @@ import {MapContext} from 'react-mapbox-gl';
 export function useMapLayer(layer: Layer | CustomLayerInterface, before?: string) {
     const map = useContext(MapContext);
     useEffect(() => {
-        if (map != null) {
-            map.addLayer(layer, before);
+        if (map == null) {
+            return;
         }
+        map.addLayer(layer, before);
+        const onStyleDataChange = () => {
+            if (!map.getLayer(layer.id)) {
+                map.addLayer(layer, before);
+            }
+        };
+        map.on('styledata', onStyleDataChange);
         return () => {
-            if (map != null && map.getStyle() != null) {
+            map.off('styledata', onStyleDataChange);
+            if (map.getStyle() != null) {
                 map.removeLayer(layer.id);
             }
         };

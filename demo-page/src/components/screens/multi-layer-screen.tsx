@@ -102,8 +102,10 @@ export function MultiLayerScreen() {
         setSelection(newSelected);
     };
 
+    const [style, setStyle] = useState('mapbox://styles/mapbox/outdoors-v11');
+
     return (
-        <Map>
+        <Map style={style}>
             <DivControl position={'top-right'} style={{pointerEvents: 'auto'}}>
                 <button onClick={() => setPointsEnabled(!arePointsEnabled)}>
                     Points
@@ -113,6 +115,12 @@ export function MultiLayerScreen() {
                 </button>
                 <button onClick={() => setPolygonsEnabled(!arePolygonsEnabled)}>
                     Polygons
+                </button>
+                <button onClick={() => setStyle('mapbox://styles/mapbox/outdoors-v11')}>
+                    Outdoors
+                </button>
+                <button onClick={() => setStyle('mapbox://styles/mapbox/streets-v11')}>
+                    Streets
                 </button>
             </DivControl>
             <PolygonLayer
