@@ -12,7 +12,7 @@ export class FancyPolygonShader implements Shader {
     ) {
     }
 
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): () => void {
         const previousPosition = gl.getAttribLocation(program, 'a_previousPosition');
         const currentPosition = gl.getAttribLocation(program, 'a_currentPosition');
         const nextPosition = gl.getAttribLocation(program, 'a_nextPosition');
@@ -84,6 +84,15 @@ export class FancyPolygonShader implements Shader {
         gl.enableVertexAttribArray(offset);
         gl.enableVertexAttribArray(color);
         gl.enableVertexAttribArray(outlineColor);
+        return () => {
+            gl.disableVertexAttribArray(previousPosition);
+            gl.disableVertexAttribArray(currentPosition);
+            gl.disableVertexAttribArray(nextPosition);
+            gl.disableVertexAttribArray(outlineSize);
+            gl.disableVertexAttribArray(offset);
+            gl.disableVertexAttribArray(color);
+            gl.disableVertexAttribArray(outlineColor);
+        };
     }
 
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {

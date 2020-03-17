@@ -12,7 +12,7 @@ export class FancyPointShader<P> implements Shader {
     ) {
     }
 
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram,): void {
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram,): () => void {
         const position = gl.getAttribLocation(program, 'a_position');
         const size = gl.getAttribLocation(program, 'a_size');
         const color = gl.getAttribLocation(program, 'a_color');
@@ -64,6 +64,13 @@ export class FancyPointShader<P> implements Shader {
         gl.enableVertexAttribArray(color);
         gl.enableVertexAttribArray(outlineSize);
         gl.enableVertexAttribArray(outlineColor);
+        return () => {
+            gl.disableVertexAttribArray(position);
+            gl.disableVertexAttribArray(size);
+            gl.disableVertexAttribArray(color);
+            gl.disableVertexAttribArray(outlineSize);
+            gl.disableVertexAttribArray(outlineColor);
+        };
     }
 
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {

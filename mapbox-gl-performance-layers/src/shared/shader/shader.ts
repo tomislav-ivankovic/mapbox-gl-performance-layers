@@ -3,7 +3,7 @@ import * as glMatrix from 'gl-matrix';
 export interface Shader {
     vertexSource: string,
     fragmentSource: string,
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void;
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): () => void;
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void;
     getArrayBufferElementsPerVertex(): number;
     getPrimitiveType(gl: WebGLRenderingContext): GLenum;

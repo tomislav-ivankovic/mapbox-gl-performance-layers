@@ -1,6 +1,6 @@
 {
   "name": "react-mapbox-gl-performance-layers",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "React wrapper around mapbox-gl-performance-layers library.",
   "author": "Tomislav Ivanković",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "dist/**/*"
   ],
   "peerDependencies": {
-    "mapbox-gl-performance-layers": ">= ^0.9.1",
+    "mapbox-gl-performance-layers": ">= ^0.9.3",
     "mapbox-gl": ">= ^1.4.0",
     "react-mapbox-gl": ">= ^4.6.1",
     "react": ">= ^16.10.2",

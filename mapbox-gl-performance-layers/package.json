@@ -1,6 +1,6 @@
 {
   "name": "mapbox-gl-performance-layers",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "description": "Mapbox GL JS plugin with custom layers for rendering massive GeoJSON datasets.",
   "author": "Tomislav Ivanković",
   "license": "MIT",

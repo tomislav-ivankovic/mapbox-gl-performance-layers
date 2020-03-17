@@ -52,7 +52,7 @@ export class DynamicShaderRenderer<G extends Geometry, P, S extends {}> implemen
         gl.useProgram(this.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
-        this.shader.configureAttributes(gl, this.program);
+        const cleanAttributes = this.shader.configureAttributes(gl, this.program);
         gl.bufferData(gl.ARRAY_BUFFER, this.collection.getVertexArray(), gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -66,5 +66,7 @@ export class DynamicShaderRenderer<G extends Geometry, P, S extends {}> implemen
             startIndex / elementsPerVertex,
             (endIndex - startIndex) / elementsPerVertex
         );
+
+        cleanAttributes();
     }
 }

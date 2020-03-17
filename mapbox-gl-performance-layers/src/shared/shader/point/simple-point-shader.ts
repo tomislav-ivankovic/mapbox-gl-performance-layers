@@ -12,7 +12,7 @@ export class SimplePointShader<P> implements Shader {
     ) {
     }
 
-    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): void {
+    configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): () => void {
         const position = gl.getAttribLocation(program, 'a_position');
         const size = gl.getAttribLocation(program, 'a_size');
         const color = gl.getAttribLocation(program, 'a_color');
@@ -44,6 +44,11 @@ export class SimplePointShader<P> implements Shader {
         gl.enableVertexAttribArray(position);
         gl.enableVertexAttribArray(size);
         gl.enableVertexAttribArray(color);
+        return () => {
+            gl.disableVertexAttribArray(position);
+            gl.disableVertexAttribArray(size);
+            gl.disableVertexAttribArray(color);
+        };
     }
 
     setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]): void {

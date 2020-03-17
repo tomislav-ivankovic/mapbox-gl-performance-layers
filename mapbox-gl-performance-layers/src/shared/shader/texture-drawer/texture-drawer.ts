@@ -48,7 +48,7 @@ export class TextureDrawer {
         gl.useProgram(this.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        configureAttributes(gl, this.program);
+        const cleanUpAttributes = configureAttributes(gl, this.program);
         gl.bufferData(gl.ARRAY_BUFFER, bufferArray, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -56,10 +56,12 @@ export class TextureDrawer {
 
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         gl.bindTexture(gl.TEXTURE_2D, null);
+
+        cleanUpAttributes();
     }
 }
 
-function configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram) {
+function configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram): () => void {
     const position = gl.getAttribLocation(program, 'a_position');
     const textureCoordinate = gl.getAttribLocation(program, 'a_textureCoordinate');
     const vertexSize = 4 * Float32Array.BYTES_PER_ELEMENT;
@@ -81,6 +83,10 @@ function configureAttributes(gl: WebGLRenderingContext, program: WebGLProgram) {
     );
     gl.enableVertexAttribArray(position);
     gl.enableVertexAttribArray(textureCoordinate);
+    return () => {
+        gl.disableVertexAttribArray(position);
+        gl.disableVertexAttribArray(textureCoordinate);
+    };
 }
 
 function setUniforms(gl: WebGLRenderingContext, program: WebGLProgram, matrix: glMatrix.mat4 | number[]) {

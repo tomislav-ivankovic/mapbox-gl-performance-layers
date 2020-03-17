@@ -57,7 +57,7 @@ export class ShaderRenderer<G extends Geometry, P, S extends {}> implements Rend
         gl.useProgram(this.program);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
-        this.shader.configureAttributes(gl, this.program);
+        const cleanAttributes = this.shader.configureAttributes(gl, this.program);
         gl.bufferData(gl.ARRAY_BUFFER, this.array, gl.STATIC_DRAW);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -80,5 +80,7 @@ export class ShaderRenderer<G extends Geometry, P, S extends {}> implements Rend
             );
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         }
+
+        cleanAttributes();
     }
 }
